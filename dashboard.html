@@ -85,6 +85,7 @@
                 <!-- Authenticated User & Role -->
                 <div class="flex items-center bg-purple-900/90 border border-purple-700/60 rounded-xl p-1 text-xs">
                     <span id="currentUserName" class="px-2 py-0.5 text-purple-200 font-semibold hidden md:inline">Pengguna</span>
+                    <button id="btnRoleGuest" disabled class="hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">Tamu</button>
                     <button id="btnRoleInspector" disabled class="px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">QC Inspector</button>
                     <button id="btnRoleAdmin" disabled class="px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">Admin</button>
                     <button onclick="logoutDashboard()" class="px-2 py-1 text-rose-300 hover:text-white" title="Keluar"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -108,6 +109,12 @@
 
         <!-- ==================== TAB 1: DASHBOARD TERPADU ==================== -->
         <section id="tabDashboard" class="space-y-5">
+            <div id="guestReadOnlyNotice" class="hidden bg-purple-950/90 border border-purple-500/50 rounded-2xl px-4 py-3 shadow-md">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 shrink-0 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="eye" class="w-4 h-4 text-purple-200"></i></span>
+                    <div><h3 class="text-sm font-bold text-white">Mode Tamu — hanya lihat</h3><p class="text-[11px] text-purple-300">Anda hanya dapat melihat ringkasan hasil pada Dashboard. Input, edit, hapus, download, riwayat detail, dan pengaturan dinonaktifkan.</p></div>
+                </div>
+            </div>
             <div id="monthlyBackupReminder" class="hidden bg-gradient-to-r from-purple-800/80 via-purple-700/70 to-purple-900/80 border border-purple-400/60 rounded-2xl p-4 shadow-lg">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex items-start gap-3">
@@ -123,7 +130,7 @@
                 </div>
             </div>
 
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md space-y-4">
+            <div id="customBackupPanel" class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md space-y-4">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 shrink-0 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="calendar-clock" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
@@ -176,7 +183,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button type="button" onclick="switchTab('giling')" class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
+                <button type="button" onclick="switchTab('giling')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
                     <div class="flex items-start justify-between gap-3">
                         <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
@@ -188,7 +195,7 @@
                     </div>
                 </button>
 
-                <button type="button" onclick="switchTab('pack')" class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
+                <button type="button" onclick="switchTab('pack')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
                     <div class="flex items-start justify-between gap-3">
                         <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
@@ -200,7 +207,7 @@
                     </div>
                 </button>
 
-                <button type="button" onclick="switchTab('moisture')" class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
+                <button type="button" onclick="switchTab('moisture')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
                     <div class="flex items-start justify-between gap-3">
                         <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
@@ -588,7 +595,7 @@
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
                         <h2 class="text-base font-bold text-white">Station Quality Packaging</h2>
-                        <p class="text-xs text-purple-300">Pencatatan sederhana berdasarkan inspector, jam, dan parameter defect</p>
+                        <p class="text-xs text-purple-300">Pencatatan berdasarkan gedung, inspector, jam, dan parameter defect</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -598,9 +605,10 @@
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                     <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packFilterTime" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jam</option><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
+                    <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packFilterBuilding" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packSearch" oninput="renderPackSection()" placeholder="Cari nama inspector..." class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                 </div>
             </div>
@@ -610,10 +618,10 @@
                 <div class="overflow-x-auto custom-scroll">
                     <table class="w-full min-w-[1180px] text-xs text-left border-collapse">
                         <thead><tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
-                            <th class="p-3">Tanggal</th><th class="p-3">Jam</th><th class="p-3">Inspector</th>
+                            <th class="p-3">Tanggal</th><th class="p-3">Jam</th><th class="p-3">Gedung</th><th class="p-3">Inspector</th>
                             <th class="p-3 text-center">Lipatan Tidak Siku</th><th class="p-3 text-center">Kurang Lem</th><th class="p-3 text-center">Inner Frame</th><th class="p-3 text-center">Posisi Batangan</th><th class="p-3 text-center">Posisi Bandrol</th><th class="p-3 text-center">Lipatan OPP</th><th class="p-3 text-center">Access Tear Tape</th><th class="p-3 text-center">Aksi</th>
                         </tr></thead>
-                        <tbody id="packTableBody"><tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging.</td></tr></tbody>
+                        <tbody id="packTableBody"><tr><td colspan="12" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -849,12 +857,13 @@
     <!-- ==================== MODAL FORM QUALITY PACK ==================== -->
     <div id="modalPack" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-[#171024] border border-purple-500/50 rounded-3xl max-w-3xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll">
-            <div class="flex justify-between items-center border-b border-purple-800/60 pb-3"><div><h3 id="packModalTitle" class="text-base font-bold text-white">Form Input Quality Packaging</h3><p class="text-xs text-purple-300">Tanpa product—cukup isi jam dan hasil tujuh parameter</p></div><button onclick="closePackModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="flex justify-between items-center border-b border-purple-800/60 pb-3"><div><h3 id="packModalTitle" class="text-base font-bold text-white">Form Input Quality Packaging</h3><p class="text-xs text-purple-300">Pilih gedung, isi jam, dan hasil tujuh parameter</p></div><button onclick="closePackModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <form id="packForm" onsubmit="handlePackSubmit(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="packEditRecordId">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packInputDate" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
+                    <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packInputBuilding" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packInputTime" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                 </div>
                 <div class="rounded-2xl border border-purple-700/50 bg-purple-950/40 p-4"><div class="mb-3 flex justify-between"><strong class="text-purple-200">Jumlah Packaging Baik per Parameter</strong><span class="text-purple-400">0–10 sampel</span></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -901,7 +910,8 @@
                     return;
                 }
                 currentUser = auth.user;
-                currentRole = currentUser.role;
+                const authenticatedRole = String(currentUser.role || '').toUpperCase();
+                currentRole = ['ADMIN', 'INSPECTOR', 'GUEST'].includes(authenticatedRole) ? authenticatedRole : 'GUEST';
                 document.getElementById('currentUserName').innerText = currentUser.displayName;
                 document.getElementById('inputInspector').value = currentUser.displayName;
                 document.getElementById('mcInputInspector').value = currentUser.displayName;
@@ -929,7 +939,7 @@
                 renderHistoryTable();
                 renderMoistureSection();
                 renderPackSection();
-                renderMasterSettings();
+                if (currentRole === 'ADMIN') renderMasterSettings();
                 refreshInspectorFilter();
                 lucide.createIcons();
                 window.setInterval(() => {
@@ -944,6 +954,13 @@
         });
 
         async function apiFetch(url, options = {}) {
+            const method = String(options.method || 'GET').toUpperCase();
+            const isLogoutRequest = url === '/api/auth/logout';
+            if (currentRole === 'GUEST' && method !== 'GET' && !isLogoutRequest) {
+                const readOnlyError = new Error('Akun Tamu hanya memiliki akses lihat dan tidak dapat mengubah data.');
+                readOnlyError.status = 403;
+                throw readOnlyError;
+            }
             try {
                 return await qcApiRequest(url, options);
             } catch (error) {
@@ -953,6 +970,18 @@
                 }
                 throw error;
             }
+        }
+
+        function ensureNotGuest(action = 'melakukan tindakan ini') {
+            if (currentRole !== 'GUEST') return true;
+            showToast(`Akun Tamu tidak dapat ${action}.`, 'error');
+            return false;
+        }
+
+        function ensureAdmin(action = 'membuka fitur ini') {
+            if (currentRole === 'ADMIN') return true;
+            showToast(`Hanya Admin yang dapat ${action}.`, 'error');
+            return false;
         }
 
         async function loadMasterData() {
@@ -1038,17 +1067,42 @@
 
         function setRole(role) {
             currentRole = role;
+            const btnGuest = document.getElementById('btnRoleGuest');
             const btnInsp = document.getElementById('btnRoleInspector');
             const btnAdm = document.getElementById('btnRoleAdmin');
+            const guestMode = role === 'GUEST';
+
+            btnGuest.className = guestMode
+                ? "px-2.5 py-1 rounded-lg font-bold transition-all bg-purple-600 text-white shadow"
+                : "hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-500 opacity-50";
+
             if (role === 'INSPECTOR') {
                 btnInsp.className = "px-2.5 py-1 rounded-lg font-bold transition-all bg-purple-600 text-white shadow";
                 btnAdm.className = "px-2.5 py-1 rounded-lg font-bold transition-all text-purple-500 opacity-50";
                 document.getElementById('tabBtnSettings').classList.add('hidden');
-            } else {
+            } else if (role === 'ADMIN') {
                 btnAdm.className = "px-2.5 py-1 rounded-lg font-bold transition-all bg-purple-600 text-white shadow";
                 btnInsp.className = "px-2.5 py-1 rounded-lg font-bold transition-all text-purple-500 opacity-50";
                 document.getElementById('tabBtnSettings').classList.remove('hidden');
+            } else {
+                btnAdm.className = "hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-500 opacity-50";
+                btnInsp.className = "hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-500 opacity-50";
+                document.getElementById('tabBtnSettings').classList.add('hidden');
             }
+
+            ['Giling', 'Pack', 'Moisture', 'History', 'Settings'].forEach(tabName => {
+                document.getElementById(`tabBtn${tabName}`).classList.toggle('hidden', guestMode);
+            });
+            document.getElementById('guestReadOnlyNotice').classList.toggle('hidden', !guestMode);
+            document.getElementById('customBackupPanel').classList.toggle('hidden', guestMode);
+            document.querySelectorAll('[data-overview-drilldown]').forEach(button => {
+                button.disabled = guestMode;
+                button.classList.toggle('cursor-default', guestMode);
+                button.classList.toggle('hover:border-purple-400', !guestMode);
+                button.setAttribute('aria-disabled', String(guestMode));
+                const arrow = button.querySelector('[data-lucide="arrow-up-right"]');
+                if (arrow) arrow.classList.toggle('hidden', guestMode);
+            });
             renderHistoryTable();
         }
 
@@ -1058,6 +1112,10 @@
         }
 
         function switchTab(tabId) {
+            if (currentRole === 'GUEST' && tabId !== 'dashboard') {
+                showToast('Akun Tamu hanya dapat melihat ringkasan pada Dashboard.', 'error');
+                return;
+            }
             document.getElementById('tabDashboard').classList.add('hidden');
             document.getElementById('tabGiling').classList.add('hidden');
             document.getElementById('tabHistory').classList.add('hidden');
@@ -1068,7 +1126,7 @@
             ['Dashboard', 'Giling', 'Pack', 'Moisture', 'History', 'Settings'].forEach(t => {
                 const btn = document.getElementById(`tabBtn${t}`);
                 btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all";
-                if (t === 'Settings' && currentRole !== 'ADMIN') btn.classList.add('hidden');
+                if ((t === 'Settings' && currentRole !== 'ADMIN') || (currentRole === 'GUEST' && t !== 'Dashboard')) btn.classList.add('hidden');
             });
 
             if (tabId === 'dashboard') {
@@ -1157,6 +1215,7 @@
         }
 
         function openModalInput(editItem = null) {
+            if (!ensureNotGuest(editItem ? 'mengedit data inspeksi' : 'menginput data inspeksi')) return;
             const modal = document.getElementById('modalInput');
             const form = document.getElementById('inspectionForm');
             modal.classList.remove('hidden');
@@ -1201,6 +1260,7 @@
 
         async function handleFormSubmit(e) {
             e.preventDefault();
+            if (!ensureNotGuest('menyimpan data inspeksi')) return;
             const editId = document.getElementById('editRecordId').value;
             const date = document.getElementById('inputDate').value;
             const kelompok = document.getElementById('inputKelompok').value;
@@ -1275,7 +1335,7 @@
             }
 
             tbody.innerHTML = filtered.map(item => {
-                const canEdit = currentRole === 'ADMIN' || item.inspectorId === currentUser.id;
+                const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser.id);
                 const actions = `<div class="flex justify-center gap-1">
                     ${canEdit ? `<button onclick="editMoistureRecord('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Edit Data MC"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
                     ${currentRole === 'ADMIN' ? `<button onclick="deleteMoistureRecord('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus Data MC"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
@@ -1295,6 +1355,7 @@
         }
 
         function openMoistureModal(editItem = null) {
+            if (!ensureNotGuest(editItem ? 'mengedit data MC Tembakau' : 'menginput data MC Tembakau')) return;
             const form = document.getElementById('moistureForm');
             document.getElementById('modalMoisture').classList.remove('hidden');
             if (editItem) {
@@ -1323,6 +1384,7 @@
 
         async function handleMoistureSubmit(event) {
             event.preventDefault();
+            if (!ensureNotGuest('menyimpan data MC Tembakau')) return;
             const editId = document.getElementById('mcEditRecordId').value;
             const payload = {
                 date: document.getElementById('mcInputDate').value,
@@ -1358,11 +1420,13 @@
         }
 
         function editMoistureRecord(id) {
+            if (!ensureNotGuest('mengedit data MC Tembakau')) return;
             const item = moistureRecords.find(record => record.id === id);
             if (item) openMoistureModal(item);
         }
 
         async function deleteMoistureRecord(id) {
+            if (!ensureAdmin('menghapus data MC Tembakau')) return;
             if (!confirm('Yakin ingin menghapus data MC Tembakau ini secara permanen?')) return;
             try {
                 await apiFetch(`/api/moisture/${id}`, { method: 'DELETE' });
@@ -1374,6 +1438,7 @@
         }
 
         function exportMoistureToExcel() {
+            if (!ensureNotGuest('mengunduh data MC Tembakau')) return;
             const filtered = getFilteredMoistureData();
             if (!filtered.length) {
                 showToast('Tidak ada data MC untuk diekspor pada filter aktif.', 'error');
@@ -1442,7 +1507,7 @@
                     return {
                         station: 'Packaging',
                         icon: 'package-check',
-                        detail: `Pemeriksaan jam ${String(item.samplingTime).replace(':', '.')}`,
+                        detail: `${item.building || item.params?.building || 'Gedung belum diisi'} · Jam ${String(item.samplingTime).replace(':', '.')}`,
                         inspector: item.inspector,
                         result: `${average.toFixed(1)}% packaging baik`,
                         createdAt: item.createdAt
@@ -1475,10 +1540,13 @@
         function getFilteredPackData() {
             const date = document.getElementById('packFilterDate').value;
             const time = document.getElementById('packFilterTime').value;
+            const building = document.getElementById('packFilterBuilding').value;
             const query = document.getElementById('packSearch').value.trim().toLowerCase();
             return packRecords.filter(item => {
+                const itemBuilding = item.building || item.params?.building || '';
                 if (date && item.date !== date) return false;
                 if (time !== 'ALL' && item.samplingTime !== time) return false;
+                if (building !== 'ALL' && itemBuilding !== building) return false;
                 if (query && !item.inspector.toLowerCase().includes(query)) return false;
                 return true;
             });
@@ -1489,19 +1557,21 @@
             if (!tbody) return;
             const filtered = getFilteredPackData();
             if (!filtered.length) {
-                tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
                 return;
             }
             tbody.innerHTML = filtered.map(item => {
-                const canEdit = currentRole === 'ADMIN' || item.inspectorId === currentUser.id;
+                const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser.id);
+                const building = item.building || item.params?.building || '—';
                 const values = packKeys.map(key => `<td class="p-3 text-center"><span class="inline-flex min-w-8 justify-center rounded-lg bg-purple-800/45 px-2 py-1 font-bold text-purple-100">${item.params[key]}</span></td>`).join('');
                 const actions = `<div class="flex justify-center gap-1">${canEdit ? `<button onclick="editPackRecord('${item.id}')" class="p-1 text-purple-300 hover:text-white" title="Edit"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}${currentRole === 'ADMIN' ? `<button onclick="deletePackRecord('${item.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}${!canEdit && currentRole !== 'ADMIN' ? '<span class="text-slate-600">—</span>' : ''}</div>`;
-                return `<tr class="border-b border-purple-800/30 hover:bg-purple-950/60"><td class="p-3">${escapeHtml(item.date)}</td><td class="p-3 font-bold text-purple-200">${escapeHtml(item.samplingTime.replace(':', '.'))}</td><td class="p-3">${escapeHtml(item.inspector)}</td>${values}<td class="p-3">${actions}</td></tr>`;
+                return `<tr class="border-b border-purple-800/30 hover:bg-purple-950/60"><td class="p-3">${escapeHtml(item.date)}</td><td class="p-3 font-bold text-purple-200">${escapeHtml(item.samplingTime.replace(':', '.'))}</td><td class="p-3"><span class="rounded-lg border border-purple-600/60 bg-purple-950/60 px-2 py-1 font-bold text-purple-200">${escapeHtml(building)}</span></td><td class="p-3">${escapeHtml(item.inspector)}</td>${values}<td class="p-3">${actions}</td></tr>`;
             }).join('');
             lucide.createIcons();
         }
 
         function openPackModal(editItem = null) {
+            if (!ensureNotGuest(editItem ? 'mengedit data Quality Packaging' : 'menginput data Quality Packaging')) return;
             document.getElementById('modalPack').classList.remove('hidden');
             if (editItem) {
                 document.getElementById('packModalTitle').innerText = 'Edit Data Quality Packaging';
@@ -1509,6 +1579,7 @@
                 document.getElementById('packInputDate').value = editItem.date;
                 document.getElementById('packInputTime').value = editItem.samplingTime;
                 document.getElementById('packInputInspector').value = editItem.inspector;
+                document.getElementById('packInputBuilding').value = editItem.building || editItem.params?.building || '';
                 packKeys.forEach(key => document.getElementById(`pack_${key}`).value = editItem.params[key]);
             } else {
                 document.getElementById('packForm').reset();
@@ -1516,6 +1587,7 @@
                 document.getElementById('packEditRecordId').value = '';
                 document.getElementById('packInputDate').value = document.getElementById('packFilterDate').value || getTodayString();
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
+                document.getElementById('packInputBuilding').value = '';
                 packKeys.forEach(key => document.getElementById(`pack_${key}`).value = 10);
             }
             lucide.createIcons();
@@ -1527,11 +1599,16 @@
 
         async function handlePackSubmit(event) {
             event.preventDefault();
+            if (!ensureNotGuest('menyimpan data Quality Packaging')) return;
             const editId = document.getElementById('packEditRecordId').value;
+            const building = document.getElementById('packInputBuilding').value;
             const payload = {
                 date: document.getElementById('packInputDate').value,
                 samplingTime: document.getElementById('packInputTime').value,
-                params: Object.fromEntries(packKeys.map(key => [key, Number(document.getElementById(`pack_${key}`).value)]))
+                params: {
+                    ...Object.fromEntries(packKeys.map(key => [key, Number(document.getElementById(`pack_${key}`).value)])),
+                    building
+                }
             };
             try {
                 await apiFetch(editId ? `/api/pack-quality/${editId}` : '/api/pack-quality', { method: editId ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
@@ -1545,11 +1622,13 @@
         }
 
         function editPackRecord(id) {
+            if (!ensureNotGuest('mengedit data Quality Packaging')) return;
             const item = packRecords.find(record => record.id === id);
             if (item) openPackModal(item);
         }
 
         async function deletePackRecord(id) {
+            if (!ensureAdmin('menghapus data Quality Packaging')) return;
             if (!confirm('Yakin ingin menghapus data Quality Packaging ini?')) return;
             try {
                 await apiFetch(`/api/pack-quality/${id}`, { method: 'DELETE' });
@@ -1561,10 +1640,11 @@
         }
 
         function exportPackToExcel() {
+            if (!ensureNotGuest('mengunduh data Quality Packaging')) return;
             const filtered = getFilteredPackData();
             if (!filtered.length) return showToast('Tidak ada data Quality Packaging untuk diekspor.', 'error');
             const rows = filtered.map(item => ({
-                Tanggal: item.date, Jam: item.samplingTime, Inspector: item.inspector,
+                Tanggal: item.date, Jam: item.samplingTime, Gedung: item.building || item.params?.building || '—', Inspector: item.inspector,
                 ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
             }));
             const workbook = XLSX.utils.book_new();
@@ -1847,7 +1927,7 @@
                         <button onclick="editInspection('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Edit Data"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
                         <button onclick="deleteInspection('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus Data"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                        </div>`
-                    : item.inspectorId === currentUser.id
+                    : currentRole === 'INSPECTOR' && item.inspectorId === currentUser.id
                         ? `<button onclick="editInspection('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Koreksi Data"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`
                         : `<span class="text-slate-600">—</span>`;
 
@@ -1873,11 +1953,13 @@
         }
 
         function editInspection(id) {
+            if (!ensureNotGuest('mengedit data inspeksi')) return;
             const item = inspections.find(i => i.id === id);
             if (item) openModalInput(item);
         }
 
         async function deleteInspection(id) {
+            if (!ensureAdmin('menghapus data inspeksi')) return;
             if (confirm('Yakin ingin menghapus data sampling ini secara permanen?')) {
                 try {
                     await apiFetch(`/api/inspections/${id}`, { method: 'DELETE' });
@@ -1905,6 +1987,7 @@
         }
 
         async function addBrandPrompt() {
+            if (!ensureAdmin('menambahkan Brand')) return;
             const newBrand = prompt('Masukkan kode/nama Brand baru (contoh: ARX):');
             if (newBrand && !masterData.brands.includes(newBrand.trim().toUpperCase())) {
                 try {
@@ -1920,6 +2003,7 @@
         }
 
         async function deleteBrand(b) {
+            if (!ensureAdmin('menghapus Brand')) return;
             if (confirm(`Hapus brand ${b} dari Master Data?`)) {
                 const row = masterRows.brands.find(item => item.code === b);
                 if (!row) return;
@@ -1936,6 +2020,7 @@
         }
 
         async function saveTargets() {
+            if (!ensureAdmin('mengubah target dan pengaturan')) return;
             masterData.targetGreen = parseFloat(document.getElementById('settingTargetGreen').value) || 95;
             masterData.targetYellow = parseFloat(document.getElementById('settingTargetYellow').value) || 90;
             masterData.defaultSampleSize = parseInt(document.getElementById('settingDefaultSample').value) || 10;
@@ -1971,7 +2056,7 @@
                 <div class="flex justify-between items-center gap-2 bg-purple-950/60 p-2 rounded-xl border border-purple-800/40">
                     <div class="min-w-0">
                         <div class="font-bold text-purple-200 truncate">${user.displayName}</div>
-                        <div class="text-[10px] text-slate-400">${user.username} · ${user.role === 'ADMIN' ? 'Admin' : 'QC Inspector'}</div>
+                        <div class="text-[10px] text-slate-400">${user.username} · ${user.role === 'ADMIN' ? 'Admin' : user.role === 'GUEST' ? 'Tamu / Guest' : 'QC Inspector'}</div>
                     </div>
                     <button onclick="toggleUser('${user.id}', ${!user.isActive})" ${currentUser && user.id === currentUser.id ? 'disabled' : ''} class="text-[10px] px-2 py-1 rounded-lg ${user.isActive ? 'bg-emerald-900/70 text-emerald-300' : 'bg-slate-800 text-slate-400'} disabled:opacity-40">
                         ${user.isActive ? 'Aktif' : 'Nonaktif'}
@@ -1982,13 +2067,19 @@
 
         async function addUserPrompt() {
             if (currentRole !== 'ADMIN') return;
-            const displayName = prompt('Masukkan nama QC Inspector:');
+            const displayName = prompt('Masukkan nama pengguna:');
             if (!displayName) return;
-            const username = prompt('Buat username pengguna (contoh: qc.siti):');
+            const username = prompt('Buat username pengguna (contoh: manager.budi):');
             if (!username) return;
             const password = prompt('Buat password sementara minimal 8 karakter, berisi huruf dan angka:');
             if (!password) return;
-            const role = confirm('Klik OK jika akun ini Administrator. Klik Cancel jika QC Inspector.') ? 'ADMIN' : 'INSPECTOR';
+            const roleInput = prompt('Pilih role: GUEST (hanya lihat Dashboard), INSPECTOR (input dan koreksi data sendiri), atau ADMIN (akses penuh).', 'GUEST');
+            if (!roleInput) return;
+            const role = roleInput.trim().toUpperCase();
+            if (!['GUEST', 'INSPECTOR', 'ADMIN'].includes(role)) {
+                showToast('Role tidak valid. Gunakan GUEST, INSPECTOR, atau ADMIN.', 'error');
+                return;
+            }
             try {
                 await apiFetch('/api/users', { method: 'POST', body: JSON.stringify({ displayName, username, password, role }) });
                 await loadUsers();
@@ -1999,6 +2090,7 @@
         }
 
         async function toggleUser(id, isActive) {
+            if (!ensureAdmin('mengubah status akun')) return;
             try {
                 await apiFetch(`/api/users/${id}`, { method: 'PATCH', body: JSON.stringify({ isActive }) });
                 await loadUsers();
@@ -2045,6 +2137,7 @@
         }
 
         function downloadCustomBackup() {
+            if (!ensureNotGuest('mengunduh backup data')) return;
             const range = getCustomBackupRange();
             if (!range) {
                 showToast('Pilih tanggal/periode backup terlebih dahulu.', 'error');
@@ -2073,6 +2166,7 @@
             const packRows = packRecords.filter(item => inRange(item.date)).map(item => ({
                 'Tanggal': item.date,
                 'Jam': item.samplingTime,
+                'Gedung': item.building || item.params?.building || '—',
                 'Inspector': item.inspector,
                 ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
             }));
@@ -2151,6 +2245,7 @@
                 const packRows = packRecords.map(item => ({
                     'Tanggal': item.date,
                     'Jam': item.samplingTime,
+                    'Gedung': item.building || item.params?.building || '—',
                     'Inspector': item.inspector,
                     ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
                 }));
@@ -2195,6 +2290,7 @@
 
         // ==================== MULTI-SHEET EXCEL EXPORT (SHEETJS) ====================
         function exportToExcel() {
+            if (!ensureNotGuest('mengunduh data Giling Gunting')) return;
             const filtered = getFilteredData();
             if (filtered.length === 0) {
                 showToast('Tidak ada data untuk diekspor pada filter aktif.', 'error');
