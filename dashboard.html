@@ -866,14 +866,14 @@
                     <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packInputBuilding" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packInputTime" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                 </div>
-                <div class="rounded-2xl border border-purple-700/50 bg-purple-950/40 p-4"><div class="mb-4 flex flex-wrap items-start justify-between gap-2"><div><strong class="text-purple-200">Jumlah Packaging Baik per Parameter</strong><p class="mt-1 text-[10px] text-slate-400">Masukkan jumlah sampel yang memenuhi kondisi baik berikut.</p></div><span class="text-purple-400">0–10 sampel</span></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Lipatan Tidak Siku</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel tanpa lipatan miring atau tidak siku.</p><input type="number" id="pack_foldNotSquare" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Kurang Lem</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel dengan lem cukup, merata, dan merekat sempurna.</p><input type="number" id="pack_insufficientGlue" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Inner Frame</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel dengan inner frame rapi, lurus, dan tidak bergeser.</p><input type="number" id="pack_innerFrame" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Posisi Batangan</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel dengan susunan batang rapi dan sesuai posisi standar.</p><input type="number" id="pack_cigarettePosition" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Posisi Bandrol</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel dengan bandrol lurus, tepat posisi, dan tidak bergeser.</p><input type="number" id="pack_banderolPosition" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Lipatan OPP</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel dengan lipatan OPP rapi, rapat, dan tidak berkerut.</p><input type="number" id="pack_oppFold" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
-                    <div class="flex flex-col"><label class="block text-slate-200 mb-1 font-semibold">Access Tear Tape</label><p class="min-h-[2.5rem] text-[10px] leading-snug text-slate-400">Jumlah sampel dengan tear tape tepat posisi, utuh, dan mudah ditarik.</p><input type="number" id="pack_tearTapeAccess" min="0" max="10" value="10" required class="pack-param mt-1 w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
+                <div class="rounded-2xl border border-purple-700/50 bg-purple-950/40 p-4"><div class="mb-4 flex flex-wrap items-start justify-between gap-2"><div><strong class="text-purple-200">Hasil dan Keterangan per Parameter</strong><p class="mt-1 text-[10px] text-slate-400">QC Inspector mengisi jumlah packaging baik. Jika hasil kurang dari 10, keterangan temuan wajib diisi.</p></div><span class="text-purple-400">0–10 sampel</span></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Lipatan Tidak Siku</label><input type="number" id="pack_foldNotSquare" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_foldNotSquare" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Kurang Lem</label><input type="number" id="pack_insufficientGlue" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_insufficientGlue" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Inner Frame</label><input type="number" id="pack_innerFrame" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_innerFrame" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Posisi Batangan</label><input type="number" id="pack_cigarettePosition" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_cigarettePosition" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Posisi Bandrol</label><input type="number" id="pack_banderolPosition" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_banderolPosition" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Lipatan OPP</label><input type="number" id="pack_oppFold" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_oppFold" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Access Tear Tape</label><input type="number" id="pack_tearTapeAccess" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_tearTapeAccess" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
                 </div></div>
                 <div class="flex justify-end gap-3"><button type="button" onclick="closePackModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl">Batal</button><button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-xl">Simpan Quality Packaging</button></div>
             </form>
@@ -1563,7 +1563,10 @@
             tbody.innerHTML = filtered.map(item => {
                 const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser.id);
                 const building = item.building || item.params?.building || '—';
-                const values = packKeys.map(key => `<td class="p-3 text-center"><span class="inline-flex min-w-8 justify-center rounded-lg bg-purple-800/45 px-2 py-1 font-bold text-purple-100">${item.params[key]}</span></td>`).join('');
+                const values = packKeys.map(key => {
+                    const note = item.params?.notes?.[key] || '';
+                    return `<td class="p-3 text-center align-top"><span class="inline-flex min-w-8 justify-center rounded-lg bg-purple-800/45 px-2 py-1 font-bold text-purple-100">${item.params[key]}</span>${note ? `<p class="mt-1 max-w-36 whitespace-normal text-left text-[9px] leading-snug text-slate-400" title="${escapeHtml(note)}">${escapeHtml(note)}</p>` : '<p class="mt-1 text-[9px] text-slate-600">Tanpa keterangan</p>'}</td>`;
+                }).join('');
                 const actions = `<div class="flex justify-center gap-1">${canEdit ? `<button onclick="editPackRecord('${item.id}')" class="p-1 text-purple-300 hover:text-white" title="Edit"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}${currentRole === 'ADMIN' ? `<button onclick="deletePackRecord('${item.id}')" class="p-1 text-rose-400 hover:text-rose-300" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}${!canEdit && currentRole !== 'ADMIN' ? '<span class="text-slate-600">—</span>' : ''}</div>`;
                 return `<tr class="border-b border-purple-800/30 hover:bg-purple-950/60"><td class="p-3">${escapeHtml(item.date)}</td><td class="p-3 font-bold text-purple-200">${escapeHtml(item.samplingTime.replace(':', '.'))}</td><td class="p-3"><span class="rounded-lg border border-purple-600/60 bg-purple-950/60 px-2 py-1 font-bold text-purple-200">${escapeHtml(building)}</span></td><td class="p-3">${escapeHtml(item.inspector)}</td>${values}<td class="p-3">${actions}</td></tr>`;
             }).join('');
@@ -1580,7 +1583,10 @@
                 document.getElementById('packInputTime').value = editItem.samplingTime;
                 document.getElementById('packInputInspector').value = editItem.inspector;
                 document.getElementById('packInputBuilding').value = editItem.building || editItem.params?.building || '';
-                packKeys.forEach(key => document.getElementById(`pack_${key}`).value = editItem.params[key]);
+                packKeys.forEach(key => {
+                    document.getElementById(`pack_${key}`).value = editItem.params[key];
+                    document.getElementById(`pack_note_${key}`).value = editItem.params?.notes?.[key] || '';
+                });
             } else {
                 document.getElementById('packForm').reset();
                 document.getElementById('packModalTitle').innerText = 'Form Input Quality Packaging';
@@ -1588,7 +1594,10 @@
                 document.getElementById('packInputDate').value = document.getElementById('packFilterDate').value || getTodayString();
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('packInputBuilding').value = '';
-                packKeys.forEach(key => document.getElementById(`pack_${key}`).value = 10);
+                packKeys.forEach(key => {
+                    document.getElementById(`pack_${key}`).value = 10;
+                    document.getElementById(`pack_note_${key}`).value = '';
+                });
             }
             lucide.createIcons();
         }
@@ -1602,12 +1611,21 @@
             if (!ensureNotGuest('menyimpan data Quality Packaging')) return;
             const editId = document.getElementById('packEditRecordId').value;
             const building = document.getElementById('packInputBuilding').value;
+            const parameterValues = Object.fromEntries(packKeys.map(key => [key, Number(document.getElementById(`pack_${key}`).value)]));
+            const notes = Object.fromEntries(packKeys.map(key => [key, document.getElementById(`pack_note_${key}`).value.trim()]));
+            const incompleteKey = packKeys.find(key => parameterValues[key] < 10 && !notes[key]);
+            if (incompleteKey) {
+                showToast(`Keterangan ${packLabels[incompleteKey]} wajib diisi karena hasilnya kurang dari 10.`, 'error');
+                document.getElementById(`pack_note_${incompleteKey}`).focus();
+                return;
+            }
             const payload = {
                 date: document.getElementById('packInputDate').value,
                 samplingTime: document.getElementById('packInputTime').value,
                 params: {
-                    ...Object.fromEntries(packKeys.map(key => [key, Number(document.getElementById(`pack_${key}`).value)])),
-                    building
+                    ...parameterValues,
+                    building,
+                    notes
                 }
             };
             try {
@@ -1645,7 +1663,10 @@
             if (!filtered.length) return showToast('Tidak ada data Quality Packaging untuk diekspor.', 'error');
             const rows = filtered.map(item => ({
                 Tanggal: item.date, Jam: item.samplingTime, Gedung: item.building || item.params?.building || '—', Inspector: item.inspector,
-                ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
+                ...Object.fromEntries(packKeys.flatMap(key => [
+                    [packLabels[key], item.params[key]],
+                    [`Keterangan ${packLabels[key]}`, item.params?.notes?.[key] || '']
+                ]))
             }));
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Quality Packaging');
@@ -2168,7 +2189,10 @@
                 'Jam': item.samplingTime,
                 'Gedung': item.building || item.params?.building || '—',
                 'Inspector': item.inspector,
-                ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
+                ...Object.fromEntries(packKeys.flatMap(key => [
+                    [packLabels[key], item.params[key]],
+                    [`Keterangan ${packLabels[key]}`, item.params?.notes?.[key] || '']
+                ]))
             }));
             const tobaccoRows = moistureRecords.filter(item => inRange(item.date)).map(item => ({
                 'Tanggal': item.date,
@@ -2247,7 +2271,10 @@
                     'Jam': item.samplingTime,
                     'Gedung': item.building || item.params?.building || '—',
                     'Inspector': item.inspector,
-                    ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
+                    ...Object.fromEntries(packKeys.flatMap(key => [
+                        [packLabels[key], item.params[key]],
+                        [`Keterangan ${packLabels[key]}`, item.params?.notes?.[key] || '']
+                    ]))
                 }));
                 const tobaccoRows = moistureRecords.map(item => ({
                     'Tanggal': item.date,
