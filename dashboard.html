@@ -123,6 +123,42 @@
                 </div>
             </div>
 
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 shrink-0 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="calendar-clock" class="w-5 h-5 text-purple-300"></i></span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Backup Data (Custom Periode)</h3>
+                        <p class="text-xs text-purple-300">Download Excel gabungan 3 station, bisa dipilih per hari, per minggu, atau per bulan</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-[160px_1fr_auto] gap-3 items-end">
+                    <div>
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Periode</label>
+                        <select id="backupMode" onchange="updateBackupModeUI()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                            <option value="harian">Harian</option>
+                            <option value="mingguan">Mingguan</option>
+                            <option value="bulanan">Bulanan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div id="backupDateHarianWrap">
+                            <label class="block text-[11px] text-purple-300 font-semibold mb-1">Pilih Tanggal</label>
+                            <input type="date" id="backupDateHarian" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div id="backupDateMingguanWrap" class="hidden">
+                            <label class="block text-[11px] text-purple-300 font-semibold mb-1">Pilih Tanggal Awal Minggu (7 hari otomatis)</label>
+                            <input type="date" id="backupDateMingguan" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div id="backupDateBulananWrap" class="hidden">
+                            <label class="block text-[11px] text-purple-300 font-semibold mb-1">Pilih Bulan</label>
+                            <input type="month" id="backupDateBulanan" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                    </div>
+                    <button onclick="downloadCustomBackup()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center justify-center gap-1.5 h-[38px]"><i data-lucide="file-down" class="w-4 h-4"></i> Download Backup</button>
+                </div>
+            </div>
+
+
             <div class="bg-gradient-to-r from-purple-950 via-purple-900/70 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <div class="flex items-center gap-2">
@@ -886,6 +922,7 @@
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
                 document.getElementById('packInputDate').value = getTodayString();
+                document.getElementById('backupDateHarian').value = getTodayString();
                 renderOverview();
                 renderBackupReminder();
                 renderDashboard();
@@ -1151,7 +1188,7 @@
                 document.getElementById('inputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('inputSampleSize').value = masterData.defaultSampleSize;
                 ['gtg','krps','kmls','ring','bst','spt','krt','brt','dmt'].forEach(k => {
-                    document.getElementById(`param_${k}`).value = masterData.defaultSampleSize;
+                    document.getElementById(`param_${k}`).value = '';
                 });
             }
             updateParameterMax();
@@ -1969,6 +2006,113 @@
             } catch (error) {
                 showToast(error.message || 'Status akun gagal diperbarui.', 'error');
             }
+        }
+
+        function updateBackupModeUI() {
+            const mode = document.getElementById('backupMode').value;
+            document.getElementById('backupDateHarianWrap').classList.toggle('hidden', mode !== 'harian');
+            document.getElementById('backupDateMingguanWrap').classList.toggle('hidden', mode !== 'mingguan');
+            document.getElementById('backupDateBulananWrap').classList.toggle('hidden', mode !== 'bulanan');
+        }
+
+        function getCustomBackupRange() {
+            const mode = document.getElementById('backupMode').value;
+            const pad = n => String(n).padStart(2, '0');
+            const toStr = dt => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+
+            if (mode === 'harian') {
+                const d = document.getElementById('backupDateHarian').value;
+                if (!d) return null;
+                return { start: d, end: d, label: `Harian - ${d}` };
+            }
+            if (mode === 'mingguan') {
+                const d = document.getElementById('backupDateMingguan').value;
+                if (!d) return null;
+                const start = new Date(`${d}T00:00:00`);
+                const end = new Date(start);
+                end.setDate(end.getDate() + 6);
+                return { start: toStr(start), end: toStr(end), label: `Mingguan - ${toStr(start)} s/d ${toStr(end)}` };
+            }
+            if (mode === 'bulanan') {
+                const m = document.getElementById('backupDateBulanan').value;
+                if (!m) return null;
+                const [y, mo] = m.split('-').map(Number);
+                const start = `${m}-01`;
+                const end = `${m}-${pad(new Date(y, mo, 0).getDate())}`;
+                return { start, end, label: `Bulanan - ${formatMonthName(m)}` };
+            }
+            return null;
+        }
+
+        function downloadCustomBackup() {
+            const range = getCustomBackupRange();
+            if (!range) {
+                showToast('Pilih tanggal/periode backup terlebih dahulu.', 'error');
+                return;
+            }
+            const inRange = dateStr => dateStr >= range.start && dateStr <= range.end;
+
+            const gilingRows = inspections.filter(item => inRange(item.date)).map(item => ({
+                'Tanggal': item.date,
+                'Kelompok': item.kelompok,
+                'Brand': item.brand,
+                'Sampling': item.sampling,
+                'Jam': item.samplingTime,
+                'Inspector': item.inspector,
+                'Jumlah Sampel': item.sampleSize,
+                'GTG': item.params.gtg,
+                'KRPS': item.params.krps,
+                'KMLS': item.params.kmls,
+                'RING': item.params.ring,
+                'BST': item.params.bst,
+                'SPT': item.params.spt,
+                'KRT': item.params.krt,
+                'BRT': item.params.brt,
+                'DMT': item.params.dmt
+            }));
+            const packRows = packRecords.filter(item => inRange(item.date)).map(item => ({
+                'Tanggal': item.date,
+                'Jam': item.samplingTime,
+                'Inspector': item.inspector,
+                ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
+            }));
+            const tobaccoRows = moistureRecords.filter(item => inRange(item.date)).map(item => ({
+                'Tanggal': item.date,
+                'Lot/Batch': item.lotBatch,
+                'Nomor Series': item.seriesNumber,
+                'Brand': item.brand,
+                'MC (%)': Number(item.moistureContent),
+                'Inspector': item.inspector
+            }));
+
+            if (!gilingRows.length && !packRows.length && !tobaccoRows.length) {
+                showToast('Tidak ada data pada periode yang dipilih.', 'error');
+                return;
+            }
+
+            const workbook = XLSX.utils.book_new();
+            const createSheet = rows => XLSX.utils.json_to_sheet(rows.length ? rows : [{ Keterangan: 'Belum ada data' }]);
+
+            const summaryRows = [{
+                'Periode Backup': range.label,
+                'Tanggal Mulai': range.start,
+                'Tanggal Selesai': range.end,
+                'Waktu Backup': new Date().toLocaleString('id-ID'),
+                'Dibuat Oleh': currentUser ? currentUser.displayName : '-',
+                'Total Data Giling Gunting': gilingRows.length,
+                'Total Data Packaging': packRows.length,
+                'Total Data Tembakau': tobaccoRows.length,
+                'Total Seluruh Data': gilingRows.length + packRows.length + tobaccoRows.length
+            }];
+
+            XLSX.utils.book_append_sheet(workbook, createSheet(summaryRows), 'Ringkasan Backup');
+            XLSX.utils.book_append_sheet(workbook, createSheet(gilingRows), 'Giling Gunting');
+            XLSX.utils.book_append_sheet(workbook, createSheet(packRows), 'Packaging');
+            XLSX.utils.book_append_sheet(workbook, createSheet(tobaccoRows), 'Tembakau');
+
+            const fileName = `Backup_QC_${range.start}_sd_${range.end}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+            showToast(`Backup berhasil diunduh: ${fileName}`, 'success');
         }
 
         async function runMonthlyBackup() {
