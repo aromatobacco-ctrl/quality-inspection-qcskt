@@ -167,13 +167,11 @@
 
 
             <div class="bg-gradient-to-r from-purple-950 via-purple-900/70 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
-                        <div>
-                            <h2 class="text-base font-bold text-white">Dashboard Terpadu Quality Inspection</h2>
-                            <p class="text-xs text-purple-300">Kompilasi data Giling Gunting, Packaging, dan Tembakau dalam satu tampilan</p>
-                        </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
+                    <div>
+                        <h2 class="text-base font-bold text-white">Ringkasan Quality Harian</h2>
+                        <p class="text-xs text-purple-300">Ringkasan seluruh station dan detail kualitas Giling Gunting dalam satu halaman</p>
                     </div>
                 </div>
                 <div class="w-full sm:w-auto">
@@ -182,60 +180,91 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button type="button" onclick="switchTab('giling')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
-                    <div class="flex items-start justify-between gap-3">
-                        <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <button type="button" onclick="switchTab('giling')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Giling Gunting Station</h3>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div><span id="overviewGilingCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">sampling masuk</p></div>
-                        <div class="text-right"><span id="overviewGilingScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">overall in-spec</p></div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Giling Gunting</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewGilingScore" class="text-2xl font-black text-white">—</span>
+                        <span id="overviewGilingOut" class="text-xs font-bold text-rose-400">Out: —</span>
                     </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewGilingCount">0</span> sampling masuk · overall in-spec</p>
                 </button>
 
-                <button type="button" onclick="switchTab('pack')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
-                    <div class="flex items-start justify-between gap-3">
-                        <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
+                <button type="button" onclick="switchTab('pack')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Packaging Station</h3>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div><span id="overviewPackCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">pemeriksaan masuk</p></div>
-                        <div class="text-right"><span id="overviewPackScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">rata-rata packaging baik</p></div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Packaging</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewPackScore" class="text-2xl font-black text-white">—</span>
+                        <span id="overviewPackOut" class="text-xs font-bold text-rose-400">Out: —</span>
                     </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewPackCount">0</span> pemeriksaan · rata-rata packaging baik</p>
                 </button>
 
-                <button type="button" onclick="switchTab('moisture')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
-                    <div class="flex items-start justify-between gap-3">
-                        <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
+                <button type="button" onclick="switchTab('moisture')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Tembakau Station</h3>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div><span id="overviewTobaccoCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">pengukuran MC</p></div>
-                        <div class="text-right"><span id="overviewTobaccoScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">rata-rata MC</p></div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Tembakau</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewTobaccoScore" class="text-2xl font-black text-white">—</span>
+                        <span class="text-xs font-bold text-purple-300">MC</span>
                     </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewTobaccoCount">0</span> pengukuran · rata-rata moisture content</p>
                 </button>
+
+                <div class="bg-purple-900/30 border border-purple-700/60 rounded-2xl p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="clipboard-check" class="w-5 h-5 text-purple-300"></i></span>
+                        <span id="overviewSamplingPercent" class="text-xs font-black text-emerald-400">0%</span>
+                    </div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Status Sampling Giling Gunting</h3>
+                    <div id="overviewSamplingStatus" class="mt-2 text-2xl font-black text-white">0/72</div>
+                    <p class="mt-1 text-[10px] text-slate-400">24 kelompok × 3 sampling per hari</p>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 flex flex-col justify-center">
-                    <span class="text-xs text-purple-300 font-medium">Total Input Tanggal Terpilih</span>
-                    <span id="overviewTotalRecords" class="mt-2 text-4xl font-black text-white">0</span>
-                    <span class="mt-1 text-[10px] text-slate-400">Gabungan dari 3 station</span>
-                </div>
-                <div class="lg:col-span-3 bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
-                    <div class="flex justify-between items-center mb-3 gap-3">
-                        <div><h3 class="text-sm font-bold text-white">Aktivitas Terbaru Semua Station</h3><p class="text-[11px] text-purple-300">Data terbaru pada tanggal yang dipilih</p></div>
-                        <span id="overviewLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Giling Gunting · In-Spec per Parameter</h3>
+                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah agar parameter bermasalah langsung terlihat</p>
                     </div>
-                    <div class="overflow-x-auto custom-scroll">
-                        <table class="w-full min-w-[650px] text-xs text-left border-collapse">
-                            <thead><tr class="bg-purple-950 text-purple-200 border-b border-purple-800"><th class="p-3">Station</th><th class="p-3">Data / Waktu</th><th class="p-3">Inspector</th><th class="p-3 text-right">Hasil</th></tr></thead>
-                            <tbody id="overviewActivityBody"><tr><td colspan="4" class="p-8 text-center text-slate-400">Belum ada aktivitas pada tanggal ini.</td></tr></tbody>
-                        </table>
+                    <span id="overviewParameterTarget" class="text-[11px] font-bold text-amber-300">Target ≥ 90%</span>
+                </div>
+                <div class="relative h-[340px]">
+                    <canvas id="overviewParameterChart"></canvas>
+                    <div id="overviewParameterEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Giling Gunting pada tanggal ini.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-bold text-white">Trend Giling Gunting per Sampling</h3>
+                        <p class="text-[11px] text-purple-300">Overall in-spec pada sampling pukul 08.00, 10.00, dan 13.00</p>
+                    </div>
+                    <div class="relative h-[245px]">
+                        <canvas id="overviewSamplingTrendChart"></canvas>
+                        <div id="overviewSamplingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data sampling pada tanggal ini.</div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-bold text-white">Packaging Baik per Gedung</h3>
+                        <p class="text-[11px] text-purple-300">Perbandingan rata-rata hasil inspeksi Gedung A dan Gedung B</p>
+                    </div>
+                    <div class="relative h-[245px]">
+                        <canvas id="overviewBuildingChart"></canvas>
+                        <div id="overviewBuildingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging per gedung pada tanggal ini.</div>
                     </div>
                 </div>
             </div>
@@ -900,6 +929,9 @@
 
         let paramChart = null;
         let catChart = null;
+        let overviewParamChart = null;
+        let overviewSamplingChart = null;
+        let overviewBuildingChart = null;
 
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1475,66 +1507,163 @@
             const tobaccoData = moistureRecords.filter(item => item.date === selectedDate);
 
             const gilingAggregate = calculateAggregates(gilingData);
-            const packValues = packData.flatMap(item => packKeys.map(key => Number(item.params[key]) || 0));
+            const packValues = packData.flatMap(item => packKeys.map(key => Number(item.params?.[key]) || 0));
             const packAverage = packValues.length
                 ? (packValues.reduce((total, value) => total + value, 0) / (packValues.length * 10)) * 100
                 : null;
             const tobaccoAverage = tobaccoData.length
                 ? tobaccoData.reduce((total, item) => total + Number(item.moistureContent), 0) / tobaccoData.length
                 : null;
+            const samplingPercent = Math.min(100, (gilingData.length / 72) * 100);
 
             document.getElementById('overviewGilingCount').innerText = gilingData.length;
             document.getElementById('overviewGilingScore').innerText = gilingData.length ? `${gilingAggregate.overallInSpecPct.toFixed(1)}%` : '—';
+            document.getElementById('overviewGilingOut').innerText = gilingData.length ? `Out: ${gilingAggregate.overallOutSpecPct.toFixed(1)}%` : 'Out: —';
             document.getElementById('overviewPackCount').innerText = packData.length;
             document.getElementById('overviewPackScore').innerText = packAverage === null ? '—' : `${packAverage.toFixed(1)}%`;
+            document.getElementById('overviewPackOut').innerText = packAverage === null ? 'Out: —' : `Out: ${(100 - packAverage).toFixed(1)}%`;
             document.getElementById('overviewTobaccoCount').innerText = tobaccoData.length;
             document.getElementById('overviewTobaccoScore').innerText = tobaccoAverage === null ? '—' : `${tobaccoAverage.toFixed(2)}%`;
-            document.getElementById('overviewTotalRecords').innerText = gilingData.length + packData.length + tobaccoData.length;
-            document.getElementById('overviewLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+            document.getElementById('overviewSamplingStatus').innerText = `${gilingData.length}/72`;
+            const samplingPercentEl = document.getElementById('overviewSamplingPercent');
+            samplingPercentEl.innerText = `${samplingPercent.toFixed(0)}%`;
+            samplingPercentEl.className = `text-xs font-black ${samplingPercent >= 100 ? 'text-emerald-400' : samplingPercent > 0 ? 'text-amber-300' : 'text-rose-400'}`;
 
-            const activities = [
-                ...gilingData.map(item => ({
-                    station: 'Giling Gunting',
-                    icon: 'cigarette',
-                    detail: `${item.kelompok} · Sampling ${item.sampling}`,
-                    inspector: item.inspector,
-                    result: `${calculateAggregates([item]).overallInSpecPct.toFixed(1)}% in-spec`,
-                    createdAt: item.createdAt
-                })),
-                ...packData.map(item => {
-                    const values = packKeys.map(key => Number(item.params[key]) || 0);
-                    const average = values.reduce((total, value) => total + value, 0) / (values.length * 10) * 100;
-                    return {
-                        station: 'Packaging',
-                        icon: 'package-check',
-                        detail: `${item.building || item.params?.building || 'Gedung belum diisi'} · Jam ${String(item.samplingTime).replace(':', '.')}`,
-                        inspector: item.inspector,
-                        result: `${average.toFixed(1)}% packaging baik`,
-                        createdAt: item.createdAt
-                    };
-                }),
-                ...tobaccoData.map(item => ({
-                    station: 'Tembakau',
-                    icon: 'droplets',
-                    detail: `${item.lotBatch} · ${item.seriesNumber}`,
-                    inspector: item.inspector,
-                    result: `${Number(item.moistureContent).toFixed(2)}% MC`,
-                    createdAt: item.createdAt
-                }))
-            ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 8);
+            renderOverviewCharts(gilingData, gilingAggregate, packData);
+        }
 
-            const body = document.getElementById('overviewActivityBody');
-            if (!activities.length) {
-                body.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400">Belum ada aktivitas pada tanggal ini.</td></tr>';
-                return;
+        const overviewTargetLinePlugin = {
+            id: 'overviewTargetLine',
+            afterDatasetsDraw(chart, args, options) {
+                if (!options || options.display === false) return;
+                const scale = chart.scales[options.scaleId || 'y'];
+                if (!scale) return;
+                const target = Number(options.value || 90);
+                const pixel = scale.getPixelForValue(target);
+                const { ctx, chartArea } = chart;
+                ctx.save();
+                ctx.strokeStyle = '#fbbf24';
+                ctx.fillStyle = '#fbbf24';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([6, 5]);
+                ctx.beginPath();
+                if ((options.scaleId || 'y') === 'x') {
+                    ctx.moveTo(pixel, chartArea.top);
+                    ctx.lineTo(pixel, chartArea.bottom);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(`Target ${target}%`, Math.min(pixel + 5, chartArea.right - 62), chartArea.top + 11);
+                } else {
+                    ctx.moveTo(chartArea.left, pixel);
+                    ctx.lineTo(chartArea.right, pixel);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(`Target ${target}%`, chartArea.left + 5, Math.max(chartArea.top + 11, pixel - 5));
+                }
+                ctx.restore();
             }
-            body.innerHTML = activities.map(item => `<tr class="border-b border-purple-800/30 hover:bg-purple-950/60">
-                <td class="p-3"><span class="inline-flex items-center gap-2 font-bold text-purple-200"><i data-lucide="${item.icon}" class="w-4 h-4"></i>${escapeHtml(item.station)}</span></td>
-                <td class="p-3 text-slate-300">${escapeHtml(item.detail)}</td>
-                <td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
-                <td class="p-3 text-right font-bold text-white">${escapeHtml(item.result)}</td>
-            </tr>`).join('');
-            lucide.createIcons();
+        };
+
+        function renderOverviewCharts(gilingData, gilingAggregate, packData) {
+            const target = Number(masterData.targetYellow) || 90;
+            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${target}%`;
+
+            const parameters = [
+                ['GTG', 'gtg'], ['KRPS', 'krps'], ['KMLS', 'kmls'], ['RING', 'ring'], ['BST', 'bst'],
+                ['SPT', 'spt'], ['KRT', 'krt'], ['BRT', 'brt'], ['DMT', 'dmt']
+            ].map(([label, key]) => {
+                const inSpec = gilingAggregate.totalSample > 0 ? (gilingAggregate.sum[key] / gilingAggregate.totalSample) * 100 : 0;
+                return { label, inSpec: Number(inSpec.toFixed(1)), outSpec: Number((100 - inSpec).toFixed(1)) };
+            }).sort((a, b) => a.inSpec - b.inSpec);
+
+            document.getElementById('overviewParameterEmpty').classList.toggle('hidden', gilingData.length > 0);
+            if (overviewParamChart) overviewParamChart.destroy();
+            overviewParamChart = new Chart(document.getElementById('overviewParameterChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: parameters.map(item => item.label),
+                    datasets: [
+                        { label: 'In-Spec (%)', data: parameters.map(item => item.inSpec), backgroundColor: '#9b3ff3', borderRadius: 5, borderSkipped: false },
+                        { label: 'Out-Spec (%)', data: parameters.map(item => item.outSpec), backgroundColor: '#f43f5e', borderRadius: 5, borderSkipped: false }
+                    ]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { min: 0, max: 100, stacked: true, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#f7f0ff', font: { size: 11, weight: 'bold' } } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f7f0ff', boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: context => `${context.dataset.label}: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'x', display: gilingData.length > 0 }
+                    }
+                }
+            });
+
+            const samplingNumbers = [1, 2, 3];
+            const samplingValues = samplingNumbers.map(number => {
+                const rows = gilingData.filter(item => String(item.sampling) === String(number));
+                return rows.length ? Number(calculateAggregates(rows).overallInSpecPct.toFixed(1)) : null;
+            });
+            document.getElementById('overviewSamplingEmpty').classList.toggle('hidden', samplingValues.some(value => value !== null));
+            if (overviewSamplingChart) overviewSamplingChart.destroy();
+            overviewSamplingChart = new Chart(document.getElementById('overviewSamplingTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: samplingNumbers.map(number => String(masterData.samplingTimes[number] || `Sampling ${number}`).replace(':', '.')),
+                    datasets: [{
+                        label: 'Overall In-Spec (%)', data: samplingValues, borderColor: '#c084fc', backgroundColor: 'rgba(155,63,243,0.18)',
+                        pointBackgroundColor: '#e9d5ff', pointBorderColor: '#4e3867', pointBorderWidth: 2, pointRadius: 5,
+                        borderWidth: 3, tension: 0.3, fill: true, spanGaps: false
+                    }]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#f7f0ff' } },
+                        y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: context => `Overall In-Spec: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'y', display: samplingValues.some(value => value !== null) }
+                    }
+                }
+            });
+
+            const buildings = ['GEDUNG A', 'GEDUNG B'];
+            const buildingValues = buildings.map(building => {
+                const rows = packData.filter(item => String(item.building || item.params?.building || '').toUpperCase() === building);
+                const values = rows.flatMap(item => packKeys.map(key => Number(item.params?.[key]) || 0));
+                return values.length ? Number(((values.reduce((total, value) => total + value, 0) / (values.length * 10)) * 100).toFixed(1)) : null;
+            });
+            document.getElementById('overviewBuildingEmpty').classList.toggle('hidden', buildingValues.some(value => value !== null));
+            if (overviewBuildingChart) overviewBuildingChart.destroy();
+            overviewBuildingChart = new Chart(document.getElementById('overviewBuildingChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Gedung A', 'Gedung B'],
+                    datasets: [{ label: 'Packaging Baik (%)', data: buildingValues, backgroundColor: ['#9b3ff3', '#818cf8'], borderRadius: 8, maxBarThickness: 82 }]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#f7f0ff', font: { weight: 'bold' } } },
+                        y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: context => `Packaging Baik: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'y', display: buildingValues.some(value => value !== null) }
+                    }
+                }
+            });
         }
 
         function getFilteredPackData() {
