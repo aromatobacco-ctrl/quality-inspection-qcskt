@@ -93,8 +93,8 @@
                 <!-- Navigation Tabs -->
                 <div class="flex items-center gap-1 bg-purple-900/60 p-1 rounded-xl border border-purple-700/50">
                     <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
-                    <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Batil</button>
-                    <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Pack</button>
+                    <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
+                    <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
                     <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
                     <button onclick="switchTab('history')" id="tabBtnHistory" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="table" class="w-4 h-4"></i> Riwayat Giling</button>
                     <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
@@ -129,7 +129,7 @@
                         <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
                         <div>
                             <h2 class="text-base font-bold text-white">Dashboard Terpadu Quality Inspection</h2>
-                            <p class="text-xs text-purple-300">Kompilasi data Giling Batil, Pack, dan Tembakau dalam satu tampilan</p>
+                            <p class="text-xs text-purple-300">Kompilasi data Giling Gunting, Packaging, dan Tembakau dalam satu tampilan</p>
                         </div>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
                         <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Giling Batil Station</h3>
+                    <h3 class="mt-4 text-sm font-bold text-white">Giling Gunting Station</h3>
                     <div class="mt-3 flex items-end justify-between gap-3">
                         <div><span id="overviewGilingCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">sampling masuk</p></div>
                         <div class="text-right"><span id="overviewGilingScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">overall in-spec</p></div>
@@ -157,10 +157,10 @@
                         <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Pack Station</h3>
+                    <h3 class="mt-4 text-sm font-bold text-white">Packaging Station</h3>
                     <div class="mt-3 flex items-end justify-between gap-3">
                         <div><span id="overviewPackCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">pemeriksaan masuk</p></div>
-                        <div class="text-right"><span id="overviewPackScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">rata-rata pack baik</p></div>
+                        <div class="text-right"><span id="overviewPackScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">rata-rata packaging baik</p></div>
                     </div>
                 </button>
 
@@ -198,16 +198,16 @@
             </div>
         </section>
 
-        <!-- ==================== TAB 2: GILING BATIL STATION ==================== -->
+        <!-- ==================== TAB 2: GILING GUNTING STATION ==================== -->
         <section id="tabGiling" class="space-y-6 hidden">
             <div class="bg-gradient-to-r from-purple-950 via-purple-900/70 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
-                    <div><h2 class="text-base font-bold text-white">Giling Batil Station</h2><p class="text-xs text-purple-300">Input pemeriksaan kelompok, brand, sampling, visual, dan fisik</p></div>
+                    <div><h2 class="text-base font-bold text-white">Giling Gunting Station</h2><p class="text-xs text-purple-300">Input pemeriksaan kelompok, brand, sampling, visual, dan fisik</p></div>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="exportToExcel()" class="bg-purple-900 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i> Download Giling</button>
-                    <button onclick="openModalInput()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Giling Batil</button>
+                    <button onclick="openModalInput()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Giling Gunting</button>
                 </div>
             </div>
             <!-- Filter Bar -->
@@ -425,8 +425,8 @@
         <section id="tabHistory" class="space-y-4 hidden">
             <div class="bg-purple-900/40 border border-purple-800/60 rounded-2xl p-4 shadow-md flex flex-wrap justify-between items-center gap-3">
                 <div>
-                    <h2 class="text-base font-bold text-white">Riwayat Giling Batil</h2>
-                    <p class="text-xs text-purple-300">Daftar inspeksi Giling Batil dan detail sampling kelompok</p>
+                    <h2 class="text-base font-bold text-white">Riwayat Giling Gunting</h2>
+                    <p class="text-xs text-purple-300">Daftar inspeksi Giling Gunting dan detail sampling kelompok</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="text" id="searchHistory" oninput="renderHistoryTable()" placeholder="Cari kelompok, brand, inspector..." class="bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-400 w-64">
@@ -551,13 +551,13 @@
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
-                        <h2 class="text-base font-bold text-white">Station Quality Pack</h2>
+                        <h2 class="text-base font-bold text-white">Station Quality Packaging</h2>
                         <p class="text-xs text-purple-300">Pencatatan sederhana berdasarkan inspector, jam, dan parameter defect</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="exportPackToExcel()" class="bg-purple-900 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i> Download Pack</button>
-                    <button onclick="openPackModal()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Quality Pack</button>
+                    <button onclick="exportPackToExcel()" class="bg-purple-900 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i> Download Packaging</button>
+                    <button onclick="openPackModal()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Quality Packaging</button>
                 </div>
             </div>
 
@@ -570,14 +570,14 @@
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
-                <div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-bold text-white">Riwayat Quality Pack</h3><p class="text-[11px] text-purple-300">Angka menunjukkan jumlah pack baik dari 10 sampel</p></div><span id="packLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span></div>
+                <div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-bold text-white">Riwayat Quality Packaging</h3><p class="text-[11px] text-purple-300">Angka menunjukkan jumlah packaging baik dari 10 sampel</p></div><span id="packLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span></div>
                 <div class="overflow-x-auto custom-scroll">
                     <table class="w-full min-w-[1180px] text-xs text-left border-collapse">
                         <thead><tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
                             <th class="p-3">Tanggal</th><th class="p-3">Jam</th><th class="p-3">Inspector</th>
                             <th class="p-3 text-center">Lipatan Tidak Siku</th><th class="p-3 text-center">Kurang Lem</th><th class="p-3 text-center">Inner Frame</th><th class="p-3 text-center">Posisi Batangan</th><th class="p-3 text-center">Posisi Bandrol</th><th class="p-3 text-center">Lipatan OPP</th><th class="p-3 text-center">Access Tear Tape</th><th class="p-3 text-center">Aksi</th>
                         </tr></thead>
-                        <tbody id="packTableBody"><tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Quality Pack.</td></tr></tbody>
+                        <tbody id="packTableBody"><tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -813,7 +813,7 @@
     <!-- ==================== MODAL FORM QUALITY PACK ==================== -->
     <div id="modalPack" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-[#171024] border border-purple-500/50 rounded-3xl max-w-3xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll">
-            <div class="flex justify-between items-center border-b border-purple-800/60 pb-3"><div><h3 id="packModalTitle" class="text-base font-bold text-white">Form Input Quality Pack</h3><p class="text-xs text-purple-300">Tanpa product—cukup isi jam dan hasil tujuh parameter</p></div><button onclick="closePackModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="flex justify-between items-center border-b border-purple-800/60 pb-3"><div><h3 id="packModalTitle" class="text-base font-bold text-white">Form Input Quality Packaging</h3><p class="text-xs text-purple-300">Tanpa product—cukup isi jam dan hasil tujuh parameter</p></div><button onclick="closePackModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <form id="packForm" onsubmit="handlePackSubmit(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="packEditRecordId">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -821,7 +821,7 @@
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packInputTime" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                 </div>
-                <div class="rounded-2xl border border-purple-700/50 bg-purple-950/40 p-4"><div class="mb-3 flex justify-between"><strong class="text-purple-200">Jumlah Pack Baik per Parameter</strong><span class="text-purple-400">0–10 sampel</span></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="rounded-2xl border border-purple-700/50 bg-purple-950/40 p-4"><div class="mb-3 flex justify-between"><strong class="text-purple-200">Jumlah Packaging Baik per Parameter</strong><span class="text-purple-400">0–10 sampel</span></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div><label class="block text-slate-300 mb-1">Lipatan Tidak Siku</label><input type="number" id="pack_foldNotSquare" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
                     <div><label class="block text-slate-300 mb-1">Kurang Lem</label><input type="number" id="pack_insufficientGlue" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
                     <div><label class="block text-slate-300 mb-1">Inner Frame</label><input type="number" id="pack_innerFrame" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
@@ -830,7 +830,7 @@
                     <div><label class="block text-slate-300 mb-1">Lipatan OPP</label><input type="number" id="pack_oppFold" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
                     <div><label class="block text-slate-300 mb-1">Access Tear Tape</label><input type="number" id="pack_tearTapeAccess" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"></div>
                 </div></div>
-                <div class="flex justify-end gap-3"><button type="button" onclick="closePackModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl">Batal</button><button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-xl">Simpan Quality Pack</button></div>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closePackModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl">Batal</button><button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-xl">Simpan Quality Packaging</button></div>
             </form>
         </div>
     </div>
@@ -1392,7 +1392,7 @@
 
             const activities = [
                 ...gilingData.map(item => ({
-                    station: 'Giling Batil',
+                    station: 'Giling Gunting',
                     icon: 'cigarette',
                     detail: `${item.kelompok} · Sampling ${item.sampling}`,
                     inspector: item.inspector,
@@ -1403,11 +1403,11 @@
                     const values = packKeys.map(key => Number(item.params[key]) || 0);
                     const average = values.reduce((total, value) => total + value, 0) / (values.length * 10) * 100;
                     return {
-                        station: 'Pack',
+                        station: 'Packaging',
                         icon: 'package-check',
                         detail: `Pemeriksaan jam ${String(item.samplingTime).replace(':', '.')}`,
                         inspector: item.inspector,
-                        result: `${average.toFixed(1)}% pack baik`,
+                        result: `${average.toFixed(1)}% packaging baik`,
                         createdAt: item.createdAt
                     };
                 }),
@@ -1452,7 +1452,7 @@
             if (!tbody) return;
             const filtered = getFilteredPackData();
             if (!filtered.length) {
-                tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Quality Pack yang sesuai filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
                 return;
             }
             tbody.innerHTML = filtered.map(item => {
@@ -1467,7 +1467,7 @@
         function openPackModal(editItem = null) {
             document.getElementById('modalPack').classList.remove('hidden');
             if (editItem) {
-                document.getElementById('packModalTitle').innerText = 'Edit Data Quality Pack';
+                document.getElementById('packModalTitle').innerText = 'Edit Data Quality Packaging';
                 document.getElementById('packEditRecordId').value = editItem.id;
                 document.getElementById('packInputDate').value = editItem.date;
                 document.getElementById('packInputTime').value = editItem.samplingTime;
@@ -1475,7 +1475,7 @@
                 packKeys.forEach(key => document.getElementById(`pack_${key}`).value = editItem.params[key]);
             } else {
                 document.getElementById('packForm').reset();
-                document.getElementById('packModalTitle').innerText = 'Form Input Quality Pack';
+                document.getElementById('packModalTitle').innerText = 'Form Input Quality Packaging';
                 document.getElementById('packEditRecordId').value = '';
                 document.getElementById('packInputDate').value = document.getElementById('packFilterDate').value || getTodayString();
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
@@ -1501,9 +1501,9 @@
                 await loadPackRecords(true);
                 closePackModal();
                 renderPackSection();
-                showToast(editId ? 'Data Quality Pack berhasil diperbarui.' : 'Data Quality Pack berhasil disimpan untuk semua pengguna.', 'success');
+                showToast(editId ? 'Data Quality Packaging berhasil diperbarui.' : 'Data Quality Packaging berhasil disimpan untuk semua pengguna.', 'success');
             } catch (error) {
-                showToast(error.message || 'Data Quality Pack gagal disimpan.', 'error');
+                showToast(error.message || 'Data Quality Packaging gagal disimpan.', 'error');
             }
         }
 
@@ -1513,28 +1513,28 @@
         }
 
         async function deletePackRecord(id) {
-            if (!confirm('Yakin ingin menghapus data Quality Pack ini?')) return;
+            if (!confirm('Yakin ingin menghapus data Quality Packaging ini?')) return;
             try {
                 await apiFetch(`/api/pack-quality/${id}`, { method: 'DELETE' });
                 await loadPackRecords(true);
-                showToast('Data Quality Pack berhasil dihapus.', 'info');
+                showToast('Data Quality Packaging berhasil dihapus.', 'info');
             } catch (error) {
-                showToast(error.message || 'Data Quality Pack gagal dihapus.', 'error');
+                showToast(error.message || 'Data Quality Packaging gagal dihapus.', 'error');
             }
         }
 
         function exportPackToExcel() {
             const filtered = getFilteredPackData();
-            if (!filtered.length) return showToast('Tidak ada data Quality Pack untuk diekspor.', 'error');
+            if (!filtered.length) return showToast('Tidak ada data Quality Packaging untuk diekspor.', 'error');
             const rows = filtered.map(item => ({
                 Tanggal: item.date, Jam: item.samplingTime, Inspector: item.inspector,
                 ...Object.fromEntries(packKeys.map(key => [packLabels[key], item.params[key]]))
             }));
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Quality Pack');
-            const fileName = `Quality_Pack_${document.getElementById('packFilterDate').value || getTodayString()}.xlsx`;
+            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Quality Packaging');
+            const fileName = `Quality_Packaging_${document.getElementById('packFilterDate').value || getTodayString()}.xlsx`;
             XLSX.writeFile(workbook, fileName);
-            showToast(`File Quality Pack berhasil diunduh: ${fileName}`, 'success');
+            showToast(`File Quality Packaging berhasil diunduh: ${fileName}`, 'success');
         }
 
         function getFilteredData() {
@@ -2022,15 +2022,15 @@
                     'Periode Backup': formatMonthName(currentMonth),
                     'Waktu Backup': new Date().toLocaleString('id-ID'),
                     'Dibuat Oleh': currentUser.displayName,
-                    'Total Data Giling Batil': inspections.length,
-                    'Total Data Pack': packRecords.length,
+                    'Total Data Giling Gunting': inspections.length,
+                    'Total Data Packaging': packRecords.length,
                     'Total Data Tembakau': moistureRecords.length,
                     'Total Seluruh Data': inspections.length + packRecords.length + moistureRecords.length
                 }];
 
                 XLSX.utils.book_append_sheet(workbook, createSheet(summaryRows), 'Ringkasan Backup');
-                XLSX.utils.book_append_sheet(workbook, createSheet(gilingRows), 'Giling Batil');
-                XLSX.utils.book_append_sheet(workbook, createSheet(packRows), 'Pack');
+                XLSX.utils.book_append_sheet(workbook, createSheet(gilingRows), 'Giling Gunting');
+                XLSX.utils.book_append_sheet(workbook, createSheet(packRows), 'Packaging');
                 XLSX.utils.book_append_sheet(workbook, createSheet(tobaccoRows), 'Tembakau');
 
                 const fileName = `Backup_Quality_Inspection_${currentMonth}.xlsx`;
