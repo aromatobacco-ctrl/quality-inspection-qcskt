@@ -167,75 +167,130 @@
 
 
             <div class="bg-gradient-to-r from-purple-950 via-purple-900/70 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
-                        <div>
-                            <h2 class="text-base font-bold text-white">Dashboard Terpadu Quality Inspection</h2>
-                            <p class="text-xs text-purple-300">Kompilasi data Giling Gunting, Packaging, dan Tembakau dalam satu tampilan</p>
-                        </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
+                    <div>
+                        <h2 class="text-base font-bold text-white">Ringkasan Quality Inspection</h2>
+                        <p class="text-xs text-purple-300">Dashboard harian atau mingguan seluruh station dalam satu halaman</p>
                     </div>
                 </div>
-                <div class="w-full sm:w-auto">
-                    <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Ringkasan</label>
-                    <input type="date" id="overviewDate" oninput="renderOverview()" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                <div class="w-full sm:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Periode Dashboard</label>
+                        <select id="overviewMode" onchange="updateOverviewModeUI()" class="w-full sm:w-40 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                        </select>
+                    </div>
+                    <div id="overviewDateWrap">
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Ringkasan</label>
+                        <input type="date" id="overviewDate" oninput="renderOverview()" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="overviewWeekWrap" class="hidden">
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Awal Minggu</label>
+                        <input type="date" id="overviewWeekStart" oninput="renderOverview()" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button type="button" onclick="switchTab('giling')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
-                    <div class="flex items-start justify-between gap-3">
-                        <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                <button type="button" onclick="switchTab('giling')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Giling Gunting Station</h3>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div><span id="overviewGilingCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">sampling masuk</p></div>
-                        <div class="text-right"><span id="overviewGilingScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">overall in-spec</p></div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Giling Gunting</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewGilingScore" class="text-2xl font-black text-white">—</span>
+                        <span id="overviewGilingOut" class="text-xs font-bold text-rose-400">Out: —</span>
                     </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewGilingCount">0</span> sampling masuk · overall in-spec</p>
                 </button>
 
-                <button type="button" onclick="switchTab('pack')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
-                    <div class="flex items-start justify-between gap-3">
-                        <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
+                <button type="button" onclick="switchTab('pack')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-check" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Packaging Station</h3>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div><span id="overviewPackCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">pemeriksaan masuk</p></div>
-                        <div class="text-right"><span id="overviewPackScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">rata-rata packaging baik</p></div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Packaging</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewPackScore" class="text-2xl font-black text-white">—</span>
+                        <span id="overviewPackOut" class="text-xs font-bold text-rose-400">Out: —</span>
                     </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewPackCount">0</span> pemeriksaan · rata-rata packaging baik</p>
                 </button>
 
-                <button type="button" onclick="switchTab('moisture')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-5 transition-all group">
-                    <div class="flex items-start justify-between gap-3">
-                        <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
+                <button type="button" onclick="switchTab('moisture'); switchTobaccoView('receiving')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
                         <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
                     </div>
-                    <h3 class="mt-4 text-sm font-bold text-white">Tembakau Station</h3>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div><span id="overviewTobaccoCount" class="text-3xl font-black text-purple-200">0</span><p class="text-[10px] text-slate-400">pengukuran MC</p></div>
-                        <div class="text-right"><span id="overviewTobaccoScore" class="text-xl font-black text-white">—</span><p class="text-[10px] text-slate-400">rata-rata MC</p></div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Penerimaan Tembakau</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewReceivingScore" class="text-2xl font-black text-white">—</span>
+                        <span class="text-xs font-bold text-purple-300">MC</span>
                     </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewReceivingCount">0</span> penerimaan · rata-rata moisture content</p>
                 </button>
+
+                <button type="button" onclick="switchTab('moisture'); switchTobaccoView('usage')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="package-open" class="w-5 h-5 text-purple-300"></i></span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400 group-hover:text-purple-200"></i>
+                    </div>
+                    <h3 class="mt-3 text-xs font-bold text-purple-300">Pemakaian Tembakau</h3>
+                    <div class="mt-2 flex items-end justify-between gap-3">
+                        <span id="overviewUsageScore" class="text-2xl font-black text-white">—</span>
+                        <span class="text-xs font-bold text-purple-300">MC</span>
+                    </div>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewUsageCount">0</span> pemakaian · rata-rata moisture content</p>
+                </button>
+
+                <div class="bg-purple-900/30 border border-purple-700/60 rounded-2xl p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="clipboard-check" class="w-5 h-5 text-purple-300"></i></span>
+                        <span id="overviewSamplingPercent" class="text-xs font-black text-emerald-400">0%</span>
+                    </div>
+                    <h3 id="overviewSamplingTitle" class="mt-3 text-xs font-bold text-purple-300">Status Sampling Giling Gunting</h3>
+                    <div id="overviewSamplingStatus" class="mt-2 text-2xl font-black text-white">0/72</div>
+                    <p id="overviewSamplingCaption" class="mt-1 text-[10px] text-slate-400">24 kelompok × 3 sampling per hari</p>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 flex flex-col justify-center">
-                    <span class="text-xs text-purple-300 font-medium">Total Input Tanggal Terpilih</span>
-                    <span id="overviewTotalRecords" class="mt-2 text-4xl font-black text-white">0</span>
-                    <span class="mt-1 text-[10px] text-slate-400">Gabungan dari 3 station</span>
-                </div>
-                <div class="lg:col-span-3 bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
-                    <div class="flex justify-between items-center mb-3 gap-3">
-                        <div><h3 class="text-sm font-bold text-white">Aktivitas Terbaru Semua Station</h3><p class="text-[11px] text-purple-300">Data terbaru pada tanggal yang dipilih</p></div>
-                        <span id="overviewLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Giling Gunting · In-Spec per Parameter</h3>
+                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah agar parameter bermasalah langsung terlihat</p>
                     </div>
-                    <div class="overflow-x-auto custom-scroll">
-                        <table class="w-full min-w-[650px] text-xs text-left border-collapse">
-                            <thead><tr class="bg-purple-950 text-purple-200 border-b border-purple-800"><th class="p-3">Station</th><th class="p-3">Data / Waktu</th><th class="p-3">Inspector</th><th class="p-3 text-right">Hasil</th></tr></thead>
-                            <tbody id="overviewActivityBody"><tr><td colspan="4" class="p-8 text-center text-slate-400">Belum ada aktivitas pada tanggal ini.</td></tr></tbody>
-                        </table>
+                    <span id="overviewParameterTarget" class="text-[11px] font-bold text-amber-300">Target ≥ 90%</span>
+                </div>
+                <div class="relative h-[340px]">
+                    <canvas id="overviewParameterChart"></canvas>
+                    <div id="overviewParameterEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Giling Gunting pada tanggal ini.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                    <div class="mb-4">
+                        <h3 id="overviewTrendTitle" class="text-sm font-bold text-white">Trend Giling Gunting per Sampling</h3>
+                        <p id="overviewTrendCaption" class="text-[11px] text-purple-300">Overall in-spec pada sampling pukul 08.00, 10.00, dan 13.00</p>
+                    </div>
+                    <div class="relative h-[245px]">
+                        <canvas id="overviewSamplingTrendChart"></canvas>
+                        <div id="overviewSamplingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data sampling pada tanggal ini.</div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-bold text-white">Packaging Baik per Gedung</h3>
+                        <p class="text-[11px] text-purple-300">Perbandingan rata-rata hasil inspeksi Gedung A dan Gedung B</p>
+                    </div>
+                    <div class="relative h-[245px]">
+                        <canvas id="overviewBuildingChart"></canvas>
+                        <div id="overviewBuildingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging per gedung pada tanggal ini.</div>
                     </div>
                 </div>
             </div>
@@ -261,10 +316,26 @@
                     </div>
                     <span id="lastUpdatedText" class="text-xs text-purple-300/70 font-mono">Update: Baru saja</span>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-8 gap-3 text-xs">
                     <div>
+                        <label class="block text-purple-300 font-medium mb-1">Periode</label>
+                        <select id="gilingPeriodMode" onchange="updateGilingPeriodUI()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                        </select>
+                    </div>
+                    <div id="gilingDateWrap">
                         <label class="block text-purple-300 font-medium mb-1">Tanggal</label>
                         <input type="date" id="filterDate" onchange="applyFilters()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="gilingWeekWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Mulai Minggu</label>
+                        <input type="date" id="gilingWeekStart" onchange="applyFilters()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="gilingMonthWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Bulan</label>
+                        <input type="month" id="gilingMonth" onchange="applyFilters()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Kelompok</label>
@@ -303,10 +374,10 @@
             <div class="bg-gradient-to-r from-purple-950 via-purple-900 to-purple-950 border border-purple-800/80 rounded-2xl p-4 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="space-y-1 w-full md:w-auto">
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-purple-200">Status Kelengkapan Harian (24 Kelompok × 3 Sampling)</span>
+                        <span id="gilingCompletenessTitle" class="text-xs font-bold uppercase tracking-wider text-purple-200">Status Kelengkapan Harian (24 Kelompok × 3 Sampling)</span>
                         <span id="completenessBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-800 text-purple-200 border border-purple-600">0/72 Masuk</span>
                     </div>
-                    <p class="text-xs text-slate-400">Kapasitas maksimal: 720 batang per hari (72 sampling × 10 sampel default).</p>
+                    <p id="gilingCompletenessCaption" class="text-xs text-slate-400">Kapasitas maksimal: 720 batang per hari (72 sampling × 10 sampel default).</p>
                 </div>
                 <div class="w-full md:w-1/2 flex items-center gap-3">
                     <div class="w-full bg-purple-950 rounded-full h-3.5 border border-purple-700/60 overflow-hidden">
@@ -330,10 +401,10 @@
 
                 <!-- KPI 2: Kelompok Status -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
-                    <span class="text-xs text-purple-300 font-medium">Kelompok Selesai</span>
+                    <span id="kpiPeriodStatusLabel" class="text-xs text-purple-300 font-medium">Kelompok Selesai</span>
                     <div class="mt-2 flex items-baseline justify-between">
                         <span id="kpiKelompokDone" class="text-2xl font-black text-emerald-400">0</span>
-                        <span class="text-xs text-slate-400">/ 24 Kelompok</span>
+                        <span id="kpiPeriodStatusSuffix" class="text-xs text-slate-400">/ 24 Kelompok</span>
                     </div>
                     <span id="kpiKelompokPending" class="text-[10px] text-amber-300 mt-1">24 Belum Lengkap</span>
                 </div>
@@ -415,8 +486,23 @@
                 </div>
             </div>
 
-            <!-- Matriks Status 24 Kelompok -->
+            <!-- Trend Kualitas Sesuai Periode -->
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
+                    <div>
+                        <h3 id="gilingPeriodTrendTitle" class="text-sm font-bold text-white">Trend Kualitas Giling Gunting Harian</h3>
+                        <p id="gilingPeriodTrendCaption" class="text-[11px] text-purple-300">Overall In-Spec per sampling pada tanggal terpilih</p>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Skala 0–100%</span>
+                </div>
+                <div class="relative h-[260px]">
+                    <canvas id="gilingPeriodTrendChart"></canvas>
+                    <div id="gilingPeriodTrendEmpty" class="hidden absolute inset-0 items-center justify-center rounded-xl bg-purple-950/55 text-xs text-purple-300">Belum ada data pada periode terpilih</div>
+                </div>
+            </div>
+
+            <!-- Matriks Status 24 Kelompok -->
+            <div id="kelompokMatrixPanel" class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
                 <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="grid" class="w-4 h-4 text-purple-400"></i>
@@ -500,26 +586,29 @@
             </div>
         </section>
 
-        <!-- ==================== TAB 3: MC TEMBAKAU ==================== -->
+        <!-- ==================== TAB 3: TEMBAKAU ==================== -->
         <section id="tabMoisture" class="space-y-5 hidden">
             <div class="bg-gradient-to-r from-purple-950 via-purple-900/60 to-purple-950 border border-purple-500/40 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
-                        <div>
-                            <h2 class="text-base font-bold text-white">Pencatatan MC Tembakau</h2>
-                            <p class="text-xs text-purple-200/80">Data Moisture Content terpisah untuk setiap lot/batch tembakau</p>
-                        </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
+                    <div>
+                        <h2 class="text-base font-bold text-white">Tembakau Station</h2>
+                        <p class="text-xs text-purple-200/80">Pencatatan penerimaan dan pemakaian tembakau</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="exportMoistureToExcel()" class="bg-purple-900/80 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5 transition-all">
-                        <i data-lucide="file-down" class="w-4 h-4"></i> Download MC
+                        <i data-lucide="file-down" class="w-4 h-4"></i> <span id="mcExportButtonText">Download Penerimaan</span>
                     </button>
-                    <button onclick="openMoistureModal()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5 transition-all">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Input MC Tembakau
+                    <button onclick="openMoistureModal(null, currentTobaccoView)" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5 transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> <span id="mcInputButtonText">Input Penerimaan</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 rounded-2xl border border-purple-700/60 bg-purple-950/70 p-2">
+                <button id="tobaccoViewReceiving" type="button" onclick="switchTobaccoView('receiving')" class="rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-black text-white shadow">Penerimaan Tembakau</button>
+                <button id="tobaccoViewUsage" type="button" onclick="switchTobaccoView('usage')" class="rounded-xl px-4 py-2.5 text-xs font-bold text-purple-300 hover:bg-purple-900">Pemakaian Tembakau</button>
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/60 rounded-2xl p-4 shadow-md">
@@ -536,7 +625,7 @@
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Pencarian</label>
-                        <input type="text" id="mcSearch" oninput="renderMoistureSection()" placeholder="Cari lot, series, atau inspector..." class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        <input type="text" id="mcSearch" oninput="renderMoistureSection()" placeholder="Cari series, brand, atau inspector..." class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                     </div>
                 </div>
             </div>
@@ -553,35 +642,25 @@
                     <span class="text-[10px] text-slate-400">Tanpa status spesifikasi</span>
                 </div>
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
-                    <span class="text-xs text-purple-300 font-medium">Rentang MC</span>
-                    <div id="mcKpiRange" class="mt-2 text-xl font-black text-white">—</div>
-                    <span class="text-[10px] text-slate-400">Nilai minimum – maksimum</span>
+                    <span id="mcKpiThirdLabel" class="text-xs text-purple-300 font-medium">Rata-rata Berat Box</span>
+                    <div id="mcKpiThirdValue" class="mt-2 text-xl font-black text-white">—</div>
+                    <span id="mcKpiThirdNote" class="text-[10px] text-slate-400">Gabungan sampel berat 1–3</span>
                 </div>
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <h3 class="text-sm font-bold text-white">Riwayat MC Tembakau</h3>
-                        <p class="text-[11px] text-purple-300">Catatan bersama dari seluruh pengguna</p>
+                        <h3 id="mcTableTitle" class="text-sm font-bold text-white">Riwayat Penerimaan Tembakau</h3>
+                        <p id="mcTableCaption" class="text-[11px] text-purple-300">MC dan tiga sampel berat per box penerimaan</p>
                     </div>
                     <span id="mcLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
                 </div>
                 <div class="overflow-x-auto custom-scroll">
                     <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
-                                <th class="p-3 font-semibold">Tanggal</th>
-                                <th class="p-3 font-semibold">Lot/Batch</th>
-                                <th class="p-3 font-semibold">Nomor Series</th>
-                                <th class="p-3 font-semibold">Brand</th>
-                                <th class="p-3 font-semibold text-center">MC (%)</th>
-                                <th class="p-3 font-semibold">Inspector</th>
-                                <th class="p-3 font-semibold text-center">Aksi</th>
-                            </tr>
-                        </thead>
+                        <thead id="mcTableHead"></thead>
                         <tbody id="mcTableBody" class="divide-y divide-purple-800/30">
-                            <tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data MC Tembakau.</td></tr>
+                            <tr><td colspan="10" class="p-8 text-center text-slate-400">Belum ada data Penerimaan Tembakau.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -802,34 +881,27 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL FORM MC TEMBAKAU ==================== -->
+    <!-- ==================== MODAL FORM TEMBAKAU ==================== -->
     <div id="modalMoisture" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-[#171024] border border-purple-500/60 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+        <div class="bg-[#171024] border border-purple-500/60 rounded-3xl max-w-3xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll">
             <div class="flex justify-between items-center border-b border-purple-800/60 pb-3">
                 <div>
-                    <h3 id="mcModalTitle" class="text-base font-bold text-white">Form Input MC Tembakau</h3>
-                    <p class="text-xs text-purple-300">Satu catatan untuk setiap lot/batch dan nomor series</p>
+                    <h3 id="mcModalTitle" class="text-base font-bold text-white">Form Penerimaan Tembakau</h3>
+                    <p id="mcModalCaption" class="text-xs text-purple-300">Isi data penerimaan, MC, dan tiga sampel berat box</p>
                 </div>
                 <button onclick="closeMoistureModal()" class="text-slate-400 hover:text-white p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <form id="moistureForm" onsubmit="handleMoistureSubmit(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="mcEditRecordId" value="">
+                <input type="hidden" id="mcRecordType" value="receiving">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-purple-300 font-medium mb-1">Tanggal Pengukuran</label>
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal</label>
                         <input type="date" id="mcInputDate" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Nama Inspector</label>
                         <input type="text" id="mcInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed">
-                    </div>
-                    <div>
-                        <label class="block text-purple-300 font-medium mb-1">Nomor Lot/Batch Tembakau</label>
-                        <input type="text" id="mcInputLotBatch" maxlength="80" required placeholder="Contoh: LOT-ATI-260826" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
-                    </div>
-                    <div>
-                        <label class="block text-purple-300 font-medium mb-1">Nomor Series</label>
-                        <input type="text" id="mcInputSeries" maxlength="80" required placeholder="Contoh: S-001" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Brand</label>
@@ -843,12 +915,39 @@
                         </div>
                     </div>
                 </div>
+                <div id="mcReceivingFields" class="rounded-2xl border border-purple-700/60 bg-purple-950/35 p-4 space-y-3">
+                    <div>
+                        <label class="block text-purple-300 font-medium mb-1">Nomor Series Tembakau</label>
+                        <input type="text" id="mcInputSeries" maxlength="80" placeholder="Contoh: S-001" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 1 (kg)</label>
+                            <input type="number" id="mcInputWeight1" min="0" step="0.01" inputmode="decimal" placeholder="Contoh: 40.25" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 2 (kg)</label>
+                            <input type="number" id="mcInputWeight2" min="0" step="0.01" inputmode="decimal" placeholder="Contoh: 40.10" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 3 (kg)</label>
+                            <input type="number" id="mcInputWeight3" min="0" step="0.01" inputmode="decimal" placeholder="Contoh: 40.30" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                    </div>
+                </div>
+                <div id="mcUsageFields" class="hidden rounded-2xl border border-purple-700/60 bg-purple-950/35 p-4">
+                    <label class="block text-purple-300 font-medium mb-1">Jenis Stock</label>
+                    <select id="mcInputStockType" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        <option value="STOCK PAGI">Stock Pagi</option>
+                        <option value="STOCK LANJUTAN">Stock Lanjutan</option>
+                    </select>
+                </div>
                 <div class="rounded-xl border border-purple-500/25 bg-purple-950/30 px-3 py-2 text-[11px] text-purple-200">
-                    Nilai MC hanya dicatat sebagai angka dan tidak diberi status In-Spec atau Out-Spec.
+                    Nilai MC dicatat sebagai angka. Berat penerimaan diisi dalam kilogram untuk masing-masing sampel box.
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" onclick="closeMoistureModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold rounded-xl shadow-lg transition-all">Simpan Data MC</button>
+                    <button id="mcSubmitButton" type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold rounded-xl shadow-lg transition-all">Simpan Penerimaan</button>
                 </div>
             </form>
         </div>
@@ -897,9 +996,14 @@
         let moistureRecords = [];
         let packRecords = [];
         let backupStatus = { month: null, completedAt: null, completedBy: null };
+        let currentTobaccoView = 'receiving';
 
         let paramChart = null;
         let catChart = null;
+        let gilingPeriodTrendChart = null;
+        let overviewParamChart = null;
+        let overviewSamplingChart = null;
+        let overviewBuildingChart = null;
 
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
@@ -926,13 +1030,19 @@
                 ]);
                 initDropdowns();
                 document.getElementById('filterDate').value = getTodayString();
+                document.getElementById('gilingWeekStart').value = getTodayString();
+                document.getElementById('gilingMonth').value = getTodayString().slice(0, 7);
                 document.getElementById('overviewDate').value = getTodayString();
+                document.getElementById('overviewWeekStart').value = getTodayString();
                 document.getElementById('inputDate').value = getTodayString();
                 document.getElementById('mcFilterDate').value = getTodayString();
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
                 document.getElementById('packInputDate').value = getTodayString();
                 document.getElementById('backupDateHarian').value = getTodayString();
+                updateOverviewModeUI();
+                updateGilingPeriodUI(false);
+                switchTobaccoView('receiving');
                 renderOverview();
                 renderBackupReminder();
                 renderDashboard();
@@ -1243,7 +1353,9 @@
                 document.getElementById('modalTitle').innerText = 'Form Input Quality Inspection SKT';
                 document.getElementById('editRecordId').value = '';
                 form.reset();
-                document.getElementById('inputDate').value = document.getElementById('filterDate').value || getTodayString();
+                const activeRange = getGilingFilterRange();
+                const today = getTodayString();
+                document.getElementById('inputDate').value = today >= activeRange.start && today <= activeRange.end ? today : activeRange.start;
                 document.getElementById('inputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('inputSampleSize').value = masterData.defaultSampleSize;
                 ['gtg','krps','kmls','ring','bst','spt','krt','brt','dmt'].forEach(k => {
@@ -1307,74 +1419,167 @@
             }
         }
 
-        function getFilteredMoistureData() {
+        function getTobaccoMeta(item) {
+            const stored = String(item.lotBatch || '');
+            const parts = stored.split('|');
+            const prefix = String(parts[0] || '').toUpperCase();
+            if (prefix === 'PEMAKAIAN') {
+                return { type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [] };
+            }
+            if (prefix === 'PENERIMAAN') {
+                const weights = parts.slice(1, 4).map(value => {
+                    const number = Number(value);
+                    return Number.isFinite(number) ? number : null;
+                });
+                while (weights.length < 3) weights.push(null);
+                return { type: 'receiving', stockType: '', weights, legacyLot: '' };
+            }
+            return { type: 'receiving', stockType: '', weights: [null, null, null], legacyLot: stored };
+        }
+
+        function formatTobaccoWeight(value) {
+            return Number.isFinite(value) ? `${value.toFixed(2)} kg` : '—';
+        }
+
+        function switchTobaccoView(view) {
+            currentTobaccoView = view === 'usage' ? 'usage' : 'receiving';
+            const receiving = currentTobaccoView === 'receiving';
+            document.getElementById('tobaccoViewReceiving').className = receiving
+                ? 'rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-black text-white shadow'
+                : 'rounded-xl px-4 py-2.5 text-xs font-bold text-purple-300 hover:bg-purple-900';
+            document.getElementById('tobaccoViewUsage').className = !receiving
+                ? 'rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-black text-white shadow'
+                : 'rounded-xl px-4 py-2.5 text-xs font-bold text-purple-300 hover:bg-purple-900';
+            document.getElementById('mcInputButtonText').innerText = receiving ? 'Input Penerimaan' : 'Input Pemakaian';
+            document.getElementById('mcExportButtonText').innerText = receiving ? 'Download Penerimaan' : 'Download Pemakaian';
+            document.getElementById('mcSearch').placeholder = receiving
+                ? 'Cari series, brand, atau inspector...'
+                : 'Cari stock, brand, atau inspector...';
+            renderMoistureSection();
+        }
+
+        function getFilteredMoistureData(type = currentTobaccoView) {
             const date = document.getElementById('mcFilterDate').value;
             const brand = document.getElementById('mcFilterBrand').value;
             const query = document.getElementById('mcSearch').value.trim().toLowerCase();
             return moistureRecords.filter(item => {
+                const meta = getTobaccoMeta(item);
+                if (meta.type !== type) return false;
                 if (date && item.date !== date) return false;
                 if (brand !== 'ALL' && item.brand !== brand) return false;
-                if (query && !`${item.lotBatch} ${item.seriesNumber} ${item.brand} ${item.inspector}`.toLowerCase().includes(query)) return false;
+                const searchable = `${item.seriesNumber} ${item.brand} ${item.inspector} ${meta.stockType} ${meta.legacyLot || ''}`.toLowerCase();
+                if (query && !searchable.includes(query)) return false;
                 return true;
             });
         }
 
         function renderMoistureSection() {
             const tbody = document.getElementById('mcTableBody');
-            if (!tbody) return;
+            const thead = document.getElementById('mcTableHead');
+            if (!tbody || !thead) return;
+            const receiving = currentTobaccoView === 'receiving';
             const filtered = getFilteredMoistureData();
-            const values = filtered.map(item => Number(item.moistureContent));
+            const values = filtered.map(item => Number(item.moistureContent)).filter(Number.isFinite);
             const average = values.length ? values.reduce((total, value) => total + value, 0) / values.length : null;
             document.getElementById('mcKpiMeasurements').innerText = filtered.length;
             document.getElementById('mcKpiAverage').innerText = average === null ? '—' : `${average.toFixed(2)}%`;
-            document.getElementById('mcKpiRange').innerText = values.length ? `${Math.min(...values).toFixed(2)}% – ${Math.max(...values).toFixed(2)}%` : '—';
+            document.getElementById('mcTableTitle').innerText = receiving ? 'Riwayat Penerimaan Tembakau' : 'Riwayat Pemakaian Tembakau';
+            document.getElementById('mcTableCaption').innerText = receiving
+                ? 'MC dan tiga sampel berat per box penerimaan'
+                : 'MC stock pagi dan stock lanjutan per hari';
+
+            if (receiving) {
+                const allWeights = filtered.flatMap(item => getTobaccoMeta(item).weights).filter(Number.isFinite);
+                const averageWeight = allWeights.length ? allWeights.reduce((total, value) => total + value, 0) / allWeights.length : null;
+                document.getElementById('mcKpiThirdLabel').innerText = 'Rata-rata Berat Box';
+                document.getElementById('mcKpiThirdValue').innerText = averageWeight === null ? '—' : `${averageWeight.toFixed(2)} kg`;
+                document.getElementById('mcKpiThirdNote').innerText = 'Gabungan sampel berat 1–3';
+                thead.innerHTML = `<tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
+                    <th class="p-3 font-semibold">Tanggal</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Nomor Series</th>
+                    <th class="p-3 font-semibold">Brand</th><th class="p-3 font-semibold text-center">MC (%)</th>
+                    <th class="p-3 font-semibold text-center">Sampel 1</th><th class="p-3 font-semibold text-center">Sampel 2</th>
+                    <th class="p-3 font-semibold text-center">Sampel 3</th><th class="p-3 font-semibold text-center">Rata-rata</th>
+                    <th class="p-3 font-semibold text-center">Aksi</th></tr>`;
+            } else {
+                const morningCount = filtered.filter(item => getTobaccoMeta(item).stockType === 'STOCK PAGI').length;
+                const continuationCount = filtered.filter(item => getTobaccoMeta(item).stockType === 'STOCK LANJUTAN').length;
+                document.getElementById('mcKpiThirdLabel').innerText = 'Komposisi Stock';
+                document.getElementById('mcKpiThirdValue').innerText = `${morningCount} / ${continuationCount}`;
+                document.getElementById('mcKpiThirdNote').innerText = 'Stock Pagi / Stock Lanjutan';
+                thead.innerHTML = `<tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
+                    <th class="p-3 font-semibold">Tanggal</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Brand</th>
+                    <th class="p-3 font-semibold text-center">MC (%)</th><th class="p-3 font-semibold">Jenis Stock</th>
+                    <th class="p-3 font-semibold text-center">Aksi</th></tr>`;
+            }
 
             if (!filtered.length) {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data MC Tembakau yang sesuai filter.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="${receiving ? 10 : 6}" class="p-8 text-center text-slate-400">Belum ada data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau yang sesuai filter.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtered.map(item => {
+                const meta = getTobaccoMeta(item);
                 const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser.id);
                 const actions = `<div class="flex justify-center gap-1">
-                    ${canEdit ? `<button onclick="editMoistureRecord('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Edit Data MC"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
-                    ${currentRole === 'ADMIN' ? `<button onclick="deleteMoistureRecord('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus Data MC"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                    ${canEdit ? `<button onclick="editMoistureRecord('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Edit Data Tembakau"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
+                    ${currentRole === 'ADMIN' ? `<button onclick="deleteMoistureRecord('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus Data Tembakau"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
                     ${!canEdit && currentRole !== 'ADMIN' ? '<span class="text-slate-600">—</span>' : ''}
                 </div>`;
+                const mcCell = `<span class="inline-flex min-w-[5rem] justify-center rounded-lg border border-purple-500/50 bg-purple-950/60 px-2 py-1 text-sm font-black text-purple-200">${Number(item.moistureContent).toFixed(2)}%</span>`;
+                const brandCell = `<span class="px-2 py-0.5 rounded-md bg-purple-900 text-purple-200 border border-purple-700 font-semibold">${escapeHtml(item.brand)}</span>`;
+                if (receiving) {
+                    const availableWeights = meta.weights.filter(Number.isFinite);
+                    const weightAverage = availableWeights.length ? availableWeights.reduce((total, value) => total + value, 0) / availableWeights.length : null;
+                    return `<tr class="hover:bg-purple-950/60 border-b border-purple-800/30">
+                        <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
+                        <td class="p-3 font-bold text-purple-200">${escapeHtml(item.seriesNumber)}</td><td class="p-3">${brandCell}</td>
+                        <td class="p-3 text-center">${mcCell}</td><td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[0])}</td>
+                        <td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[1])}</td><td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[2])}</td>
+                        <td class="p-3 text-center font-bold text-white">${formatTobaccoWeight(weightAverage)}</td><td class="p-3 text-center">${actions}</td></tr>`;
+                }
                 return `<tr class="hover:bg-purple-950/60 border-b border-purple-800/30">
-                    <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td>
-                    <td class="p-3 font-bold text-purple-200">${escapeHtml(item.lotBatch)}</td>
-                    <td class="p-3 text-slate-300">${escapeHtml(item.seriesNumber)}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded-md bg-purple-900 text-purple-200 border border-purple-700 font-semibold">${escapeHtml(item.brand)}</span></td>
-                    <td class="p-3 text-center"><span class="inline-flex min-w-[5rem] justify-center rounded-lg border border-purple-500/50 bg-purple-950/60 px-2 py-1 text-sm font-black text-purple-200">${Number(item.moistureContent).toFixed(2)}%</span></td>
-                    <td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
-                    <td class="p-3 text-center">${actions}</td>
-                </tr>`;
+                    <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
+                    <td class="p-3">${brandCell}</td><td class="p-3 text-center">${mcCell}</td>
+                    <td class="p-3"><span class="rounded-lg border border-purple-600/60 bg-purple-950/60 px-2 py-1 font-bold text-purple-200">${escapeHtml(meta.stockType)}</span></td>
+                    <td class="p-3 text-center">${actions}</td></tr>`;
             }).join('');
             lucide.createIcons();
         }
 
-        function openMoistureModal(editItem = null) {
-            if (!ensureNotGuest(editItem ? 'mengedit data MC Tembakau' : 'menginput data MC Tembakau')) return;
+        function setMoistureFormType(type) {
+            const receiving = type !== 'usage';
+            document.getElementById('mcRecordType').value = receiving ? 'receiving' : 'usage';
+            document.getElementById('mcReceivingFields').classList.toggle('hidden', !receiving);
+            document.getElementById('mcUsageFields').classList.toggle('hidden', receiving);
+            document.getElementById('mcInputSeries').required = receiving;
+            ['mcInputWeight1', 'mcInputWeight2', 'mcInputWeight3'].forEach(id => document.getElementById(id).required = receiving);
+            document.getElementById('mcInputStockType').required = !receiving;
+            document.getElementById('mcModalTitle').innerText = receiving ? 'Form Penerimaan Tembakau' : 'Form Pemakaian Tembakau';
+            document.getElementById('mcModalCaption').innerText = receiving
+                ? 'Isi nomor series, MC, dan tiga sampel berat box penerimaan'
+                : 'Isi MC berdasarkan Stock Pagi atau Stock Lanjutan';
+            document.getElementById('mcSubmitButton').innerText = receiving ? 'Simpan Penerimaan' : 'Simpan Pemakaian';
+        }
+
+        function openMoistureModal(editItem = null, requestedType = currentTobaccoView) {
+            const meta = editItem ? getTobaccoMeta(editItem) : { type: requestedType, stockType: 'STOCK PAGI', weights: [null, null, null] };
+            const label = meta.type === 'receiving' ? 'Penerimaan Tembakau' : 'Pemakaian Tembakau';
+            if (!ensureNotGuest(editItem ? `mengedit data ${label}` : `menginput data ${label}`)) return;
             const form = document.getElementById('moistureForm');
+            form.reset();
+            setMoistureFormType(meta.type);
             document.getElementById('modalMoisture').classList.remove('hidden');
-            if (editItem) {
-                document.getElementById('mcModalTitle').innerText = 'Edit Data MC Tembakau';
-                document.getElementById('mcEditRecordId').value = editItem.id;
-                document.getElementById('mcInputDate').value = editItem.date;
-                document.getElementById('mcInputInspector').value = editItem.inspector;
-                document.getElementById('mcInputLotBatch').value = editItem.lotBatch;
-                document.getElementById('mcInputSeries').value = editItem.seriesNumber;
-                document.getElementById('mcInputBrand').value = editItem.brand;
-                document.getElementById('mcInputValue').value = Number(editItem.moistureContent).toFixed(2);
-            } else {
-                form.reset();
-                document.getElementById('mcModalTitle').innerText = 'Form Input MC Tembakau';
-                document.getElementById('mcEditRecordId').value = '';
-                document.getElementById('mcInputDate').value = document.getElementById('mcFilterDate').value || getTodayString();
-                document.getElementById('mcInputInspector').value = currentUser ? currentUser.displayName : '';
-                if (masterData.brands.length) document.getElementById('mcInputBrand').value = masterData.brands[0];
-            }
+            document.getElementById('mcEditRecordId').value = editItem ? editItem.id : '';
+            document.getElementById('mcInputDate').value = editItem ? editItem.date : (document.getElementById('mcFilterDate').value || getTodayString());
+            document.getElementById('mcInputInspector').value = editItem ? editItem.inspector : (currentUser ? currentUser.displayName : '');
+            document.getElementById('mcInputBrand').value = editItem ? editItem.brand : (masterData.brands[0] || '');
+            document.getElementById('mcInputValue').value = editItem ? Number(editItem.moistureContent).toFixed(2) : '';
+            document.getElementById('mcInputSeries').value = editItem && meta.type === 'receiving' ? editItem.seriesNumber : '';
+            document.getElementById('mcInputWeight1').value = Number.isFinite(meta.weights[0]) ? meta.weights[0] : '';
+            document.getElementById('mcInputWeight2').value = Number.isFinite(meta.weights[1]) ? meta.weights[1] : '';
+            document.getElementById('mcInputWeight3').value = Number.isFinite(meta.weights[2]) ? meta.weights[2] : '';
+            document.getElementById('mcInputStockType').value = meta.stockType || 'STOCK PAGI';
+            if (editItem) document.getElementById('mcModalTitle').innerText = `Edit ${label}`;
             lucide.createIcons();
         }
 
@@ -1384,24 +1589,30 @@
 
         async function handleMoistureSubmit(event) {
             event.preventDefault();
-            if (!ensureNotGuest('menyimpan data MC Tembakau')) return;
+            if (!ensureNotGuest('menyimpan data Tembakau')) return;
             const editId = document.getElementById('mcEditRecordId').value;
+            const type = document.getElementById('mcRecordType').value;
+            const receiving = type === 'receiving';
+            const stockType = document.getElementById('mcInputStockType').value;
+            const weights = [1, 2, 3].map(number => Number(document.getElementById(`mcInputWeight${number}`).value));
+            const seriesNumber = receiving ? document.getElementById('mcInputSeries').value.trim() : stockType;
             const payload = {
                 date: document.getElementById('mcInputDate').value,
-                lotBatch: document.getElementById('mcInputLotBatch').value.trim(),
-                seriesNumber: document.getElementById('mcInputSeries').value.trim(),
+                lotBatch: receiving ? `PENERIMAAN|${weights.map(value => value.toFixed(2)).join('|')}` : `PEMAKAIAN|${stockType}`,
+                seriesNumber,
                 brand: document.getElementById('mcInputBrand').value,
                 moistureContent: Number(document.getElementById('mcInputValue').value)
             };
 
-            const duplicate = moistureRecords.find(item =>
-                item.id !== editId && item.date === payload.date &&
-                item.lotBatch.toLowerCase() === payload.lotBatch.toLowerCase() &&
-                item.seriesNumber.toLowerCase() === payload.seriesNumber.toLowerCase() &&
-                item.brand === payload.brand
-            );
+            const duplicate = moistureRecords.find(item => {
+                if (item.id === editId || item.date !== payload.date || item.brand !== payload.brand) return false;
+                const itemMeta = getTobaccoMeta(item);
+                if (itemMeta.type !== type) return false;
+                if (receiving) return String(item.seriesNumber).toLowerCase() === payload.seriesNumber.toLowerCase();
+                return itemMeta.stockType === stockType;
+            });
             if (duplicate) {
-                showToast('Data MC dengan tanggal, lot/batch, series, dan brand tersebut sudah ada.', 'error');
+                showToast(`Data ${receiving ? 'penerimaan dengan series tersebut' : stockType.toLowerCase()} untuk tanggal dan brand tersebut sudah ada.`, 'error');
                 return;
             }
 
@@ -1413,50 +1624,63 @@
                 await loadMoistureRecords(true);
                 closeMoistureModal();
                 renderMoistureSection();
-                showToast(editId ? 'Data MC Tembakau berhasil diperbarui.' : 'Data MC Tembakau berhasil disimpan untuk semua pengguna.', 'success');
+                showToast(editId ? `Data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau berhasil diperbarui.` : `Data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau berhasil disimpan untuk semua pengguna.`, 'success');
             } catch (error) {
-                showToast(error.message || 'Data MC Tembakau gagal disimpan.', 'error');
+                showToast(error.message || 'Data Tembakau gagal disimpan.', 'error');
             }
         }
 
         function editMoistureRecord(id) {
-            if (!ensureNotGuest('mengedit data MC Tembakau')) return;
+            if (!ensureNotGuest('mengedit data Tembakau')) return;
             const item = moistureRecords.find(record => record.id === id);
-            if (item) openMoistureModal(item);
+            if (item) openMoistureModal(item, getTobaccoMeta(item).type);
         }
 
         async function deleteMoistureRecord(id) {
-            if (!ensureAdmin('menghapus data MC Tembakau')) return;
-            if (!confirm('Yakin ingin menghapus data MC Tembakau ini secara permanen?')) return;
+            if (!ensureAdmin('menghapus data Tembakau')) return;
+            if (!confirm('Yakin ingin menghapus data Tembakau ini secara permanen?')) return;
             try {
                 await apiFetch(`/api/moisture/${id}`, { method: 'DELETE' });
                 await loadMoistureRecords(true);
-                showToast('Data MC Tembakau berhasil dihapus.', 'info');
+                showToast('Data Tembakau berhasil dihapus.', 'info');
             } catch (error) {
-                showToast(error.message || 'Data MC Tembakau gagal dihapus.', 'error');
+                showToast(error.message || 'Data Tembakau gagal dihapus.', 'error');
             }
         }
 
+        function buildTobaccoExportRows(records, type) {
+            return records.filter(item => getTobaccoMeta(item).type === type).map(item => {
+                const meta = getTobaccoMeta(item);
+                if (type === 'receiving') {
+                    const availableWeights = meta.weights.filter(Number.isFinite);
+                    const averageWeight = availableWeights.length ? availableWeights.reduce((total, value) => total + value, 0) / availableWeights.length : null;
+                    return {
+                        'Tanggal': item.date, 'Inspector': item.inspector, 'Nomor Series Tembakau': item.seriesNumber,
+                        'Brand': item.brand, 'MC (%)': Number(item.moistureContent), 'Sampel Berat 1 (kg)': meta.weights[0],
+                        'Sampel Berat 2 (kg)': meta.weights[1], 'Sampel Berat 3 (kg)': meta.weights[2], 'Rata-rata Berat (kg)': averageWeight
+                    };
+                }
+                return {
+                    'Tanggal': item.date, 'Inspector': item.inspector, 'Brand': item.brand,
+                    'MC (%)': Number(item.moistureContent), 'Jenis Stock': meta.stockType
+                };
+            });
+        }
+
         function exportMoistureToExcel() {
-            if (!ensureNotGuest('mengunduh data MC Tembakau')) return;
+            if (!ensureNotGuest('mengunduh data Tembakau')) return;
             const filtered = getFilteredMoistureData();
             if (!filtered.length) {
-                showToast('Tidak ada data MC untuk diekspor pada filter aktif.', 'error');
+                showToast('Tidak ada data Tembakau untuk diekspor pada filter aktif.', 'error');
                 return;
             }
-            const rows = filtered.map(item => ({
-                'Tanggal': item.date,
-                'Nomor Lot/Batch': item.lotBatch,
-                'Nomor Series': item.seriesNumber,
-                'Brand': item.brand,
-                'MC (%)': Number(item.moistureContent),
-                'Inspector': item.inspector
-            }));
+            const rows = buildTobaccoExportRows(filtered, currentTobaccoView);
+            const label = currentTobaccoView === 'receiving' ? 'Penerimaan Tembakau' : 'Pemakaian Tembakau';
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'MC Tembakau');
-            const fileName = `MC_Tembakau_${document.getElementById('mcFilterDate').value || getTodayString()}.xlsx`;
+            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), label);
+            const fileName = `${label.replaceAll(' ', '_')}_${document.getElementById('mcFilterDate').value || getTodayString()}.xlsx`;
             XLSX.writeFile(workbook, fileName);
-            showToast(`File MC berhasil diunduh: ${fileName}`, 'success');
+            showToast(`File ${label} berhasil diunduh: ${fileName}`, 'success');
         }
 
         const packKeys = ['foldNotSquare', 'insufficientGlue', 'innerFrame', 'cigarettePosition', 'banderolPosition', 'oppFold', 'tearTapeAccess'];
@@ -1466,75 +1690,228 @@
             tearTapeAccess: 'Access Tear Tape'
         };
 
+        function addDaysToDateString(dateString, days) {
+            const date = new Date(`${dateString}T00:00:00`);
+            date.setDate(date.getDate() + days);
+            const pad = value => String(value).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        }
+
+        function updateOverviewModeUI() {
+            const weekly = document.getElementById('overviewMode').value === 'weekly';
+            document.getElementById('overviewDateWrap').classList.toggle('hidden', weekly);
+            document.getElementById('overviewWeekWrap').classList.toggle('hidden', !weekly);
+            if (weekly && !document.getElementById('overviewWeekStart').value) {
+                document.getElementById('overviewWeekStart').value = document.getElementById('overviewDate').value || getTodayString();
+            }
+            renderOverview();
+        }
+
+        function getOverviewRange() {
+            const mode = document.getElementById('overviewMode').value;
+            if (mode === 'weekly') {
+                const start = document.getElementById('overviewWeekStart').value || getTodayString();
+                return { mode, start, end: addDaysToDateString(start, 6), days: 7 };
+            }
+            const selected = document.getElementById('overviewDate').value || getTodayString();
+            return { mode: 'daily', start: selected, end: selected, days: 1 };
+        }
+
         function renderOverview() {
             const dateInput = document.getElementById('overviewDate');
             if (!dateInput) return;
-            const selectedDate = dateInput.value || getTodayString();
-            const gilingData = inspections.filter(item => item.date === selectedDate);
-            const packData = packRecords.filter(item => item.date === selectedDate);
-            const tobaccoData = moistureRecords.filter(item => item.date === selectedDate);
+            const range = getOverviewRange();
+            const inRange = item => item.date >= range.start && item.date <= range.end;
+            const gilingData = inspections.filter(inRange);
+            const packData = packRecords.filter(inRange);
+            const tobaccoData = moistureRecords.filter(inRange);
+            const receivingData = tobaccoData.filter(item => getTobaccoMeta(item).type === 'receiving');
+            const usageData = tobaccoData.filter(item => getTobaccoMeta(item).type === 'usage');
 
             const gilingAggregate = calculateAggregates(gilingData);
-            const packValues = packData.flatMap(item => packKeys.map(key => Number(item.params[key]) || 0));
+            const packValues = packData.flatMap(item => packKeys.map(key => Number(item.params?.[key]) || 0));
             const packAverage = packValues.length
                 ? (packValues.reduce((total, value) => total + value, 0) / (packValues.length * 10)) * 100
                 : null;
-            const tobaccoAverage = tobaccoData.length
-                ? tobaccoData.reduce((total, item) => total + Number(item.moistureContent), 0) / tobaccoData.length
+            const averageMc = rows => rows.length
+                ? rows.reduce((total, item) => total + Number(item.moistureContent), 0) / rows.length
                 : null;
+            const receivingAverage = averageMc(receivingData);
+            const usageAverage = averageMc(usageData);
+            const samplingTarget = 72 * range.days;
+            const samplingPercent = Math.min(100, (gilingData.length / samplingTarget) * 100);
 
             document.getElementById('overviewGilingCount').innerText = gilingData.length;
             document.getElementById('overviewGilingScore').innerText = gilingData.length ? `${gilingAggregate.overallInSpecPct.toFixed(1)}%` : '—';
+            document.getElementById('overviewGilingOut').innerText = gilingData.length ? `Out: ${gilingAggregate.overallOutSpecPct.toFixed(1)}%` : 'Out: —';
             document.getElementById('overviewPackCount').innerText = packData.length;
             document.getElementById('overviewPackScore').innerText = packAverage === null ? '—' : `${packAverage.toFixed(1)}%`;
-            document.getElementById('overviewTobaccoCount').innerText = tobaccoData.length;
-            document.getElementById('overviewTobaccoScore').innerText = tobaccoAverage === null ? '—' : `${tobaccoAverage.toFixed(2)}%`;
-            document.getElementById('overviewTotalRecords').innerText = gilingData.length + packData.length + tobaccoData.length;
-            document.getElementById('overviewLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+            document.getElementById('overviewPackOut').innerText = packAverage === null ? 'Out: —' : `Out: ${(100 - packAverage).toFixed(1)}%`;
+            document.getElementById('overviewReceivingCount').innerText = receivingData.length;
+            document.getElementById('overviewReceivingScore').innerText = receivingAverage === null ? '—' : `${receivingAverage.toFixed(2)}%`;
+            document.getElementById('overviewUsageCount').innerText = usageData.length;
+            document.getElementById('overviewUsageScore').innerText = usageAverage === null ? '—' : `${usageAverage.toFixed(2)}%`;
+            document.getElementById('overviewSamplingStatus').innerText = `${gilingData.length}/${samplingTarget}`;
+            document.getElementById('overviewSamplingTitle').innerText = range.mode === 'weekly' ? 'Status Sampling Mingguan' : 'Status Sampling Giling Gunting';
+            document.getElementById('overviewSamplingCaption').innerText = range.mode === 'weekly'
+                ? `${range.start} s/d ${range.end} · target 72 sampling/hari`
+                : '24 kelompok × 3 sampling per hari';
+            const samplingPercentEl = document.getElementById('overviewSamplingPercent');
+            samplingPercentEl.innerText = `${samplingPercent.toFixed(0)}%`;
+            samplingPercentEl.className = `text-xs font-black ${samplingPercent >= 100 ? 'text-emerald-400' : samplingPercent > 0 ? 'text-amber-300' : 'text-rose-400'}`;
 
-            const activities = [
-                ...gilingData.map(item => ({
-                    station: 'Giling Gunting',
-                    icon: 'cigarette',
-                    detail: `${item.kelompok} · Sampling ${item.sampling}`,
-                    inspector: item.inspector,
-                    result: `${calculateAggregates([item]).overallInSpecPct.toFixed(1)}% in-spec`,
-                    createdAt: item.createdAt
-                })),
-                ...packData.map(item => {
-                    const values = packKeys.map(key => Number(item.params[key]) || 0);
-                    const average = values.reduce((total, value) => total + value, 0) / (values.length * 10) * 100;
-                    return {
-                        station: 'Packaging',
-                        icon: 'package-check',
-                        detail: `${item.building || item.params?.building || 'Gedung belum diisi'} · Jam ${String(item.samplingTime).replace(':', '.')}`,
-                        inspector: item.inspector,
-                        result: `${average.toFixed(1)}% packaging baik`,
-                        createdAt: item.createdAt
-                    };
-                }),
-                ...tobaccoData.map(item => ({
-                    station: 'Tembakau',
-                    icon: 'droplets',
-                    detail: `${item.lotBatch} · ${item.seriesNumber}`,
-                    inspector: item.inspector,
-                    result: `${Number(item.moistureContent).toFixed(2)}% MC`,
-                    createdAt: item.createdAt
-                }))
-            ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 8);
+            renderOverviewCharts(gilingData, gilingAggregate, packData, range);
+        }
 
-            const body = document.getElementById('overviewActivityBody');
-            if (!activities.length) {
-                body.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400">Belum ada aktivitas pada tanggal ini.</td></tr>';
-                return;
+        const overviewTargetLinePlugin = {
+            id: 'overviewTargetLine',
+            afterDatasetsDraw(chart, args, options) {
+                if (!options || options.display === false) return;
+                const scale = chart.scales[options.scaleId || 'y'];
+                if (!scale) return;
+                const target = Number(options.value || 90);
+                const pixel = scale.getPixelForValue(target);
+                const { ctx, chartArea } = chart;
+                ctx.save();
+                ctx.strokeStyle = '#fbbf24';
+                ctx.fillStyle = '#fbbf24';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([6, 5]);
+                ctx.beginPath();
+                if ((options.scaleId || 'y') === 'x') {
+                    ctx.moveTo(pixel, chartArea.top);
+                    ctx.lineTo(pixel, chartArea.bottom);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(`Target ${target}%`, Math.min(pixel + 5, chartArea.right - 62), chartArea.top + 11);
+                } else {
+                    ctx.moveTo(chartArea.left, pixel);
+                    ctx.lineTo(chartArea.right, pixel);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(`Target ${target}%`, chartArea.left + 5, Math.max(chartArea.top + 11, pixel - 5));
+                }
+                ctx.restore();
             }
-            body.innerHTML = activities.map(item => `<tr class="border-b border-purple-800/30 hover:bg-purple-950/60">
-                <td class="p-3"><span class="inline-flex items-center gap-2 font-bold text-purple-200"><i data-lucide="${item.icon}" class="w-4 h-4"></i>${escapeHtml(item.station)}</span></td>
-                <td class="p-3 text-slate-300">${escapeHtml(item.detail)}</td>
-                <td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
-                <td class="p-3 text-right font-bold text-white">${escapeHtml(item.result)}</td>
-            </tr>`).join('');
-            lucide.createIcons();
+        };
+
+        function renderOverviewCharts(gilingData, gilingAggregate, packData, range) {
+            const target = Number(masterData.targetYellow) || 90;
+            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${target}%`;
+
+            const parameters = [
+                ['GTG', 'gtg'], ['KRPS', 'krps'], ['KMLS', 'kmls'], ['RING', 'ring'], ['BST', 'bst'],
+                ['SPT', 'spt'], ['KRT', 'krt'], ['BRT', 'brt'], ['DMT', 'dmt']
+            ].map(([label, key]) => {
+                const inSpec = gilingAggregate.totalSample > 0 ? (gilingAggregate.sum[key] / gilingAggregate.totalSample) * 100 : 0;
+                return { label, inSpec: Number(inSpec.toFixed(1)), outSpec: Number((100 - inSpec).toFixed(1)) };
+            }).sort((a, b) => a.inSpec - b.inSpec);
+
+            document.getElementById('overviewParameterEmpty').classList.toggle('hidden', gilingData.length > 0);
+            if (overviewParamChart) overviewParamChart.destroy();
+            overviewParamChart = new Chart(document.getElementById('overviewParameterChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: parameters.map(item => item.label),
+                    datasets: [
+                        { label: 'In-Spec (%)', data: parameters.map(item => item.inSpec), backgroundColor: '#9b3ff3', borderRadius: 5, borderSkipped: false },
+                        { label: 'Out-Spec (%)', data: parameters.map(item => item.outSpec), backgroundColor: '#f43f5e', borderRadius: 5, borderSkipped: false }
+                    ]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { min: 0, max: 100, stacked: true, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#f7f0ff', font: { size: 11, weight: 'bold' } } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f7f0ff', boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: context => `${context.dataset.label}: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'x', display: gilingData.length > 0 }
+                    }
+                }
+            });
+
+            let trendLabels;
+            let trendValues;
+            if (range.mode === 'weekly') {
+                const dates = Array.from({ length: 7 }, (_, index) => addDaysToDateString(range.start, index));
+                trendLabels = dates.map(date => `${date.slice(8, 10)}/${date.slice(5, 7)}`);
+                trendValues = dates.map(date => {
+                    const rows = gilingData.filter(item => item.date === date);
+                    return rows.length ? Number(calculateAggregates(rows).overallInSpecPct.toFixed(1)) : null;
+                });
+                document.getElementById('overviewTrendTitle').innerText = 'Trend Giling Gunting Mingguan';
+                document.getElementById('overviewTrendCaption').innerText = `Overall in-spec harian · ${range.start} s/d ${range.end}`;
+            } else {
+                const samplingNumbers = [1, 2, 3];
+                trendLabels = samplingNumbers.map(number => String(masterData.samplingTimes[number] || `Sampling ${number}`).replace(':', '.'));
+                trendValues = samplingNumbers.map(number => {
+                    const rows = gilingData.filter(item => String(item.sampling) === String(number));
+                    return rows.length ? Number(calculateAggregates(rows).overallInSpecPct.toFixed(1)) : null;
+                });
+                document.getElementById('overviewTrendTitle').innerText = 'Trend Giling Gunting per Sampling';
+                document.getElementById('overviewTrendCaption').innerText = 'Overall in-spec pada sampling pukul 08.00, 10.00, dan 13.00';
+            }
+            const hasTrendData = trendValues.some(value => value !== null);
+            document.getElementById('overviewSamplingEmpty').classList.toggle('hidden', hasTrendData);
+            if (overviewSamplingChart) overviewSamplingChart.destroy();
+            overviewSamplingChart = new Chart(document.getElementById('overviewSamplingTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'Overall In-Spec (%)', data: trendValues, borderColor: '#c084fc', backgroundColor: 'rgba(155,63,243,0.18)',
+                        pointBackgroundColor: '#e9d5ff', pointBorderColor: '#4e3867', pointBorderWidth: 2, pointRadius: 5,
+                        borderWidth: 3, tension: 0.3, fill: true, spanGaps: false
+                    }]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#f7f0ff' } },
+                        y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: context => `Overall In-Spec: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'y', display: hasTrendData }
+                    }
+                }
+            });
+
+            const buildings = ['GEDUNG A', 'GEDUNG B'];
+            const buildingValues = buildings.map(building => {
+                const rows = packData.filter(item => String(item.building || item.params?.building || '').toUpperCase() === building);
+                const values = rows.flatMap(item => packKeys.map(key => Number(item.params?.[key]) || 0));
+                return values.length ? Number(((values.reduce((total, value) => total + value, 0) / (values.length * 10)) * 100).toFixed(1)) : null;
+            });
+            document.getElementById('overviewBuildingEmpty').classList.toggle('hidden', buildingValues.some(value => value !== null));
+            if (overviewBuildingChart) overviewBuildingChart.destroy();
+            overviewBuildingChart = new Chart(document.getElementById('overviewBuildingChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Gedung A', 'Gedung B'],
+                    datasets: [{ label: 'Packaging Baik (%)', data: buildingValues, backgroundColor: ['#9b3ff3', '#818cf8'], borderRadius: 8, maxBarThickness: 82 }]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#f7f0ff', font: { weight: 'bold' } } },
+                        y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: context => `Packaging Baik: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'y', display: buildingValues.some(value => value !== null) }
+                    }
+                }
+            });
         }
 
         function getFilteredPackData() {
@@ -1675,15 +2052,55 @@
             showToast(`File Quality Packaging berhasil diunduh: ${fileName}`, 'success');
         }
 
+        function updateGilingPeriodUI(shouldRender = true) {
+            const mode = document.getElementById('gilingPeriodMode')?.value || 'daily';
+            const today = getTodayString();
+            document.getElementById('gilingDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('gilingWeekWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('gilingMonthWrap').classList.toggle('hidden', mode !== 'monthly');
+
+            if (mode === 'weekly' && !document.getElementById('gilingWeekStart').value) {
+                document.getElementById('gilingWeekStart').value = document.getElementById('filterDate').value || today;
+            }
+            if (mode === 'monthly' && !document.getElementById('gilingMonth').value) {
+                document.getElementById('gilingMonth').value = (document.getElementById('filterDate').value || today).slice(0, 7);
+            }
+            if (shouldRender) renderDashboard();
+        }
+
+        function getGilingFilterRange() {
+            const mode = document.getElementById('gilingPeriodMode')?.value || 'daily';
+            if (mode === 'weekly') {
+                const start = document.getElementById('gilingWeekStart').value || getTodayString();
+                return { mode, start, end: addDaysToDateString(start, 6), days: 7 };
+            }
+            if (mode === 'monthly') {
+                const selectedMonth = document.getElementById('gilingMonth').value || getTodayString().slice(0, 7);
+                const [year, month] = selectedMonth.split('-').map(Number);
+                const days = new Date(year, month, 0).getDate();
+                return { mode, start: `${selectedMonth}-01`, end: `${selectedMonth}-${String(days).padStart(2, '0')}`, days };
+            }
+            const selectedDate = document.getElementById('filterDate').value || getTodayString();
+            return { mode: 'daily', start: selectedDate, end: selectedDate, days: 1 };
+        }
+
+        function getGilingRangeDates(range) {
+            return Array.from({ length: range.days }, (_, index) => addDaysToDateString(range.start, index));
+        }
+
+        function formatGilingDate(dateString, options = { day: '2-digit', month: 'short' }) {
+            return new Date(`${dateString}T00:00:00`).toLocaleDateString('id-ID', options);
+        }
+
         function getFilteredData() {
-            const fDate = document.getElementById('filterDate').value;
+            const range = getGilingFilterRange();
             const fKelompok = document.getElementById('filterKelompok').value;
             const fBrand = document.getElementById('filterBrand').value;
             const fSampling = document.getElementById('filterSampling').value;
             const fInspector = document.getElementById('filterInspector').value;
 
             return inspections.filter(item => {
-                if (fDate && item.date !== fDate) return false;
+                if (item.date < range.start || item.date > range.end) return false;
                 if (fKelompok !== 'ALL' && item.kelompok !== fKelompok) return false;
                 if (fBrand !== 'ALL' && item.brand !== fBrand) return false;
                 if (fSampling !== 'ALL' && item.sampling.toString() !== fSampling) return false;
@@ -1739,6 +2156,8 @@
         function renderDashboard() {
             const data = getFilteredData();
             const agg = calculateAggregates(data);
+            const range = getGilingFilterRange();
+            const periodData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
 
             // KPI Cards
             document.getElementById('kpiTotalSample').innerText = agg.totalSample.toLocaleString('id-ID');
@@ -1753,21 +2172,40 @@
             applyKpiColor('kpiVisualBadge', agg.visualInSpecPct);
             applyKpiColor('kpiPhysicalBadge', agg.physicalInSpecPct);
 
-            // Kelengkapan Sampling 72/hari
-            const targetDate = document.getElementById('filterDate').value;
-            const dayData = inspections.filter(i => i.date === targetDate);
-            const totalEntered = dayData.length;
-            const pct = Math.min(100, (totalEntered / 72) * 100);
-            document.getElementById('completenessBadge').innerText = `${totalEntered}/72 Masuk`;
+            // Kelengkapan sampling mengikuti periode terpilih
+            const targetEntries = 72 * range.days;
+            const totalEntered = periodData.length;
+            const pct = Math.min(100, (totalEntered / targetEntries) * 100);
+            const periodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
+            const rangeLabel = range.mode === 'daily'
+                ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
+                : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
+            document.getElementById('gilingCompletenessTitle').innerText = range.mode === 'daily'
+                ? 'Status Kelengkapan Harian (24 Kelompok × 3 Sampling)'
+                : `Status Kelengkapan ${periodName} (24 Kelompok × 3 Sampling × ${range.days} Hari)`;
+            document.getElementById('gilingCompletenessCaption').innerText = `Periode ${rangeLabel} · target ${targetEntries.toLocaleString('id-ID')} sampling (${(targetEntries * 10).toLocaleString('id-ID')} batang default).`;
+            document.getElementById('completenessBadge').innerText = `${totalEntered}/${targetEntries} Masuk`;
             document.getElementById('completenessBar').style.width = `${pct}%`;
             document.getElementById('completenessPercent').innerText = `${pct.toFixed(0)}%`;
 
-            const inspectedKelompokSet = new Set(dayData.map(d => d.kelompok));
-            const inspectedCount = inspectedKelompokSet.size;
-            document.getElementById('kpiKelompokDone').innerText = inspectedCount;
-            document.getElementById('kpiKelompokPending').innerText = `${24 - inspectedCount} Belum Selesai`;
+            if (range.mode === 'daily') {
+                const inspectedCount = new Set(periodData.map(item => item.kelompok)).size;
+                document.getElementById('kpiPeriodStatusLabel').innerText = 'Kelompok Selesai';
+                document.getElementById('kpiPeriodStatusSuffix').innerText = '/ 24 Kelompok';
+                document.getElementById('kpiKelompokDone').innerText = inspectedCount;
+                document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, 24 - inspectedCount)} Belum Selesai`;
+            } else {
+                const daysWithData = new Set(periodData.map(item => item.date)).size;
+                document.getElementById('kpiPeriodStatusLabel').innerText = 'Hari Terdata';
+                document.getElementById('kpiPeriodStatusSuffix').innerText = `/ ${range.days} Hari`;
+                document.getElementById('kpiKelompokDone').innerText = daysWithData;
+                document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, range.days - daysWithData)} Hari Belum Ada Data`;
+            }
 
-            renderKelompokMatrix(dayData);
+            const matrixPanel = document.getElementById('kelompokMatrixPanel');
+            matrixPanel.classList.toggle('hidden', range.mode !== 'daily');
+            if (range.mode === 'daily') renderKelompokMatrix(periodData);
+            renderGilingPeriodTrend(data, range);
             renderCharts(agg);
             renderParameterTable(agg);
 
@@ -1815,6 +2253,82 @@
                     </div>
                 `;
             }
+        }
+
+        function renderGilingPeriodTrend(data, range) {
+            const title = document.getElementById('gilingPeriodTrendTitle');
+            const caption = document.getElementById('gilingPeriodTrendCaption');
+            const emptyState = document.getElementById('gilingPeriodTrendEmpty');
+            let labels = [];
+            let values = [];
+
+            if (range.mode === 'daily') {
+                labels = [1, 2, 3].map(number => `Sampling ${number}`);
+                values = [1, 2, 3].map(number => {
+                    const samplingData = data.filter(item => Number(item.sampling) === number);
+                    return samplingData.length ? Number(calculateAggregates(samplingData).overallInSpecPct.toFixed(1)) : null;
+                });
+                title.innerText = 'Trend Kualitas Giling Gunting Harian';
+                caption.innerText = `Overall In-Spec per sampling · ${formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })}`;
+            } else {
+                const dates = getGilingRangeDates(range);
+                labels = dates.map(date => formatGilingDate(date));
+                values = dates.map(date => {
+                    const dateData = data.filter(item => item.date === date);
+                    return dateData.length ? Number(calculateAggregates(dateData).overallInSpecPct.toFixed(1)) : null;
+                });
+                const periodName = range.mode === 'weekly' ? 'Mingguan' : 'Bulanan';
+                title.innerText = `Trend Kualitas Giling Gunting ${periodName}`;
+                caption.innerText = `Overall In-Spec per hari · ${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
+            }
+
+            const hasData = values.some(value => value !== null);
+            emptyState.classList.toggle('hidden', hasData);
+            emptyState.classList.toggle('flex', !hasData);
+
+            const context = document.getElementById('gilingPeriodTrendChart').getContext('2d');
+            if (gilingPeriodTrendChart) gilingPeriodTrendChart.destroy();
+            gilingPeriodTrendChart = new Chart(context, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Overall In-Spec (%)',
+                        data: values,
+                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(168, 85, 247, 0.16)',
+                        pointBackgroundColor: '#c4b5fd',
+                        pointBorderColor: '#6d28d9',
+                        pointRadius: range.mode === 'monthly' ? 2.5 : 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 2.5,
+                        tension: 0.3,
+                        spanGaps: false,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            grid: { color: '#2f0c54' },
+                            ticks: { color: '#c4b5fd', font: { size: 10 }, maxRotation: 0, autoSkip: range.mode === 'monthly', maxTicksLimit: range.mode === 'monthly' ? 12 : 31 }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: '#2f0c54' },
+                            ticks: { color: '#e2e8f0', callback: value => `${value}%` }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f7f0ff', font: { size: 11 } } },
+                        tooltip: { callbacks: { label: context => context.parsed.y === null ? 'Belum ada data' : ` Overall In-Spec: ${context.parsed.y.toFixed(1)}%` } }
+                    }
+                }
+            });
         }
 
         function renderCharts(agg) {
@@ -2194,16 +2708,11 @@
                     [`Keterangan ${packLabels[key]}`, item.params?.notes?.[key] || '']
                 ]))
             }));
-            const tobaccoRows = moistureRecords.filter(item => inRange(item.date)).map(item => ({
-                'Tanggal': item.date,
-                'Lot/Batch': item.lotBatch,
-                'Nomor Series': item.seriesNumber,
-                'Brand': item.brand,
-                'MC (%)': Number(item.moistureContent),
-                'Inspector': item.inspector
-            }));
+            const tobaccoPeriodRecords = moistureRecords.filter(item => inRange(item.date));
+            const receivingRows = buildTobaccoExportRows(tobaccoPeriodRecords, 'receiving');
+            const usageRows = buildTobaccoExportRows(tobaccoPeriodRecords, 'usage');
 
-            if (!gilingRows.length && !packRows.length && !tobaccoRows.length) {
+            if (!gilingRows.length && !packRows.length && !receivingRows.length && !usageRows.length) {
                 showToast('Tidak ada data pada periode yang dipilih.', 'error');
                 return;
             }
@@ -2219,14 +2728,17 @@
                 'Dibuat Oleh': currentUser ? currentUser.displayName : '-',
                 'Total Data Giling Gunting': gilingRows.length,
                 'Total Data Packaging': packRows.length,
-                'Total Data Tembakau': tobaccoRows.length,
-                'Total Seluruh Data': gilingRows.length + packRows.length + tobaccoRows.length
+                'Total Penerimaan Tembakau': receivingRows.length,
+                'Total Pemakaian Tembakau': usageRows.length,
+                'Total Data Tembakau': receivingRows.length + usageRows.length,
+                'Total Seluruh Data': gilingRows.length + packRows.length + receivingRows.length + usageRows.length
             }];
 
             XLSX.utils.book_append_sheet(workbook, createSheet(summaryRows), 'Ringkasan Backup');
             XLSX.utils.book_append_sheet(workbook, createSheet(gilingRows), 'Giling Gunting');
             XLSX.utils.book_append_sheet(workbook, createSheet(packRows), 'Packaging');
-            XLSX.utils.book_append_sheet(workbook, createSheet(tobaccoRows), 'Tembakau');
+            XLSX.utils.book_append_sheet(workbook, createSheet(receivingRows), 'Penerimaan Tembakau');
+            XLSX.utils.book_append_sheet(workbook, createSheet(usageRows), 'Pemakaian Tembakau');
 
             const fileName = `Backup_QC_${range.start}_sd_${range.end}.xlsx`;
             XLSX.writeFile(workbook, fileName);
@@ -2276,28 +2788,25 @@
                         [`Keterangan ${packLabels[key]}`, item.params?.notes?.[key] || '']
                     ]))
                 }));
-                const tobaccoRows = moistureRecords.map(item => ({
-                    'Tanggal': item.date,
-                    'Lot/Batch': item.lotBatch,
-                    'Nomor Series': item.seriesNumber,
-                    'Brand': item.brand,
-                    'MC (%)': Number(item.moistureContent),
-                    'Inspector': item.inspector
-                }));
+                const receivingRows = buildTobaccoExportRows(moistureRecords, 'receiving');
+                const usageRows = buildTobaccoExportRows(moistureRecords, 'usage');
                 const summaryRows = [{
                     'Periode Backup': formatMonthName(currentMonth),
                     'Waktu Backup': new Date().toLocaleString('id-ID'),
                     'Dibuat Oleh': currentUser.displayName,
                     'Total Data Giling Gunting': inspections.length,
                     'Total Data Packaging': packRecords.length,
-                    'Total Data Tembakau': moistureRecords.length,
+                    'Total Penerimaan Tembakau': receivingRows.length,
+                    'Total Pemakaian Tembakau': usageRows.length,
+                    'Total Data Tembakau': receivingRows.length + usageRows.length,
                     'Total Seluruh Data': inspections.length + packRecords.length + moistureRecords.length
                 }];
 
                 XLSX.utils.book_append_sheet(workbook, createSheet(summaryRows), 'Ringkasan Backup');
                 XLSX.utils.book_append_sheet(workbook, createSheet(gilingRows), 'Giling Gunting');
                 XLSX.utils.book_append_sheet(workbook, createSheet(packRows), 'Packaging');
-                XLSX.utils.book_append_sheet(workbook, createSheet(tobaccoRows), 'Tembakau');
+                XLSX.utils.book_append_sheet(workbook, createSheet(receivingRows), 'Penerimaan Tembakau');
+                XLSX.utils.book_append_sheet(workbook, createSheet(usageRows), 'Pemakaian Tembakau');
 
                 const fileName = `Backup_Quality_Inspection_${currentMonth}.xlsx`;
                 XLSX.writeFile(workbook, fileName);
@@ -2319,6 +2828,7 @@
         function exportToExcel() {
             if (!ensureNotGuest('mengunduh data Giling Gunting')) return;
             const filtered = getFilteredData();
+            const range = getGilingFilterRange();
             if (filtered.length === 0) {
                 showToast('Tidak ada data untuk diekspor pada filter aktif.', 'error');
                 return;
@@ -2349,7 +2859,7 @@
             const ws1 = XLSX.utils.json_to_sheet(rawRows);
             XLSX.utils.book_append_sheet(wb, ws1, "Raw Data Inspection");
 
-            // Sheet 2: Rekap Harian per Kelompok
+            // Sheet 2: Rekap periode per Kelompok
             const groupedByKelompok = {};
             filtered.forEach(d => {
                 if (!groupedByKelompok[d.kelompok]) groupedByKelompok[d.kelompok] = [];
@@ -2363,7 +2873,7 @@
                 rekapKelompokRows.push({
                     'Kelompok': k,
                     'Jumlah Sampling Masuk': items.length,
-                    'Total Sampel Harian (Batang)': aggK.totalSample,
+                    'Total Sampel Periode (Batang)': aggK.totalSample,
                     'Visual In-Spec (%)': aggK.visualInSpecPct.toFixed(2) + '%',
                     'Physical In-Spec (%)': aggK.physicalInSpecPct.toFixed(2) + '%',
                     'Overall In-Spec (%)': aggK.overallInSpecPct.toFixed(2) + '%',
@@ -2420,7 +2930,8 @@
             const ws5 = XLSX.utils.json_to_sheet(categorySummaryRows);
             XLSX.utils.book_append_sheet(wb, ws5, "Rekap Visual & Physical");
 
-            const fileName = `Quality_Inspection_SKT_${getTodayString()}.xlsx`;
+            const periodLabel = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
+            const fileName = `Quality_Inspection_SKT_${periodLabel}_${range.start}_${range.end}.xlsx`;
             XLSX.writeFile(wb, fileName);
             showToast(`File Excel 5-Sheet berhasil diunduh: ${fileName}`, 'success');
         }
@@ -2437,11 +2948,16 @@
 
         function applyFilters() { renderDashboard(); }
         function resetFilters() {
+            const today = getTodayString();
+            document.getElementById('gilingPeriodMode').value = 'daily';
             document.getElementById('filterKelompok').value = 'ALL';
             document.getElementById('filterBrand').value = 'ALL';
             document.getElementById('filterSampling').value = 'ALL';
             document.getElementById('filterInspector').value = 'ALL';
-            document.getElementById('filterDate').value = getTodayString();
+            document.getElementById('filterDate').value = today;
+            document.getElementById('gilingWeekStart').value = today;
+            document.getElementById('gilingMonth').value = today.slice(0, 7);
+            updateGilingPeriodUI(false);
             renderDashboard();
         }
 
