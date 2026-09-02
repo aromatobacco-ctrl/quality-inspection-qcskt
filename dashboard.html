@@ -97,7 +97,6 @@
                     <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
                     <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
                     <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
-                    <button onclick="switchTab('history')" id="tabBtnHistory" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="table" class="w-4 h-4"></i> Riwayat Giling</button>
                     <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
                 </div>
             </div>
@@ -548,10 +547,8 @@
                     </table>
                 </div>
             </div>
-        </section>
-
-        <!-- ==================== TAB 2: DATA RIWAYAT & CRUD ==================== -->
-        <section id="tabHistory" class="space-y-4 hidden">
+        <!-- ==================== RIWAYAT GILING (TERGABUNG) ==================== -->
+        <div id="gilingHistoryPanel" class="space-y-4 border-t border-purple-700/40 pt-6">
             <div class="bg-purple-900/40 border border-purple-800/60 rounded-2xl p-4 shadow-md flex flex-wrap justify-between items-center gap-3">
                 <div>
                     <h2 class="text-base font-bold text-white">Riwayat Giling Gunting</h2>
@@ -592,6 +589,7 @@
                     </table>
                 </div>
             </div>
+        </div>
         </section>
 
         <!-- ==================== TAB 3: TEMBAKAU ==================== -->
@@ -1301,7 +1299,7 @@
                 document.getElementById('tabBtnSettings').classList.add('hidden');
             }
 
-            ['Giling', 'Pack', 'Moisture', 'History', 'Settings'].forEach(tabName => {
+            ['Giling', 'Pack', 'Moisture', 'Settings'].forEach(tabName => {
                 document.getElementById(`tabBtn${tabName}`).classList.toggle('hidden', guestMode);
             });
             document.getElementById('guestReadOnlyNotice').classList.toggle('hidden', !guestMode);
@@ -1329,12 +1327,11 @@
             }
             document.getElementById('tabDashboard').classList.add('hidden');
             document.getElementById('tabGiling').classList.add('hidden');
-            document.getElementById('tabHistory').classList.add('hidden');
             document.getElementById('tabMoisture').classList.add('hidden');
             document.getElementById('tabPack').classList.add('hidden');
             document.getElementById('tabSettings').classList.add('hidden');
 
-            ['Dashboard', 'Giling', 'Pack', 'Moisture', 'History', 'Settings'].forEach(t => {
+            ['Dashboard', 'Giling', 'Pack', 'Moisture', 'Settings'].forEach(t => {
                 const btn = document.getElementById(`tabBtn${t}`);
                 btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all";
                 if ((t === 'Settings' && currentRole !== 'ADMIN') || (currentRole === 'GUEST' && t !== 'Dashboard')) btn.classList.add('hidden');
@@ -1349,9 +1346,6 @@
                 document.getElementById('tabGiling').classList.remove('hidden');
                 document.getElementById('tabBtnGiling').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all";
                 renderDashboard();
-            } else if (tabId === 'history') {
-                document.getElementById('tabHistory').classList.remove('hidden');
-                document.getElementById('tabBtnHistory').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all";
                 renderHistoryTable();
             } else if (tabId === 'moisture') {
                 document.getElementById('tabMoisture').classList.remove('hidden');
