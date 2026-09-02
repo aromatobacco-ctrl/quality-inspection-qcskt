@@ -557,8 +557,16 @@
                     <h2 class="text-base font-bold text-white">Riwayat Giling Gunting</h2>
                     <p class="text-xs text-purple-300">Daftar inspeksi Giling Gunting dan detail sampling kelompok</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="searchHistory" oninput="renderHistoryTable()" placeholder="Cari kelompok, brand, inspector..." class="bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-400 w-64">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <div class="flex items-center gap-2 rounded-xl border border-purple-700/80 bg-purple-950 px-3 py-1.5">
+                        <i data-lucide="calendar-days" class="h-4 w-4 text-purple-300"></i>
+                        <input type="date" id="historyDate" onchange="renderHistoryTable()" class="bg-transparent text-xs text-white focus:outline-none [color-scheme:dark]">
+                    </div>
+                    <button type="button" onclick="clearHistoryDate()" class="rounded-xl border border-purple-700/80 bg-purple-950 px-3 py-2 text-xs font-semibold text-purple-200 hover:bg-purple-900">Semua Tanggal</button>
+                    <input type="text" id="searchHistory" oninput="renderHistoryTable()" placeholder="Cari kelompok, brand, inspector..." class="bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400 w-56">
+                    <button type="button" onclick="downloadHistoryChart()" class="flex items-center gap-2 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-black text-white shadow hover:bg-purple-500">
+                        <i data-lucide="image-down" class="h-4 w-4"></i> Unduh Ringkasan Grafik
+                    </button>
                 </div>
             </div>
 
@@ -1110,6 +1118,7 @@
                 document.getElementById('overviewDate').value = getTodayString();
                 document.getElementById('overviewWeekStart').value = getTodayString();
                 document.getElementById('inputDate').value = getTodayString();
+                document.getElementById('historyDate').value = getTodayString();
                 document.getElementById('mcFilterDate').value = getTodayString();
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
@@ -2529,8 +2538,10 @@
         function renderHistoryTable() {
             const tbody = document.getElementById('tableHistoryBody');
             const query = (document.getElementById('searchHistory') ? document.getElementById('searchHistory').value : '').toLowerCase();
+            const selectedDate = document.getElementById('historyDate') ? document.getElementById('historyDate').value : '';
 
             const filtered = inspections.filter(i => {
+                if (selectedDate && i.date !== selectedDate) return false;
                 return i.kelompok.toLowerCase().includes(query) ||
                        i.brand.toLowerCase().includes(query) ||
                        i.inspector.toLowerCase().includes(query) ||
@@ -2579,6 +2590,97 @@
             }).join('');
 
             lucide.createIcons();
+        }
+
+        function clearHistoryDate() {
+            document.getElementById('historyDate').value = '';
+            renderHistoryTable();
+        }
+
+        function getHistoryFilteredRows() {
+            const selectedDate = document.getElementById('historyDate').value;
+            const query = document.getElementById('searchHistory').value.trim().toLowerCase();
+            return inspections.filter(item => {
+                if (selectedDate && item.date !== selectedDate) return false;
+                if (!query) return true;
+                return item.kelompok.toLowerCase().includes(query)
+                    || item.brand.toLowerCase().includes(query)
+                    || item.inspector.toLowerCase().includes(query)
+                    || item.date.includes(query);
+            });
+        }
+
+        function downloadHistoryChart() {
+            const rows = getHistoryFilteredRows();
+            if (!rows.length) {
+                showToast('Tidak ada data untuk dibuat menjadi grafik.', 'error');
+                return;
+            }
+
+            const groups = [...new Set(rows.map(item => item.kelompok))].sort((a, b) =>
+                a.localeCompare(b, 'id', { numeric: true })
+            );
+            const visualData = [];
+            const physicalData = [];
+            const overallData = [];
+            groups.forEach(group => {
+                const agg = calculateAggregates(rows.filter(item => item.kelompok === group));
+                visualData.push(Number(agg.visualInSpecPct.toFixed(1)));
+                physicalData.push(Number(agg.physicalInSpecPct.toFixed(1)));
+                overallData.push(Number(agg.overallInSpecPct.toFixed(1)));
+            });
+
+            const selectedDate = document.getElementById('historyDate').value;
+            const dateLabel = selectedDate || 'Semua Tanggal';
+            const canvas = document.createElement('canvas');
+            canvas.width = 1800;
+            canvas.height = 1000;
+            const ctx = canvas.getContext('2d');
+            const whiteBackground = {
+                id: 'downloadWhiteBackground',
+                beforeDraw(chart) {
+                    const context = chart.ctx;
+                    context.save();
+                    context.globalCompositeOperation = 'destination-over';
+                    context.fillStyle = '#ffffff';
+                    context.fillRect(0, 0, chart.width, chart.height);
+                    context.restore();
+                }
+            };
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                plugins: [whiteBackground],
+                data: {
+                    labels: groups,
+                    datasets: [
+                        { label: 'Visual In-Spec', data: visualData, backgroundColor: '#7c3aed', borderRadius: 7 },
+                        { label: 'Physical In-Spec', data: physicalData, backgroundColor: '#6366f1', borderRadius: 7 },
+                        { label: 'Overall In-Spec', data: overallData, backgroundColor: '#10b981', borderRadius: 7 }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    animation: false,
+                    layout: { padding: { top: 20, right: 45, bottom: 20, left: 35 } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#312e81', font: { size: 18, weight: 'bold' }, maxRotation: 45, minRotation: 0 } },
+                        y: { min: 0, max: 100, grid: { color: '#e9d5ff' }, ticks: { color: '#4c1d95', font: { size: 17 }, callback: value => value + '%' }, title: { display: true, text: 'In-Spec (%)', color: '#4c1d95', font: { size: 20, weight: 'bold' } } }
+                    },
+                    plugins: {
+                        title: { display: true, text: ['RINGKASAN QUALITY GILING GUNTING', `Tanggal: ${dateLabel}`], color: '#24103d', font: { size: 30, weight: 'bold' }, padding: { bottom: 22 } },
+                        subtitle: { display: true, text: `${rows.length} data sampling • ${groups.length} kelompok`, color: '#6b7280', font: { size: 18 }, padding: { bottom: 18 } },
+                        legend: { position: 'bottom', labels: { color: '#312e81', font: { size: 18, weight: 'bold' }, padding: 28, usePointStyle: true } },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+
+            const link = document.createElement('a');
+            link.download = `Ringkasan_Grafik_Giling_${selectedDate || 'Semua_Tanggal'}.png`;
+            link.href = chart.toBase64Image('image/png', 1);
+            link.click();
+            chart.destroy();
+            showToast('Ringkasan grafik berhasil diunduh.', 'success');
         }
 
         function editInspection(id) {
