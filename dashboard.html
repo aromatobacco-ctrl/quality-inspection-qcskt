@@ -270,7 +270,21 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md">
+                <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Packaging · In-Spec per Parameter</h3>
+                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah sesuai periode Dashboard</p>
+                    </div>
+                    <span id="packParameterTarget" class="text-[11px] font-black text-amber-300">Target ≥ 90%</span>
+                </div>
+                <div class="relative h-[390px]">
+                    <canvas id="packParameterChart"></canvas>
+                    <div id="packParameterEmpty" class="absolute inset-0 flex items-center justify-center rounded-xl bg-purple-950/80 text-sm text-purple-300">Belum ada data Packaging pada periode ini.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
                     <div class="mb-4">
                         <h3 id="overviewTrendTitle" class="text-sm font-bold text-white">Trend Giling Gunting per Sampling</h3>
@@ -279,6 +293,17 @@
                     <div class="relative h-[245px]">
                         <canvas id="overviewSamplingTrendChart"></canvas>
                         <div id="overviewSamplingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data sampling pada tanggal ini.</div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                    <div class="mb-4">
+                        <h3 id="overviewPackTrendTitle" class="text-sm font-bold text-white">Trend Packaging per Sampling</h3>
+                        <p id="overviewPackTrendCaption" class="text-[11px] text-purple-300">Overall in-spec Packaging pukul 08.00, 10.00, dan 13.00</p>
+                    </div>
+                    <div class="relative h-[245px]">
+                        <canvas id="overviewPackTrendChart"></canvas>
+                        <div id="overviewPackTrendEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging pada tanggal ini.</div>
                     </div>
                 </div>
 
@@ -711,20 +736,6 @@
                 </div>
             </div>
 
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md">
-                <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                        <h3 class="text-sm font-bold text-white">Packaging · In-Spec per Parameter</h3>
-                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah agar parameter bermasalah langsung terlihat</p>
-                    </div>
-                    <span id="packParameterTarget" class="text-[11px] font-black text-amber-300">Target ≥ 90%</span>
-                </div>
-                <div class="relative h-[390px]">
-                    <canvas id="packParameterChart"></canvas>
-                    <div id="packParameterEmpty" class="absolute inset-0 flex items-center justify-center rounded-xl bg-purple-950/80 text-sm text-purple-300">Belum ada data Packaging sesuai filter.</div>
-                </div>
-            </div>
-
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
                 <div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-bold text-white">Riwayat Quality Packaging</h3><p class="text-[11px] text-purple-300">Angka menunjukkan jumlah packaging baik dari 10 sampel</p></div><span id="packLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span></div>
                 <div class="overflow-x-auto custom-scroll">
@@ -826,13 +837,13 @@
             </div>
         </section>
 
-        <!-- APP_VERSION: v4 | LAST_UPDATE: 31 Agustus 2026 -->
+        <!-- APP_VERSION: v6 | LAST_UPDATE: 3 September 2026 -->
         <footer class="pt-2 pb-1 text-center">
             <div class="border-t border-purple-800/50 pt-4">
                 <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">
                     Developed @MT2026
                     <span class="mx-1.5 text-purple-700">•</span>
-                    Last Version: <span class="font-black text-purple-300">v5</span>
+                    Last Version: <span class="font-black text-purple-300">v6</span>
                     <span class="mx-1.5 text-purple-700">•</span>
                     Updated 3 September 2026
                 </p>
@@ -1131,6 +1142,7 @@
         let gilingPeriodTrendChart = null;
         let overviewParamChart = null;
         let overviewSamplingChart = null;
+        let overviewPackTrendChart = null;
         let overviewBuildingChart = null;
         let packParamChart = null;
 
@@ -1983,6 +1995,8 @@
                 }
             });
 
+            renderPackParameterChart(calculatePackAggregates(packData));
+
             let trendLabels;
             let trendValues;
             if (range.mode === 'weekly') {
@@ -2028,6 +2042,57 @@
                         legend: { display: false },
                         tooltip: { callbacks: { label: context => `Overall In-Spec: ${Number(context.raw).toFixed(1)}%` } },
                         overviewTargetLine: { value: gilingTarget, scaleId: 'y', display: hasTrendData }
+                    }
+                }
+            });
+
+            let packTrendLabels;
+            let packTrendValues;
+            if (range.mode === 'weekly') {
+                const dates = Array.from({ length: 7 }, (_, index) => addDaysToDateString(range.start, index));
+                packTrendLabels = dates.map(date => `${date.slice(8, 10)}/${date.slice(5, 7)}`);
+                packTrendValues = dates.map(date => {
+                    const rows = packData.filter(item => item.date === date);
+                    const aggregate = calculatePackAggregates(rows);
+                    return aggregate.overallInSpecPct === null ? null : Number(aggregate.overallInSpecPct.toFixed(1));
+                });
+                document.getElementById('overviewPackTrendTitle').innerText = 'Trend Packaging Mingguan';
+                document.getElementById('overviewPackTrendCaption').innerText = `Overall in-spec harian · ${range.start} s/d ${range.end}`;
+            } else {
+                const samplingTimes = ['08:00', '10:00', '13:00'];
+                packTrendLabels = samplingTimes.map(time => time.replace(':', '.'));
+                packTrendValues = samplingTimes.map(time => {
+                    const rows = packData.filter(item => item.samplingTime === time);
+                    const aggregate = calculatePackAggregates(rows);
+                    return aggregate.overallInSpecPct === null ? null : Number(aggregate.overallInSpecPct.toFixed(1));
+                });
+                document.getElementById('overviewPackTrendTitle').innerText = 'Trend Packaging per Sampling';
+                document.getElementById('overviewPackTrendCaption').innerText = 'Overall in-spec Packaging pukul 08.00, 10.00, dan 13.00';
+            }
+            const hasPackTrendData = packTrendValues.some(value => value !== null);
+            document.getElementById('overviewPackTrendEmpty').classList.toggle('hidden', hasPackTrendData);
+            if (overviewPackTrendChart) overviewPackTrendChart.destroy();
+            overviewPackTrendChart = new Chart(document.getElementById('overviewPackTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: packTrendLabels,
+                    datasets: [{
+                        label: 'Overall Packaging In-Spec (%)', data: packTrendValues, borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.18)',
+                        pointBackgroundColor: '#c7d2fe', pointBorderColor: '#4338ca', pointBorderWidth: 2, pointRadius: 5,
+                        borderWidth: 3, tension: 0.3, fill: true, spanGaps: false
+                    }]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#f7f0ff' } },
+                        y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: context => `Packaging In-Spec: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: packagingTarget, scaleId: 'y', display: hasPackTrendData }
                     }
                 }
             });
@@ -2205,7 +2270,6 @@
             const filtered = getFilteredPackData();
             const aggregate = calculatePackAggregates(filtered);
             renderPackSummary(aggregate);
-            renderPackParameterChart(aggregate);
             if (!filtered.length) {
                 tbody.innerHTML = '<tr><td colspan="12" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
                 return;
