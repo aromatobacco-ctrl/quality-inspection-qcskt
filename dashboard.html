@@ -698,6 +698,33 @@
                 </div>
             </div>
 
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Akumulasi Quality Packaging</h3>
+                        <p class="text-[11px] text-purple-300">Persentase In-Spec dan Out-Spec berdasarkan seluruh pemeriksaan sesuai filter</p>
+                    </div>
+                    <span id="packSummaryCount" class="rounded-full border border-purple-700/60 bg-purple-950/60 px-3 py-1 text-[10px] font-bold text-purple-200">0 pemeriksaan</span>
+                </div>
+                <div id="packSummaryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="col-span-full rounded-xl border border-purple-800/50 bg-purple-950/40 p-5 text-center text-xs text-slate-400">Belum ada data Packaging sesuai filter.</div>
+                </div>
+            </div>
+
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md">
+                <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Packaging · In-Spec per Parameter</h3>
+                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah agar parameter bermasalah langsung terlihat</p>
+                    </div>
+                    <span id="packParameterTarget" class="text-[11px] font-black text-amber-300">Target ≥ 90%</span>
+                </div>
+                <div class="relative h-[390px]">
+                    <canvas id="packParameterChart"></canvas>
+                    <div id="packParameterEmpty" class="absolute inset-0 flex items-center justify-center rounded-xl bg-purple-950/80 text-sm text-purple-300">Belum ada data Packaging sesuai filter.</div>
+                </div>
+            </div>
+
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
                 <div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-bold text-white">Riwayat Quality Packaging</h3><p class="text-[11px] text-purple-300">Angka menunjukkan jumlah packaging baik dari 10 sampel</p></div><span id="packLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span></div>
                 <div class="overflow-x-auto custom-scroll">
@@ -747,9 +774,10 @@
                     </div>
                 </div>
 
-                <!-- Master Target & Parameter -->
+                <!-- Target Giling Gunting -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
-                    <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-purple-400"></i> Target Standar In-Spec</h3>
+                    <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-purple-400"></i> Target Giling Gunting</h3>
+                    <p class="text-[11px] text-slate-400 mb-3">Khusus untuk indikator dan grafik Giling Gunting.</p>
                     <div class="space-y-3 text-xs">
                         <div>
                             <label class="block text-purple-300 mb-1">Target Hijau (Memenuhi Standar, %)</label>
@@ -763,7 +791,24 @@
                             <label class="block text-purple-300 mb-1">Default Jumlah Batang Sampel</label>
                             <input type="number" id="settingDefaultSample" value="10" min="1" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
                         </div>
-                        <button onclick="saveTargets()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl mt-2 transition-all">Simpan Target</button>
+                        <button onclick="saveGilingTargets()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl mt-2 transition-all">Simpan Target Giling Gunting</button>
+                    </div>
+                </div>
+
+                <!-- Target Packaging -->
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
+                    <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2"><i data-lucide="package-check" class="w-4 h-4 text-purple-400"></i> Target Packaging</h3>
+                    <p class="text-[11px] text-slate-400 mb-3">Khusus untuk summary dan grafik Quality Packaging.</p>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-purple-300 mb-1">Target Hijau Packaging (%)</label>
+                            <input type="number" id="settingPackagingTargetGreen" value="95" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-purple-300 mb-1">Batas Kuning Packaging (%)</label>
+                            <input type="number" id="settingPackagingTargetYellow" value="90" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <button onclick="savePackagingTargets()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl mt-2 transition-all">Simpan Target Packaging</button>
                     </div>
                 </div>
 
@@ -787,9 +832,9 @@
                 <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">
                     Developed @MT2026
                     <span class="mx-1.5 text-purple-700">•</span>
-                    Last Version: <span class="font-black text-purple-300">v4</span>
+                    Last Version: <span class="font-black text-purple-300">v5</span>
                     <span class="mx-1.5 text-purple-700">•</span>
-                    Updated 31 Agustus 2026
+                    Updated 3 September 2026
                 </p>
             </div>
         </footer>
@@ -1069,6 +1114,8 @@
             samplingTimes: { 1: '08:00', 2: '10:00', 3: '13:00' },
             targetGreen: 95,
             targetYellow: 90,
+            packagingTargetGreen: 95,
+            packagingTargetYellow: 90,
             defaultSampleSize: 10
         };
         let tobaccoBrands = [];
@@ -1085,6 +1132,7 @@
         let overviewParamChart = null;
         let overviewSamplingChart = null;
         let overviewBuildingChart = null;
+        let packParamChart = null;
 
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1184,6 +1232,8 @@
                 samplingTimes: Object.fromEntries(data.samplingTimes.filter(item => item.isActive).map(item => [item.samplingNo, item.timeLabel])),
                 targetGreen: data.settings.targetGreen,
                 targetYellow: data.settings.targetYellow,
+                packagingTargetGreen: data.settings.packagingTargetGreen ?? 95,
+                packagingTargetYellow: data.settings.packagingTargetYellow ?? 90,
                 defaultSampleSize: data.settings.defaultSampleSize
             };
             loadTobaccoBrands();
@@ -1895,8 +1945,9 @@
         };
 
         function renderOverviewCharts(gilingData, gilingAggregate, packData, range) {
-            const target = Number(masterData.targetYellow) || 90;
-            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${target}%`;
+            const gilingTarget = Number(masterData.targetYellow) || 90;
+            const packagingTarget = Number(masterData.packagingTargetYellow) || 90;
+            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${gilingTarget}%`;
 
             const parameters = [
                 ['GTG', 'gtg'], ['KRPS', 'krps'], ['KMLS', 'kmls'], ['RING', 'ring'], ['BST', 'bst'],
@@ -1927,7 +1978,7 @@
                     plugins: {
                         legend: { labels: { color: '#f7f0ff', boxWidth: 12, font: { size: 11 } } },
                         tooltip: { callbacks: { label: context => `${context.dataset.label}: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: target, scaleId: 'x', display: gilingData.length > 0 }
+                        overviewTargetLine: { value: gilingTarget, scaleId: 'x', display: gilingData.length > 0 }
                     }
                 }
             });
@@ -1976,7 +2027,7 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: { callbacks: { label: context => `Overall In-Spec: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: target, scaleId: 'y', display: hasTrendData }
+                        overviewTargetLine: { value: gilingTarget, scaleId: 'y', display: hasTrendData }
                     }
                 }
             });
@@ -2005,7 +2056,7 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: { callbacks: { label: context => `Packaging Baik: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: target, scaleId: 'y', display: buildingValues.some(value => value !== null) }
+                        overviewTargetLine: { value: packagingTarget, scaleId: 'y', display: buildingValues.some(value => value !== null) }
                     }
                 }
             });
@@ -2026,10 +2077,135 @@
             });
         }
 
+        function calculatePackAggregates(data) {
+            const perParameter = Object.fromEntries(packKeys.map(key => [key, {
+                inSpecCount: 0,
+                sampleCount: 0,
+                inSpecPct: null,
+                outSpecPct: null
+            }]));
+
+            data.forEach(item => {
+                packKeys.forEach(key => {
+                    const rawValue = Number(item.params?.[key]);
+                    if (!Number.isFinite(rawValue)) return;
+                    perParameter[key].inSpecCount += Math.min(10, Math.max(0, rawValue));
+                    perParameter[key].sampleCount += 10;
+                });
+            });
+
+            let overallInSpecCount = 0;
+            let overallSampleCount = 0;
+            packKeys.forEach(key => {
+                const parameter = perParameter[key];
+                if (parameter.sampleCount > 0) {
+                    parameter.inSpecPct = (parameter.inSpecCount / parameter.sampleCount) * 100;
+                    parameter.outSpecPct = 100 - parameter.inSpecPct;
+                }
+                overallInSpecCount += parameter.inSpecCount;
+                overallSampleCount += parameter.sampleCount;
+            });
+
+            const overallInSpecPct = overallSampleCount > 0
+                ? (overallInSpecCount / overallSampleCount) * 100
+                : null;
+
+            return {
+                recordCount: data.length,
+                perParameter,
+                overallInSpecCount,
+                overallSampleCount,
+                overallInSpecPct,
+                overallOutSpecPct: overallInSpecPct === null ? null : 100 - overallInSpecPct
+            };
+        }
+
+        function getPackQualityTextClass(value) {
+            if (value === null) return 'text-slate-400';
+            if (value >= Number(masterData.packagingTargetGreen || 95)) return 'text-emerald-400';
+            if (value >= Number(masterData.packagingTargetYellow || 90)) return 'text-amber-300';
+            return 'text-rose-400';
+        }
+
+        function renderPackSummary(aggregate) {
+            const countLabel = `${aggregate.recordCount.toLocaleString('id-ID')} pemeriksaan`;
+            document.getElementById('packSummaryCount').innerText = countLabel;
+
+            const percentageText = value => value === null ? '—' : `${value.toFixed(1)}%`;
+            const card = (label, inSpec, outSpec, isOverall = false) => `
+                <div class="${isOverall ? 'sm:col-span-2 border-purple-500/70 bg-gradient-to-br from-purple-800/55 to-purple-950/70' : 'border-purple-800/50 bg-purple-950/45'} rounded-xl border p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-purple-300">${isOverall ? 'Summary Semua Kategori' : 'Parameter Packaging'}</p>
+                            <h4 class="mt-1 text-xs font-bold text-white">${escapeHtml(label)}</h4>
+                        </div>
+                        ${isOverall ? '<span class="rounded-lg bg-purple-500/20 px-2 py-1 text-[9px] font-black text-purple-100">7 PARAMETER</span>' : ''}
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div>
+                            <p class="text-[10px] text-slate-400">In-Spec</p>
+                            <p class="mt-1 text-xl font-black ${getPackQualityTextClass(inSpec)}">${percentageText(inSpec)}</p>
+                        </div>
+                        <div class="border-l border-purple-700/50 pl-3">
+                            <p class="text-[10px] text-slate-400">Out-Spec</p>
+                            <p class="mt-1 text-xl font-black ${outSpec === null ? 'text-slate-400' : 'text-rose-400'}">${percentageText(outSpec)}</p>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById('packSummaryGrid').innerHTML = [
+                card('Overall Quality Packaging', aggregate.overallInSpecPct, aggregate.overallOutSpecPct, true),
+                ...packKeys.map(key => card(packLabels[key], aggregate.perParameter[key].inSpecPct, aggregate.perParameter[key].outSpecPct))
+            ].join('');
+        }
+
+        function renderPackParameterChart(aggregate) {
+            const target = Number(masterData.packagingTargetYellow) || 90;
+            document.getElementById('packParameterTarget').innerText = `Target ≥ ${target}%`;
+
+            const parameters = packKeys.map(key => ({
+                label: packLabels[key],
+                inSpec: aggregate.perParameter[key].inSpecPct,
+                outSpec: aggregate.perParameter[key].outSpecPct
+            })).sort((a, b) => (a.inSpec ?? Number.POSITIVE_INFINITY) - (b.inSpec ?? Number.POSITIVE_INFINITY));
+            const hasData = aggregate.overallSampleCount > 0;
+
+            document.getElementById('packParameterEmpty').classList.toggle('hidden', hasData);
+            if (packParamChart) packParamChart.destroy();
+            packParamChart = new Chart(document.getElementById('packParameterChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: parameters.map(item => item.label),
+                    datasets: [
+                        { label: 'In-Spec (%)', data: parameters.map(item => item.inSpec === null ? 0 : Number(item.inSpec.toFixed(1))), backgroundColor: '#9b3ff3', borderRadius: 5, borderSkipped: false },
+                        { label: 'Out-Spec (%)', data: parameters.map(item => item.outSpec === null ? 0 : Number(item.outSpec.toFixed(1))), backgroundColor: '#f43f5e', borderRadius: 5, borderSkipped: false }
+                    ]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { min: 0, max: 100, stacked: true, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#f7f0ff', font: { size: 10, weight: 'bold' } } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f7f0ff', boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: context => `${context.dataset.label}: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'x', display: hasData }
+                    }
+                }
+            });
+        }
+
         function renderPackSection() {
             const tbody = document.getElementById('packTableBody');
             if (!tbody) return;
             const filtered = getFilteredPackData();
+            const aggregate = calculatePackAggregates(filtered);
+            renderPackSummary(aggregate);
+            renderPackParameterChart(aggregate);
             if (!filtered.length) {
                 tbody.innerHTML = '<tr><td colspan="12" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
                 return;
@@ -2709,6 +2885,8 @@
 
             document.getElementById('settingTargetGreen').value = masterData.targetGreen;
             document.getElementById('settingTargetYellow').value = masterData.targetYellow;
+            document.getElementById('settingPackagingTargetGreen').value = masterData.packagingTargetGreen;
+            document.getElementById('settingPackagingTargetYellow').value = masterData.packagingTargetYellow;
             document.getElementById('settingDefaultSample').value = masterData.defaultSampleSize;
             renderUserList();
         }
@@ -2809,25 +2987,69 @@
             }
         }
 
-        async function saveTargets() {
-            if (!ensureAdmin('mengubah target dan pengaturan')) return;
-            masterData.targetGreen = parseFloat(document.getElementById('settingTargetGreen').value) || 95;
-            masterData.targetYellow = parseFloat(document.getElementById('settingTargetYellow').value) || 90;
-            masterData.defaultSampleSize = parseInt(document.getElementById('settingDefaultSample').value) || 10;
+        function readTargetPair(greenInputId, yellowInputId, stationLabel) {
+            const green = Number(document.getElementById(greenInputId).value);
+            const yellow = Number(document.getElementById(yellowInputId).value);
+            if (!Number.isFinite(green) || !Number.isFinite(yellow) || green < 1 || green > 100 || yellow < 1 || yellow > 100) {
+                showToast(`Target ${stationLabel} harus berada pada rentang 1–100%.`, 'error');
+                return null;
+            }
+            if (yellow > green) {
+                showToast(`Batas Kuning ${stationLabel} tidak boleh lebih tinggi dari Target Hijau.`, 'error');
+                return null;
+            }
+            return { green, yellow };
+        }
+
+        async function saveGilingTargets() {
+            if (!ensureAdmin('mengubah target Giling Gunting')) return;
+            const target = readTargetPair('settingTargetGreen', 'settingTargetYellow', 'Giling Gunting');
+            if (!target) return;
+            const defaultSampleSize = parseInt(document.getElementById('settingDefaultSample').value, 10);
+            if (!Number.isInteger(defaultSampleSize) || defaultSampleSize < 1) {
+                showToast('Default jumlah batang sampel minimal 1.', 'error');
+                return;
+            }
             try {
                 await apiFetch('/api/master', {
                     method: 'PATCH',
                     body: JSON.stringify({
-                        targetGreen: masterData.targetGreen,
-                        targetYellow: masterData.targetYellow,
-                        defaultSampleSize: masterData.defaultSampleSize,
+                        targetGreen: target.green,
+                        targetYellow: target.yellow,
+                        defaultSampleSize,
                         samplingTimes: masterRows.samplingTimes.map(item => ({ samplingNo: item.samplingNo, timeLabel: item.timeLabel }))
                     })
                 });
-                showToast('Konfigurasi target berhasil disimpan untuk semua pengguna!', 'success');
+                masterData.targetGreen = target.green;
+                masterData.targetYellow = target.yellow;
+                masterData.defaultSampleSize = defaultSampleSize;
+                showToast('Target Giling Gunting berhasil disimpan.', 'success');
                 renderDashboard();
+                renderOverview();
             } catch (error) {
-                showToast(error.message || 'Konfigurasi gagal disimpan.', 'error');
+                showToast(error.message || 'Target Giling Gunting gagal disimpan.', 'error');
+            }
+        }
+
+        async function savePackagingTargets() {
+            if (!ensureAdmin('mengubah target Packaging')) return;
+            const target = readTargetPair('settingPackagingTargetGreen', 'settingPackagingTargetYellow', 'Packaging');
+            if (!target) return;
+            try {
+                await apiFetch('/api/master', {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        packagingTargetGreen: target.green,
+                        packagingTargetYellow: target.yellow
+                    })
+                });
+                masterData.packagingTargetGreen = target.green;
+                masterData.packagingTargetYellow = target.yellow;
+                showToast('Target Packaging berhasil disimpan.', 'success');
+                renderPackSection();
+                renderOverview();
+            } catch (error) {
+                showToast(error.message || 'Target Packaging gagal disimpan.', 'error');
             }
         }
 
