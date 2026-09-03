@@ -284,7 +284,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
                     <div class="mb-4">
                         <h3 id="overviewTrendTitle" class="text-sm font-bold text-white">Trend Giling Gunting per Sampling</h3>
@@ -307,16 +307,6 @@
                     </div>
                 </div>
 
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
-                    <div class="mb-4">
-                        <h3 class="text-sm font-bold text-white">Packaging Baik per Gedung</h3>
-                        <p class="text-[11px] text-purple-300">Perbandingan rata-rata hasil inspeksi Gedung A dan Gedung B</p>
-                    </div>
-                    <div class="relative h-[245px]">
-                        <canvas id="overviewBuildingChart"></canvas>
-                        <div id="overviewBuildingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging per gedung pada tanggal ini.</div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -715,8 +705,18 @@
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                    <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                    <div>
+                        <label class="block text-purple-300 mb-1">Periode</label>
+                        <select id="packPeriodMode" onchange="updatePackPeriodUI()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                        </select>
+                    </div>
+                    <div id="packDateWrap"><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packWeekWrap" class="hidden"><label class="block text-purple-300 mb-1">Mulai Minggu</label><input type="date" id="packWeekStart" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packMonthWrap" class="hidden"><label class="block text-purple-300 mb-1">Bulan</label><input type="month" id="packMonth" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packFilterTime" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jam</option><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packFilterBuilding" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packSearch" oninput="renderPackSection()" placeholder="Cari nama inspector..." class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
@@ -727,7 +727,7 @@
                 <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
                     <div>
                         <h3 class="text-sm font-bold text-white">Akumulasi Quality Packaging</h3>
-                        <p class="text-[11px] text-purple-300">Persentase In-Spec dan Out-Spec berdasarkan seluruh pemeriksaan sesuai filter</p>
+                        <p id="packSummaryPeriodLabel" class="text-[11px] text-purple-300">Akumulasi harian berdasarkan seluruh pemeriksaan sesuai filter</p>
                     </div>
                     <span id="packSummaryCount" class="rounded-full border border-purple-700/60 bg-purple-950/60 px-3 py-1 text-[10px] font-bold text-purple-200">0 pemeriksaan</span>
                 </div>
@@ -837,13 +837,13 @@
             </div>
         </section>
 
-        <!-- APP_VERSION: v6 | LAST_UPDATE: 3 September 2026 -->
+        <!-- APP_VERSION: v8 | LAST_UPDATE: 3 September 2026 -->
         <footer class="pt-2 pb-1 text-center">
             <div class="border-t border-purple-800/50 pt-4">
                 <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">
                     Developed @MT2026
                     <span class="mx-1.5 text-purple-700">•</span>
-                    Last Version: <span class="font-black text-purple-300">v6</span>
+                    Last Version: <span class="font-black text-purple-300">v8</span>
                     <span class="mx-1.5 text-purple-700">•</span>
                     Updated 3 September 2026
                 </p>
@@ -1143,7 +1143,6 @@
         let overviewParamChart = null;
         let overviewSamplingChart = null;
         let overviewPackTrendChart = null;
-        let overviewBuildingChart = null;
         let packParamChart = null;
 
         // Init
@@ -1180,10 +1179,13 @@
                 document.getElementById('mcFilterDate').value = getTodayString();
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
+                document.getElementById('packWeekStart').value = getTodayString();
+                document.getElementById('packMonth').value = getTodayString().slice(0, 7);
                 document.getElementById('packInputDate').value = getTodayString();
                 document.getElementById('backupDateHarian').value = getTodayString();
                 updateOverviewModeUI();
                 updateGilingPeriodUI(false);
+                updatePackPeriodUI(false);
                 switchTobaccoView('receiving');
                 renderOverview();
                 renderBackupReminder();
@@ -2097,44 +2099,54 @@
                 }
             });
 
-            const buildings = ['GEDUNG A', 'GEDUNG B'];
-            const buildingValues = buildings.map(building => {
-                const rows = packData.filter(item => String(item.building || item.params?.building || '').toUpperCase() === building);
-                const values = rows.flatMap(item => packKeys.map(key => Number(item.params?.[key]) || 0));
-                return values.length ? Number(((values.reduce((total, value) => total + value, 0) / (values.length * 10)) * 100).toFixed(1)) : null;
-            });
-            document.getElementById('overviewBuildingEmpty').classList.toggle('hidden', buildingValues.some(value => value !== null));
-            if (overviewBuildingChart) overviewBuildingChart.destroy();
-            overviewBuildingChart = new Chart(document.getElementById('overviewBuildingChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Gedung A', 'Gedung B'],
-                    datasets: [{ label: 'Packaging Baik (%)', data: buildingValues, backgroundColor: ['#9b3ff3', '#818cf8'], borderRadius: 8, maxBarThickness: 82 }]
-                },
-                plugins: [overviewTargetLinePlugin],
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#f7f0ff', font: { weight: 'bold' } } },
-                        y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: context => `Packaging Baik: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: packagingTarget, scaleId: 'y', display: buildingValues.some(value => value !== null) }
-                    }
-                }
-            });
         }
 
-        function getFilteredPackData() {
-            const date = document.getElementById('packFilterDate').value;
+        function updatePackPeriodUI(shouldRender = true) {
+            const mode = document.getElementById('packPeriodMode')?.value || 'daily';
+            const today = getTodayString();
+            document.getElementById('packDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('packWeekWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('packMonthWrap').classList.toggle('hidden', mode !== 'monthly');
+
+            if (mode === 'weekly' && !document.getElementById('packWeekStart').value) {
+                document.getElementById('packWeekStart').value = document.getElementById('packFilterDate').value || today;
+            }
+            if (mode === 'monthly' && !document.getElementById('packMonth').value) {
+                document.getElementById('packMonth').value = (document.getElementById('packFilterDate').value || today).slice(0, 7);
+            }
+            if (shouldRender) renderPackSection();
+        }
+
+        function getPackFilterRange() {
+            const mode = document.getElementById('packPeriodMode')?.value || 'daily';
+            if (mode === 'weekly') {
+                const start = document.getElementById('packWeekStart').value || getTodayString();
+                return { mode, start, end: addDaysToDateString(start, 6), days: 7 };
+            }
+            if (mode === 'monthly') {
+                const selectedMonth = document.getElementById('packMonth').value || getTodayString().slice(0, 7);
+                const [year, month] = selectedMonth.split('-').map(Number);
+                const days = new Date(year, month, 0).getDate();
+                return { mode, start: `${selectedMonth}-01`, end: `${selectedMonth}-${String(days).padStart(2, '0')}`, days };
+            }
+            const selectedDate = document.getElementById('packFilterDate').value || getTodayString();
+            return { mode: 'daily', start: selectedDate, end: selectedDate, days: 1 };
+        }
+
+        function getPackPeriodLabel(range) {
+            const formatDate = date => new Date(`${date}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            if (range.mode === 'weekly') return `Akumulasi mingguan · ${formatDate(range.start)} – ${formatDate(range.end)}`;
+            if (range.mode === 'monthly') return `Akumulasi bulanan · ${new Date(`${range.start}T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+            return `Akumulasi harian · ${formatDate(range.start)}`;
+        }
+
+        function getFilteredPackData(range = getPackFilterRange()) {
             const time = document.getElementById('packFilterTime').value;
             const building = document.getElementById('packFilterBuilding').value;
             const query = document.getElementById('packSearch').value.trim().toLowerCase();
             return packRecords.filter(item => {
                 const itemBuilding = item.building || item.params?.building || '';
-                if (date && item.date !== date) return false;
+                if (item.date < range.start || item.date > range.end) return false;
                 if (time !== 'ALL' && item.samplingTime !== time) return false;
                 if (building !== 'ALL' && itemBuilding !== building) return false;
                 if (query && !item.inspector.toLowerCase().includes(query)) return false;
@@ -2192,9 +2204,10 @@
             return 'text-rose-400';
         }
 
-        function renderPackSummary(aggregate) {
+        function renderPackSummary(aggregate, range = getPackFilterRange()) {
             const countLabel = `${aggregate.recordCount.toLocaleString('id-ID')} pemeriksaan`;
             document.getElementById('packSummaryCount').innerText = countLabel;
+            document.getElementById('packSummaryPeriodLabel').innerText = getPackPeriodLabel(range);
 
             const percentageText = value => value === null ? '—' : `${value.toFixed(1)}%`;
             const card = (label, inSpec, outSpec, isOverall = false) => `
@@ -2267,9 +2280,10 @@
         function renderPackSection() {
             const tbody = document.getElementById('packTableBody');
             if (!tbody) return;
-            const filtered = getFilteredPackData();
+            const range = getPackFilterRange();
+            const filtered = getFilteredPackData(range);
             const aggregate = calculatePackAggregates(filtered);
-            renderPackSummary(aggregate);
+            renderPackSummary(aggregate, range);
             if (!filtered.length) {
                 tbody.innerHTML = '<tr><td colspan="12" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
                 return;
@@ -2305,7 +2319,9 @@
                 document.getElementById('packForm').reset();
                 document.getElementById('packModalTitle').innerText = 'Form Input Quality Packaging';
                 document.getElementById('packEditRecordId').value = '';
-                document.getElementById('packInputDate').value = document.getElementById('packFilterDate').value || getTodayString();
+                const activeRange = getPackFilterRange();
+                const today = getTodayString();
+                document.getElementById('packInputDate').value = today >= activeRange.start && today <= activeRange.end ? today : activeRange.start;
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('packInputBuilding').value = '';
                 packKeys.forEach(key => {
@@ -2379,7 +2395,8 @@
 
         function exportPackToExcel() {
             if (!ensureNotGuest('mengunduh data Quality Packaging')) return;
-            const filtered = getFilteredPackData();
+            const range = getPackFilterRange();
+            const filtered = getFilteredPackData(range);
             if (!filtered.length) return showToast('Tidak ada data Quality Packaging untuk diekspor.', 'error');
             const rows = filtered.map(item => ({
                 Tanggal: item.date, Jam: item.samplingTime, Gedung: item.building || item.params?.building || '—', Inspector: item.inspector,
@@ -2390,7 +2407,8 @@
             }));
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Quality Packaging');
-            const fileName = `Quality_Packaging_${document.getElementById('packFilterDate').value || getTodayString()}.xlsx`;
+            const periodName = range.mode === 'monthly' ? range.start.slice(0, 7) : range.mode === 'weekly' ? `${range.start}_sd_${range.end}` : range.start;
+            const fileName = `Quality_Packaging_${periodName}.xlsx`;
             XLSX.writeFile(workbook, fileName);
             showToast(`File Quality Packaging berhasil diunduh: ${fileName}`, 'success');
         }
