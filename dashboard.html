@@ -270,6 +270,20 @@
                 </div>
             </div>
 
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-5 shadow-md">
+                <div class="mb-4 flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Packaging · In-Spec per Parameter</h3>
+                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah sesuai periode Dashboard</p>
+                    </div>
+                    <span id="packParameterTarget" class="text-[11px] font-black text-amber-300">Target ≥ 90%</span>
+                </div>
+                <div class="relative h-[390px]">
+                    <canvas id="packParameterChart"></canvas>
+                    <div id="packParameterEmpty" class="absolute inset-0 flex items-center justify-center rounded-xl bg-purple-950/80 text-sm text-purple-300">Belum ada data Packaging pada periode ini.</div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
                     <div class="mb-4">
@@ -284,14 +298,15 @@
 
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
                     <div class="mb-4">
-                        <h3 class="text-sm font-bold text-white">Packaging Baik per Gedung</h3>
-                        <p class="text-[11px] text-purple-300">Perbandingan rata-rata hasil inspeksi Gedung A dan Gedung B</p>
+                        <h3 id="overviewPackTrendTitle" class="text-sm font-bold text-white">Trend Packaging per Sampling</h3>
+                        <p id="overviewPackTrendCaption" class="text-[11px] text-purple-300">Overall in-spec Packaging pukul 08.00, 10.00, dan 13.00</p>
                     </div>
                     <div class="relative h-[245px]">
-                        <canvas id="overviewBuildingChart"></canvas>
-                        <div id="overviewBuildingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging per gedung pada tanggal ini.</div>
+                        <canvas id="overviewPackTrendChart"></canvas>
+                        <div id="overviewPackTrendEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging pada tanggal ini.</div>
                     </div>
                 </div>
+
             </div>
         </section>
 
@@ -386,8 +401,8 @@
                 </div>
             </div>
 
-            <!-- KPI Cards Grid (6 Metrik Kunci) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+            <!-- KPI Cards Grid (9 Metrik Kunci) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
                 <!-- KPI 1: Sampel Terperiksa -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
                     <span class="text-xs text-purple-300 font-medium">Jumlah Sampel</span>
@@ -435,7 +450,7 @@
                 </div>
 
                 <!-- KPI 5: Physical In-Spec & Out-Spec -->
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between col-span-2 sm:col-span-1">
                     <div class="flex justify-between items-center">
                         <span class="text-xs text-purple-300 font-medium">Physical In-Spec</span>
                         <span id="kpiPhysicalBadge" class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
@@ -445,19 +460,6 @@
                         <span id="kpiPhysicalOut" class="text-xs font-bold text-rose-400">Out: 0%</span>
                     </div>
                     <span class="text-[10px] text-slate-400 mt-1">2 Parameter Fisik (BRT & DMT)</span>
-                </div>
-
-                <!-- KPI 6: Average Weight -->
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
-                    <div class="flex justify-between items-center gap-2">
-                        <span class="text-xs text-purple-300 font-medium">Average Weight</span>
-                        <i data-lucide="scale" class="w-4 h-4 text-purple-400"></i>
-                    </div>
-                    <div class="mt-2 flex items-baseline justify-between gap-2">
-                        <span id="kpiAverageWeight" class="text-2xl font-black text-white">—</span>
-                        <span class="text-xs text-purple-400">gram</span>
-                    </div>
-                    <span id="kpiWeightSampleCount" class="text-[10px] text-slate-400 mt-1">Belum ada data berat</span>
                 </div>
             </div>
 
@@ -510,62 +512,6 @@
                 <div class="relative h-[260px]">
                     <canvas id="gilingPeriodTrendChart"></canvas>
                     <div id="gilingPeriodTrendEmpty" class="hidden absolute inset-0 items-center justify-center rounded-xl bg-purple-950/55 text-xs text-purple-300">Belum ada data pada periode terpilih</div>
-                </div>
-            </div>
-
-            <!-- Trend dan Riwayat Sampling Berat -->
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md space-y-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i data-lucide="activity" class="w-4 h-4 text-purple-400"></i>
-                            Trend Berat Batang per Waktu Sampling
-                        </h3>
-                        <p id="weightTrendCaption" class="text-[11px] text-purple-300 mt-1">Berat Batang 1–5 dengan Lower Limit dan Upper Limit sesuai brand</p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3 text-[10px]">
-                        <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
-                        <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
-                        <span class="rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">Mengikuti filter Brand di atas</span>
-                    </div>
-                </div>
-                <div class="relative h-[330px]">
-                    <canvas id="weightTrendChart"></canvas>
-                    <div id="weightTrendEmpty" class="hidden absolute inset-0 items-center justify-center rounded-xl bg-purple-950/70 text-xs text-purple-300">Belum ada data sampling berat pada filter terpilih</div>
-                </div>
-
-                <div class="border-t border-purple-800/60 pt-4">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                        <div>
-                            <h4 class="text-xs font-bold text-white">Riwayat Sampling Berat</h4>
-                            <p class="text-[10px] text-slate-400">Exact number per batang, average, batas spesifikasi, dan status hasil sampling</p>
-                        </div>
-                        <span id="weightHistoryCount" class="text-[10px] font-semibold text-purple-300">0 data sampling</span>
-                    </div>
-                    <div class="overflow-x-auto custom-scroll">
-                        <table class="w-full min-w-[1180px] text-[11px] text-left border-collapse">
-                            <thead>
-                                <tr class="bg-purple-950/90 text-purple-200 border-b border-purple-800">
-                                    <th class="p-2.5 font-semibold">Tanggal & Jam</th>
-                                    <th class="p-2.5 font-semibold">Kelompok</th>
-                                    <th class="p-2.5 font-semibold">Brand</th>
-                                    <th class="p-2.5 font-semibold">Inspector</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 1</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 2</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 3</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 4</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 5</th>
-                                    <th class="p-2.5 font-semibold text-center bg-purple-900/60">Average</th>
-                                    <th class="p-2.5 font-semibold text-center">Lower</th>
-                                    <th class="p-2.5 font-semibold text-center">Upper</th>
-                                    <th class="p-2.5 font-semibold text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="weightHistoryBody" class="divide-y divide-purple-800/30">
-                                <tr><td colspan="13" class="p-6 text-center text-slate-400">Belum ada data sampling berat.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
 
@@ -759,11 +705,34 @@
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                    <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                    <div>
+                        <label class="block text-purple-300 mb-1">Periode</label>
+                        <select id="packPeriodMode" onchange="updatePackPeriodUI()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                        </select>
+                    </div>
+                    <div id="packDateWrap"><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packWeekWrap" class="hidden"><label class="block text-purple-300 mb-1">Mulai Minggu</label><input type="date" id="packWeekStart" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packMonthWrap" class="hidden"><label class="block text-purple-300 mb-1">Bulan</label><input type="month" id="packMonth" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packFilterTime" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jam</option><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packFilterBuilding" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packSearch" oninput="renderPackSection()" placeholder="Cari nama inspector..." class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                </div>
+            </div>
+
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Akumulasi Quality Packaging</h3>
+                        <p id="packSummaryPeriodLabel" class="text-[11px] text-purple-300">Akumulasi harian berdasarkan seluruh pemeriksaan sesuai filter</p>
+                    </div>
+                    <span id="packSummaryCount" class="rounded-full border border-purple-700/60 bg-purple-950/60 px-3 py-1 text-[10px] font-bold text-purple-200">0 pemeriksaan</span>
+                </div>
+                <div id="packSummaryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="col-span-full rounded-xl border border-purple-800/50 bg-purple-950/40 p-5 text-center text-xs text-slate-400">Belum ada data Packaging sesuai filter.</div>
                 </div>
             </div>
 
@@ -816,9 +785,10 @@
                     </div>
                 </div>
 
-                <!-- Master Target & Parameter -->
+                <!-- Target Giling Gunting -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
-                    <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-purple-400"></i> Target Standar In-Spec</h3>
+                    <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-purple-400"></i> Target Giling Gunting</h3>
+                    <p class="text-[11px] text-slate-400 mb-3">Khusus untuk indikator dan grafik Giling Gunting.</p>
                     <div class="space-y-3 text-xs">
                         <div>
                             <label class="block text-purple-300 mb-1">Target Hijau (Memenuhi Standar, %)</label>
@@ -832,7 +802,24 @@
                             <label class="block text-purple-300 mb-1">Default Jumlah Batang Sampel</label>
                             <input type="number" id="settingDefaultSample" value="10" min="1" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
                         </div>
-                        <button onclick="saveTargets()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl mt-2 transition-all">Simpan Target</button>
+                        <button onclick="saveGilingTargets()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl mt-2 transition-all">Simpan Target Giling Gunting</button>
+                    </div>
+                </div>
+
+                <!-- Target Packaging -->
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
+                    <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2"><i data-lucide="package-check" class="w-4 h-4 text-purple-400"></i> Target Packaging</h3>
+                    <p class="text-[11px] text-slate-400 mb-3">Khusus untuk summary dan grafik Quality Packaging.</p>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-purple-300 mb-1">Target Hijau Packaging (%)</label>
+                            <input type="number" id="settingPackagingTargetGreen" value="95" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-purple-300 mb-1">Batas Kuning Packaging (%)</label>
+                            <input type="number" id="settingPackagingTargetYellow" value="90" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <button onclick="savePackagingTargets()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl mt-2 transition-all">Simpan Target Packaging</button>
                     </div>
                 </div>
 
@@ -850,15 +837,15 @@
             </div>
         </section>
 
-        <!-- APP_VERSION: v4 | LAST_UPDATE: 31 Agustus 2026 -->
+        <!-- APP_VERSION: v8 | LAST_UPDATE: 3 September 2026 -->
         <footer class="pt-2 pb-1 text-center">
             <div class="border-t border-purple-800/50 pt-4">
                 <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">
                     Developed @MT2026
                     <span class="mx-1.5 text-purple-700">•</span>
-                    Last Version: <span class="font-black text-purple-300">v4</span>
+                    Last Version: <span class="font-black text-purple-300">v8</span>
                     <span class="mx-1.5 text-purple-700">•</span>
-                    Updated 31 Agustus 2026
+                    Updated 3 September 2026
                 </p>
             </div>
         </footer>
@@ -964,45 +951,12 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">BRT (Berat) In-Spec</label>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">BRT (Berat)</label>
                             <input type="number" id="param_brt" min="0" max="10" value="" placeholder="0-10" required class="param-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center">
                         </div>
                         <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">DMT (Diameter) In-Spec</label>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">DMT (Diameter)</label>
                             <input type="number" id="param_dmt" min="0" max="10" value="" placeholder="0-10" required class="param-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kategori C: Sampling Berat Aktual -->
-                <div class="p-3.5 bg-purple-950/50 rounded-2xl border border-purple-800/60 space-y-3">
-                    <div class="flex flex-wrap justify-between items-center gap-2">
-                        <div>
-                            <span class="font-bold text-purple-200">C. Sampling Berat Aktual (5 Batang)</span>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Masukkan hasil penimbangan exact setiap batang dalam gram. Bisa memakai koma atau titik desimal.</p>
-                        </div>
-                        <span id="weightSummary" class="text-[10px] text-purple-300 font-semibold">Rata-rata: — g</span>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 1 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_1" required autocomplete="off" placeholder="1,150" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 2 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_2" required autocomplete="off" placeholder="1,150" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 3 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_3" required autocomplete="off" placeholder="1,150" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 4 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_4" required autocomplete="off" placeholder="1,150" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 5 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_5" required autocomplete="off" placeholder="1,150" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
                         </div>
                     </div>
                 </div>
@@ -1101,13 +1055,13 @@
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packInputTime" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                 </div>
                 <div class="rounded-2xl border border-purple-700/50 bg-purple-950/40 p-4"><div class="mb-4 flex flex-wrap items-start justify-between gap-2"><div><strong class="text-purple-200">Hasil dan Keterangan per Parameter</strong><p class="mt-1 text-[10px] text-slate-400">QC Inspector mengisi jumlah packaging baik. Jika hasil kurang dari 10, keterangan temuan wajib diisi.</p></div><span class="text-purple-400">0–10 sampel</span></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Lipatan Tidak Siku</label><input type="number" id="pack_foldNotSquare" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_foldNotSquare" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Kurang Lem</label><input type="number" id="pack_insufficientGlue" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_insufficientGlue" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Inner Frame</label><input type="number" id="pack_innerFrame" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_innerFrame" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Posisi Batangan</label><input type="number" id="pack_cigarettePosition" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_cigarettePosition" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Posisi Bandrol</label><input type="number" id="pack_banderolPosition" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_banderolPosition" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Lipatan OPP</label><input type="number" id="pack_oppFold" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_oppFold" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
-                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Access Tear Tape</label><input type="number" id="pack_tearTapeAccess" min="0" max="10" value="10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_tearTapeAccess" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Lipatan Tidak Siku</label><input type="number" id="pack_foldNotSquare" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_foldNotSquare" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Kurang Lem</label><input type="number" id="pack_insufficientGlue" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_insufficientGlue" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Inner Frame</label><input type="number" id="pack_innerFrame" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_innerFrame" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Posisi Batangan</label><input type="number" id="pack_cigarettePosition" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_cigarettePosition" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Posisi Bandrol</label><input type="number" id="pack_banderolPosition" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_banderolPosition" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Lipatan OPP</label><input type="number" id="pack_oppFold" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_oppFold" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
+                    <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3"><label class="block text-slate-200 mb-1 font-semibold">Access Tear Tape</label><input type="number" id="pack_tearTapeAccess" min="0" max="10" placeholder="Isi 0–10" required class="pack-param w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-center font-bold"><textarea id="pack_note_tearTapeAccess" rows="2" maxlength="200" placeholder="Keterangan temuan..." class="pack-note mt-2 w-full resize-none bg-slate-900 border border-purple-800 rounded-lg px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"></textarea></div>
                 </div></div>
                 <div class="flex justify-end gap-3"><button type="button" onclick="closePackModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl">Batal</button><button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-xl">Simpan Quality Packaging</button></div>
             </form>
@@ -1171,6 +1125,8 @@
             samplingTimes: { 1: '08:00', 2: '10:00', 3: '13:00' },
             targetGreen: 95,
             targetYellow: 90,
+            packagingTargetGreen: 95,
+            packagingTargetYellow: 90,
             defaultSampleSize: 10
         };
         let tobaccoBrands = [];
@@ -1186,21 +1142,8 @@
         let gilingPeriodTrendChart = null;
         let overviewParamChart = null;
         let overviewSamplingChart = null;
-        let overviewBuildingChart = null;
-        let weightTrendChart = null;
-
-        const WEIGHT_SPEC_BY_BRAND = Object.freeze({
-            'ASA': { lower: 1.0, upper: 1.3 },
-            'AST': { lower: 1.0, upper: 1.3 },
-            'ASM': { lower: 1.0, upper: 1.3 },
-            'ASB': { lower: 1.0, upper: 1.3 },
-            'ASC': { lower: 1.0, upper: 1.3 },
-            'AROS': { lower: 1.0, upper: 1.3 },
-            'ARS': { lower: 1.0, upper: 1.3 },
-            'ARO': { lower: 1.6, upper: 1.9 },
-            'ARI 12': { lower: 1.6, upper: 1.9 },
-            'ARI 16': { lower: 1.6, upper: 1.9 }
-        });
+        let overviewPackTrendChart = null;
+        let packParamChart = null;
 
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1236,10 +1179,13 @@
                 document.getElementById('mcFilterDate').value = getTodayString();
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
+                document.getElementById('packWeekStart').value = getTodayString();
+                document.getElementById('packMonth').value = getTodayString().slice(0, 7);
                 document.getElementById('packInputDate').value = getTodayString();
                 document.getElementById('backupDateHarian').value = getTodayString();
                 updateOverviewModeUI();
                 updateGilingPeriodUI(false);
+                updatePackPeriodUI(false);
                 switchTobaccoView('receiving');
                 renderOverview();
                 renderBackupReminder();
@@ -1300,6 +1246,8 @@
                 samplingTimes: Object.fromEntries(data.samplingTimes.filter(item => item.isActive).map(item => [item.samplingNo, item.timeLabel])),
                 targetGreen: data.settings.targetGreen,
                 targetYellow: data.settings.targetYellow,
+                packagingTargetGreen: data.settings.packagingTargetGreen ?? 95,
+                packagingTargetYellow: data.settings.packagingTargetYellow ?? 90,
                 defaultSampleSize: data.settings.defaultSampleSize
             };
             loadTobaccoBrands();
@@ -1537,90 +1485,6 @@
             });
         }
 
-        function parseExactWeight(value) {
-            const normalized = String(value ?? '').trim().replace(',', '.');
-            if (!/^\d+(?:\.\d+)?$/.test(normalized)) return null;
-            const number = Number(normalized);
-            return Number.isFinite(number) && number > 0 ? number : null;
-        }
-
-        function getWeightSamples(source) {
-            const params = source && source.params ? source.params : (source || {});
-            const raw = Array.isArray(params.weightSamples)
-                ? params.weightSamples
-                : [params.weight1, params.weight2, params.weight3, params.weight4, params.weight5];
-            return raw.slice(0, 5).map(value => {
-                const number = Number(value);
-                return Number.isFinite(number) && number > 0 ? number : null;
-            });
-        }
-
-        function getWeightSpec(brand) {
-            return WEIGHT_SPEC_BY_BRAND[String(brand || '').trim().toUpperCase()] || null;
-        }
-
-        function formatWeightNumber(value) {
-            return Number.isFinite(value) ? value.toFixed(3).replace('.', ',') : '—';
-        }
-
-        function getWeightInspectionResult(source) {
-            const samples = getWeightSamples(source);
-            const complete = samples.length === 5 && samples.every(value => value !== null);
-            const spec = getWeightSpec(source?.brand);
-            const average = complete
-                ? samples.reduce((total, value) => total + value, 0) / samples.length
-                : null;
-            const outSpecCount = complete && spec
-                ? samples.filter(value => value < spec.lower || value > spec.upper).length
-                : null;
-            const status = !complete
-                ? 'BELUM LENGKAP'
-                : !spec
-                    ? 'LIMIT BELUM DIATUR'
-                    : outSpecCount === 0 ? 'IN-SPEC' : 'OUT-SPEC';
-            return { samples, complete, spec, average, outSpecCount, status };
-        }
-
-        function setWeightSampleInputs(values = []) {
-            for (let index = 1; index <= 5; index += 1) {
-                const value = values[index - 1];
-                document.getElementById(`weight_sample_${index}`).value = Number.isFinite(value)
-                    ? String(value).replace('.', ',')
-                    : '';
-            }
-            updateWeightSummary();
-        }
-
-        function updateWeightSummary() {
-            const samples = Array.from({ length: 5 }, (_, index) =>
-                parseExactWeight(document.getElementById(`weight_sample_${index + 1}`)?.value)
-            );
-            const validSamples = samples.filter(value => value !== null);
-            const summary = document.getElementById('weightSummary');
-            if (!summary) return;
-            if (validSamples.length !== 5) {
-                summary.innerText = validSamples.length ? `Terisi: ${validSamples.length}/5 batang` : 'Rata-rata: — g';
-                return;
-            }
-            const average = validSamples.reduce((total, value) => total + value, 0) / validSamples.length;
-            summary.innerText = `Rata-rata: ${average.toFixed(3).replace('.', ',')} g`;
-        }
-
-        function buildWeightExportColumns(source) {
-            const result = getWeightInspectionResult(source);
-            const samples = result.samples;
-            const columns = {};
-            samples.forEach((value, index) => {
-                columns[`Berat Aktual Batang ${index + 1} (g)`] = value ?? '';
-            });
-            columns['Rata-rata Berat Aktual (g)'] = result.average === null ? '' : Number(result.average.toFixed(3));
-            columns['Lower Limit Berat (g)'] = result.spec?.lower ?? '';
-            columns['Upper Limit Berat (g)'] = result.spec?.upper ?? '';
-            columns['Status Berat'] = result.status;
-            columns['Jumlah Batang Out-Spec Berat'] = result.outSpecCount ?? '';
-            return columns;
-        }
-
         function openModalInput(editItem = null) {
             if (!ensureNotGuest(editItem ? 'mengedit data inspeksi' : 'menginput data inspeksi')) return;
             const modal = document.getElementById('modalInput');
@@ -1646,7 +1510,6 @@
                 document.getElementById('param_krt').value = editItem.params.krt;
                 document.getElementById('param_brt').value = editItem.params.brt;
                 document.getElementById('param_dmt').value = editItem.params.dmt;
-                setWeightSampleInputs(getWeightSamples(editItem));
             } else {
                 document.getElementById('modalTitle').innerText = 'Form Input Quality Inspection SKT';
                 document.getElementById('editRecordId').value = '';
@@ -1659,7 +1522,6 @@
                 ['gtg','krps','kmls','ring','bst','spt','krt','brt','dmt'].forEach(k => {
                     document.getElementById(`param_${k}`).value = '';
                 });
-                setWeightSampleInputs([]);
             }
             updateParameterMax();
             lucide.createIcons();
@@ -1692,17 +1554,6 @@
                 return;
             }
 
-            const weightInputs = Array.from({ length: 5 }, (_, index) =>
-                document.getElementById(`weight_sample_${index + 1}`)
-            );
-            const weightSamples = weightInputs.map(input => parseExactWeight(input.value));
-            const invalidWeightIndex = weightSamples.findIndex(value => value === null);
-            if (invalidWeightIndex !== -1) {
-                showToast(`Berat Batang ${invalidWeightIndex + 1} wajib diisi dengan angka positif. Contoh: 1,150`, 'error');
-                weightInputs[invalidWeightIndex].focus();
-                return;
-            }
-
             const paramData = {
                 gtg: parseInt(document.getElementById('param_gtg').value) || 0,
                 krps: parseInt(document.getElementById('param_krps').value) || 0,
@@ -1713,7 +1564,6 @@
                 krt: parseInt(document.getElementById('param_krt').value) || 0,
                 brt: parseInt(document.getElementById('param_brt').value) || 0,
                 dmt: parseInt(document.getElementById('param_dmt').value) || 0,
-                weightSamples,
             };
 
             const payload = { date, groupId: group.id, brand, sampling, sampleSize, params: paramData };
@@ -2109,8 +1959,9 @@
         };
 
         function renderOverviewCharts(gilingData, gilingAggregate, packData, range) {
-            const target = Number(masterData.targetYellow) || 90;
-            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${target}%`;
+            const gilingTarget = Number(masterData.targetYellow) || 90;
+            const packagingTarget = Number(masterData.packagingTargetYellow) || 90;
+            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${gilingTarget}%`;
 
             const parameters = [
                 ['GTG', 'gtg'], ['KRPS', 'krps'], ['KMLS', 'kmls'], ['RING', 'ring'], ['BST', 'bst'],
@@ -2141,10 +1992,12 @@
                     plugins: {
                         legend: { labels: { color: '#f7f0ff', boxWidth: 12, font: { size: 11 } } },
                         tooltip: { callbacks: { label: context => `${context.dataset.label}: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: target, scaleId: 'x', display: gilingData.length > 0 }
+                        overviewTargetLine: { value: gilingTarget, scaleId: 'x', display: gilingData.length > 0 }
                     }
                 }
             });
+
+            renderPackParameterChart(calculatePackAggregates(packData));
 
             let trendLabels;
             let trendValues;
@@ -2190,49 +2043,110 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: { callbacks: { label: context => `Overall In-Spec: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: target, scaleId: 'y', display: hasTrendData }
+                        overviewTargetLine: { value: gilingTarget, scaleId: 'y', display: hasTrendData }
                     }
                 }
             });
 
-            const buildings = ['GEDUNG A', 'GEDUNG B'];
-            const buildingValues = buildings.map(building => {
-                const rows = packData.filter(item => String(item.building || item.params?.building || '').toUpperCase() === building);
-                const values = rows.flatMap(item => packKeys.map(key => Number(item.params?.[key]) || 0));
-                return values.length ? Number(((values.reduce((total, value) => total + value, 0) / (values.length * 10)) * 100).toFixed(1)) : null;
-            });
-            document.getElementById('overviewBuildingEmpty').classList.toggle('hidden', buildingValues.some(value => value !== null));
-            if (overviewBuildingChart) overviewBuildingChart.destroy();
-            overviewBuildingChart = new Chart(document.getElementById('overviewBuildingChart').getContext('2d'), {
-                type: 'bar',
+            let packTrendLabels;
+            let packTrendValues;
+            if (range.mode === 'weekly') {
+                const dates = Array.from({ length: 7 }, (_, index) => addDaysToDateString(range.start, index));
+                packTrendLabels = dates.map(date => `${date.slice(8, 10)}/${date.slice(5, 7)}`);
+                packTrendValues = dates.map(date => {
+                    const rows = packData.filter(item => item.date === date);
+                    const aggregate = calculatePackAggregates(rows);
+                    return aggregate.overallInSpecPct === null ? null : Number(aggregate.overallInSpecPct.toFixed(1));
+                });
+                document.getElementById('overviewPackTrendTitle').innerText = 'Trend Packaging Mingguan';
+                document.getElementById('overviewPackTrendCaption').innerText = `Overall in-spec harian · ${range.start} s/d ${range.end}`;
+            } else {
+                const samplingTimes = ['08:00', '10:00', '13:00'];
+                packTrendLabels = samplingTimes.map(time => time.replace(':', '.'));
+                packTrendValues = samplingTimes.map(time => {
+                    const rows = packData.filter(item => item.samplingTime === time);
+                    const aggregate = calculatePackAggregates(rows);
+                    return aggregate.overallInSpecPct === null ? null : Number(aggregate.overallInSpecPct.toFixed(1));
+                });
+                document.getElementById('overviewPackTrendTitle').innerText = 'Trend Packaging per Sampling';
+                document.getElementById('overviewPackTrendCaption').innerText = 'Overall in-spec Packaging pukul 08.00, 10.00, dan 13.00';
+            }
+            const hasPackTrendData = packTrendValues.some(value => value !== null);
+            document.getElementById('overviewPackTrendEmpty').classList.toggle('hidden', hasPackTrendData);
+            if (overviewPackTrendChart) overviewPackTrendChart.destroy();
+            overviewPackTrendChart = new Chart(document.getElementById('overviewPackTrendChart').getContext('2d'), {
+                type: 'line',
                 data: {
-                    labels: ['Gedung A', 'Gedung B'],
-                    datasets: [{ label: 'Packaging Baik (%)', data: buildingValues, backgroundColor: ['#9b3ff3', '#818cf8'], borderRadius: 8, maxBarThickness: 82 }]
+                    labels: packTrendLabels,
+                    datasets: [{
+                        label: 'Overall Packaging In-Spec (%)', data: packTrendValues, borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.18)',
+                        pointBackgroundColor: '#c7d2fe', pointBorderColor: '#4338ca', pointBorderWidth: 2, pointRadius: 5,
+                        borderWidth: 3, tension: 0.3, fill: true, spanGaps: false
+                    }]
                 },
                 plugins: [overviewTargetLinePlugin],
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: '#f7f0ff', font: { weight: 'bold' } } },
+                        x: { grid: { display: false }, ticks: { color: '#f7f0ff' } },
                         y: { min: 0, max: 100, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } }
                     },
                     plugins: {
                         legend: { display: false },
-                        tooltip: { callbacks: { label: context => `Packaging Baik: ${Number(context.raw).toFixed(1)}%` } },
-                        overviewTargetLine: { value: target, scaleId: 'y', display: buildingValues.some(value => value !== null) }
+                        tooltip: { callbacks: { label: context => `Packaging In-Spec: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: packagingTarget, scaleId: 'y', display: hasPackTrendData }
                     }
                 }
             });
+
         }
 
-        function getFilteredPackData() {
-            const date = document.getElementById('packFilterDate').value;
+        function updatePackPeriodUI(shouldRender = true) {
+            const mode = document.getElementById('packPeriodMode')?.value || 'daily';
+            const today = getTodayString();
+            document.getElementById('packDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('packWeekWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('packMonthWrap').classList.toggle('hidden', mode !== 'monthly');
+
+            if (mode === 'weekly' && !document.getElementById('packWeekStart').value) {
+                document.getElementById('packWeekStart').value = document.getElementById('packFilterDate').value || today;
+            }
+            if (mode === 'monthly' && !document.getElementById('packMonth').value) {
+                document.getElementById('packMonth').value = (document.getElementById('packFilterDate').value || today).slice(0, 7);
+            }
+            if (shouldRender) renderPackSection();
+        }
+
+        function getPackFilterRange() {
+            const mode = document.getElementById('packPeriodMode')?.value || 'daily';
+            if (mode === 'weekly') {
+                const start = document.getElementById('packWeekStart').value || getTodayString();
+                return { mode, start, end: addDaysToDateString(start, 6), days: 7 };
+            }
+            if (mode === 'monthly') {
+                const selectedMonth = document.getElementById('packMonth').value || getTodayString().slice(0, 7);
+                const [year, month] = selectedMonth.split('-').map(Number);
+                const days = new Date(year, month, 0).getDate();
+                return { mode, start: `${selectedMonth}-01`, end: `${selectedMonth}-${String(days).padStart(2, '0')}`, days };
+            }
+            const selectedDate = document.getElementById('packFilterDate').value || getTodayString();
+            return { mode: 'daily', start: selectedDate, end: selectedDate, days: 1 };
+        }
+
+        function getPackPeriodLabel(range) {
+            const formatDate = date => new Date(`${date}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            if (range.mode === 'weekly') return `Akumulasi mingguan · ${formatDate(range.start)} – ${formatDate(range.end)}`;
+            if (range.mode === 'monthly') return `Akumulasi bulanan · ${new Date(`${range.start}T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+            return `Akumulasi harian · ${formatDate(range.start)}`;
+        }
+
+        function getFilteredPackData(range = getPackFilterRange()) {
             const time = document.getElementById('packFilterTime').value;
             const building = document.getElementById('packFilterBuilding').value;
             const query = document.getElementById('packSearch').value.trim().toLowerCase();
             return packRecords.filter(item => {
                 const itemBuilding = item.building || item.params?.building || '';
-                if (date && item.date !== date) return false;
+                if (item.date < range.start || item.date > range.end) return false;
                 if (time !== 'ALL' && item.samplingTime !== time) return false;
                 if (building !== 'ALL' && itemBuilding !== building) return false;
                 if (query && !item.inspector.toLowerCase().includes(query)) return false;
@@ -2240,10 +2154,136 @@
             });
         }
 
+        function calculatePackAggregates(data) {
+            const perParameter = Object.fromEntries(packKeys.map(key => [key, {
+                inSpecCount: 0,
+                sampleCount: 0,
+                inSpecPct: null,
+                outSpecPct: null
+            }]));
+
+            data.forEach(item => {
+                packKeys.forEach(key => {
+                    const rawValue = Number(item.params?.[key]);
+                    if (!Number.isFinite(rawValue)) return;
+                    perParameter[key].inSpecCount += Math.min(10, Math.max(0, rawValue));
+                    perParameter[key].sampleCount += 10;
+                });
+            });
+
+            let overallInSpecCount = 0;
+            let overallSampleCount = 0;
+            packKeys.forEach(key => {
+                const parameter = perParameter[key];
+                if (parameter.sampleCount > 0) {
+                    parameter.inSpecPct = (parameter.inSpecCount / parameter.sampleCount) * 100;
+                    parameter.outSpecPct = 100 - parameter.inSpecPct;
+                }
+                overallInSpecCount += parameter.inSpecCount;
+                overallSampleCount += parameter.sampleCount;
+            });
+
+            const overallInSpecPct = overallSampleCount > 0
+                ? (overallInSpecCount / overallSampleCount) * 100
+                : null;
+
+            return {
+                recordCount: data.length,
+                perParameter,
+                overallInSpecCount,
+                overallSampleCount,
+                overallInSpecPct,
+                overallOutSpecPct: overallInSpecPct === null ? null : 100 - overallInSpecPct
+            };
+        }
+
+        function getPackQualityTextClass(value) {
+            if (value === null) return 'text-slate-400';
+            if (value >= Number(masterData.packagingTargetGreen || 95)) return 'text-emerald-400';
+            if (value >= Number(masterData.packagingTargetYellow || 90)) return 'text-amber-300';
+            return 'text-rose-400';
+        }
+
+        function renderPackSummary(aggregate, range = getPackFilterRange()) {
+            const countLabel = `${aggregate.recordCount.toLocaleString('id-ID')} pemeriksaan`;
+            document.getElementById('packSummaryCount').innerText = countLabel;
+            document.getElementById('packSummaryPeriodLabel').innerText = getPackPeriodLabel(range);
+
+            const percentageText = value => value === null ? '—' : `${value.toFixed(1)}%`;
+            const card = (label, inSpec, outSpec, isOverall = false) => `
+                <div class="${isOverall ? 'sm:col-span-2 border-purple-500/70 bg-gradient-to-br from-purple-800/55 to-purple-950/70' : 'border-purple-800/50 bg-purple-950/45'} rounded-xl border p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-purple-300">${isOverall ? 'Summary Semua Kategori' : 'Parameter Packaging'}</p>
+                            <h4 class="mt-1 text-xs font-bold text-white">${escapeHtml(label)}</h4>
+                        </div>
+                        ${isOverall ? '<span class="rounded-lg bg-purple-500/20 px-2 py-1 text-[9px] font-black text-purple-100">7 PARAMETER</span>' : ''}
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div>
+                            <p class="text-[10px] text-slate-400">In-Spec</p>
+                            <p class="mt-1 text-xl font-black ${getPackQualityTextClass(inSpec)}">${percentageText(inSpec)}</p>
+                        </div>
+                        <div class="border-l border-purple-700/50 pl-3">
+                            <p class="text-[10px] text-slate-400">Out-Spec</p>
+                            <p class="mt-1 text-xl font-black ${outSpec === null ? 'text-slate-400' : 'text-rose-400'}">${percentageText(outSpec)}</p>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById('packSummaryGrid').innerHTML = [
+                card('Overall Quality Packaging', aggregate.overallInSpecPct, aggregate.overallOutSpecPct, true),
+                ...packKeys.map(key => card(packLabels[key], aggregate.perParameter[key].inSpecPct, aggregate.perParameter[key].outSpecPct))
+            ].join('');
+        }
+
+        function renderPackParameterChart(aggregate) {
+            const target = Number(masterData.packagingTargetYellow) || 90;
+            document.getElementById('packParameterTarget').innerText = `Target ≥ ${target}%`;
+
+            const parameters = packKeys.map(key => ({
+                label: packLabels[key],
+                inSpec: aggregate.perParameter[key].inSpecPct,
+                outSpec: aggregate.perParameter[key].outSpecPct
+            })).sort((a, b) => (a.inSpec ?? Number.POSITIVE_INFINITY) - (b.inSpec ?? Number.POSITIVE_INFINITY));
+            const hasData = aggregate.overallSampleCount > 0;
+
+            document.getElementById('packParameterEmpty').classList.toggle('hidden', hasData);
+            if (packParamChart) packParamChart.destroy();
+            packParamChart = new Chart(document.getElementById('packParameterChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: parameters.map(item => item.label),
+                    datasets: [
+                        { label: 'In-Spec (%)', data: parameters.map(item => item.inSpec === null ? 0 : Number(item.inSpec.toFixed(1))), backgroundColor: '#9b3ff3', borderRadius: 5, borderSkipped: false },
+                        { label: 'Out-Spec (%)', data: parameters.map(item => item.outSpec === null ? 0 : Number(item.outSpec.toFixed(1))), backgroundColor: '#f43f5e', borderRadius: 5, borderSkipped: false }
+                    ]
+                },
+                plugins: [overviewTargetLinePlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { min: 0, max: 100, stacked: true, grid: { color: '#38264d' }, ticks: { color: '#e2e8f0', callback: value => value + '%' } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#f7f0ff', font: { size: 10, weight: 'bold' } } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f7f0ff', boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: context => `${context.dataset.label}: ${Number(context.raw).toFixed(1)}%` } },
+                        overviewTargetLine: { value: target, scaleId: 'x', display: hasData }
+                    }
+                }
+            });
+        }
+
         function renderPackSection() {
             const tbody = document.getElementById('packTableBody');
             if (!tbody) return;
-            const filtered = getFilteredPackData();
+            const range = getPackFilterRange();
+            const filtered = getFilteredPackData(range);
+            const aggregate = calculatePackAggregates(filtered);
+            renderPackSummary(aggregate, range);
             if (!filtered.length) {
                 tbody.innerHTML = '<tr><td colspan="12" class="p-8 text-center text-slate-400">Belum ada data Quality Packaging yang sesuai filter.</td></tr>';
                 return;
@@ -2279,11 +2319,13 @@
                 document.getElementById('packForm').reset();
                 document.getElementById('packModalTitle').innerText = 'Form Input Quality Packaging';
                 document.getElementById('packEditRecordId').value = '';
-                document.getElementById('packInputDate').value = document.getElementById('packFilterDate').value || getTodayString();
+                const activeRange = getPackFilterRange();
+                const today = getTodayString();
+                document.getElementById('packInputDate').value = today >= activeRange.start && today <= activeRange.end ? today : activeRange.start;
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('packInputBuilding').value = '';
                 packKeys.forEach(key => {
-                    document.getElementById(`pack_${key}`).value = 10;
+                    document.getElementById(`pack_${key}`).value = '';
                     document.getElementById(`pack_note_${key}`).value = '';
                 });
             }
@@ -2299,6 +2341,12 @@
             if (!ensureNotGuest('menyimpan data Quality Packaging')) return;
             const editId = document.getElementById('packEditRecordId').value;
             const building = document.getElementById('packInputBuilding').value;
+            const emptyKey = packKeys.find(key => document.getElementById(`pack_${key}`).value === '');
+            if (emptyKey) {
+                showToast(`Hasil ${packLabels[emptyKey]} wajib diisi manual.`, 'error');
+                document.getElementById(`pack_${emptyKey}`).focus();
+                return;
+            }
             const parameterValues = Object.fromEntries(packKeys.map(key => [key, Number(document.getElementById(`pack_${key}`).value)]));
             const notes = Object.fromEntries(packKeys.map(key => [key, document.getElementById(`pack_note_${key}`).value.trim()]));
             const incompleteKey = packKeys.find(key => parameterValues[key] < 10 && !notes[key]);
@@ -2347,7 +2395,8 @@
 
         function exportPackToExcel() {
             if (!ensureNotGuest('mengunduh data Quality Packaging')) return;
-            const filtered = getFilteredPackData();
+            const range = getPackFilterRange();
+            const filtered = getFilteredPackData(range);
             if (!filtered.length) return showToast('Tidak ada data Quality Packaging untuk diekspor.', 'error');
             const rows = filtered.map(item => ({
                 Tanggal: item.date, Jam: item.samplingTime, Gedung: item.building || item.params?.building || '—', Inspector: item.inspector,
@@ -2358,7 +2407,8 @@
             }));
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Quality Packaging');
-            const fileName = `Quality_Packaging_${document.getElementById('packFilterDate').value || getTodayString()}.xlsx`;
+            const periodName = range.mode === 'monthly' ? range.start.slice(0, 7) : range.mode === 'weekly' ? `${range.start}_sd_${range.end}` : range.start;
+            const fileName = `Quality_Packaging_${periodName}.xlsx`;
             XLSX.writeFile(workbook, fileName);
             showToast(`File Quality Packaging berhasil diunduh: ${fileName}`, 'success');
         }
@@ -2423,15 +2473,11 @@
         function calculateAggregates(data) {
             let totalSample = 0;
             let sum = { gtg:0, krps:0, kmls:0, ring:0, bst:0, spt:0, krt:0, brt:0, dmt:0 };
-            const weightValues = [];
 
             data.forEach(d => {
                 totalSample += d.sampleSize;
                 Object.keys(sum).forEach(k => {
                     sum[k] += (d.params[k] || 0);
-                });
-                getWeightSamples(d).forEach(value => {
-                    if (value !== null) weightValues.push(value);
                 });
             });
 
@@ -2453,15 +2499,10 @@
             const visualInSpecPct = visualDenom > 0 ? (totalVisualInSpec / visualDenom) * 100 : 0;
             const physicalInSpecPct = physicalDenom > 0 ? (totalPhysicalInSpec / physicalDenom) * 100 : 0;
             const overallInSpecPct = overallDenom > 0 ? (totalAllInSpec / overallDenom) * 100 : 0;
-            const averageWeight = weightValues.length
-                ? weightValues.reduce((total, value) => total + value, 0) / weightValues.length
-                : null;
 
             return {
                 totalSample,
                 sum,
-                averageWeight,
-                weightSampleCount: weightValues.length,
                 totalVisualInSpec,
                 totalPhysicalInSpec,
                 visualInSpecPct,
@@ -2487,12 +2528,6 @@
             document.getElementById('kpiVisualOut').innerText = 'Out: ' + agg.visualOutSpecPct.toFixed(1) + '%';
             document.getElementById('kpiPhysicalIn').innerText = agg.physicalInSpecPct.toFixed(1) + '%';
             document.getElementById('kpiPhysicalOut').innerText = 'Out: ' + agg.physicalOutSpecPct.toFixed(1) + '%';
-            document.getElementById('kpiAverageWeight').innerText = agg.averageWeight === null
-                ? '—'
-                : agg.averageWeight.toFixed(3).replace('.', ',');
-            document.getElementById('kpiWeightSampleCount').innerText = agg.weightSampleCount
-                ? `${agg.weightSampleCount.toLocaleString('id-ID')} batang tertimbang`
-                : 'Belum ada data berat';
 
             applyKpiColor('kpiOverallBadge', agg.overallInSpecPct);
             applyKpiColor('kpiVisualBadge', agg.visualInSpecPct);
@@ -2532,7 +2567,6 @@
             matrixPanel.classList.toggle('hidden', range.mode !== 'daily');
             if (range.mode === 'daily') renderKelompokMatrix(periodData);
             renderGilingPeriodTrend(data, range);
-            renderWeightTrend(data, range);
             renderCharts(agg);
             renderParameterTable(agg);
 
@@ -2656,177 +2690,6 @@
                     }
                 }
             });
-        }
-
-        function renderWeightTrend(data, range) {
-            const rows = data
-                .filter(item => getWeightSamples(item).some(value => value !== null))
-                .slice()
-                .sort((a, b) => {
-                    const keyA = `${a.date}|${a.samplingTime || ''}|${a.brand}|${a.kelompok}`;
-                    const keyB = `${b.date}|${b.samplingTime || ''}|${b.brand}|${b.kelompok}`;
-                    return keyA.localeCompare(keyB);
-                });
-            const results = rows.map(item => getWeightInspectionResult(item));
-            const rangeLabel = range.mode === 'daily'
-                ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
-                : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
-            const brands = [...new Set(rows.map(item => item.brand))];
-            const brandsWithoutSpec = brands.filter(brand => !getWeightSpec(brand));
-            const captionParts = [
-                `${rows.length} data sampling`,
-                `${brands.length} brand`,
-                rangeLabel
-            ];
-            if (brandsWithoutSpec.length) captionParts.push(`limit belum diatur: ${brandsWithoutSpec.join(', ')}`);
-            document.getElementById('weightTrendCaption').innerText = captionParts.join(' · ');
-
-            const hasData = rows.length > 0;
-            const emptyState = document.getElementById('weightTrendEmpty');
-            emptyState.classList.toggle('hidden', hasData);
-            emptyState.classList.toggle('flex', !hasData);
-            renderWeightSamplingHistory(rows);
-
-            const context = document.getElementById('weightTrendChart').getContext('2d');
-            if (weightTrendChart) weightTrendChart.destroy();
-
-            const labels = rows.map(item => {
-                const groupCode = String(item.kelompok || '').replace('Kelompok ', 'K-');
-                return range.mode === 'daily'
-                    ? `${item.samplingTime} · ${item.brand} · ${groupCode}`
-                    : `${item.date.slice(5)} · ${item.samplingTime} · ${item.brand} · ${groupCode}`;
-            });
-            const lineColors = ['#a78bfa', '#34d399', '#fbbf24', '#22d3ee', '#f472b6'];
-            const sampleDatasets = Array.from({ length: 5 }, (_, sampleIndex) => ({
-                label: `Batang ${sampleIndex + 1}`,
-                data: results.map(result => result.samples[sampleIndex]),
-                borderColor: lineColors[sampleIndex],
-                backgroundColor: lineColors[sampleIndex],
-                borderWidth: 1.6,
-                pointRadius: 2.8,
-                pointHoverRadius: 5,
-                tension: 0.2,
-                spanGaps: false
-            }));
-            const lowerValues = results.map(result => result.spec?.lower ?? null);
-            const upperValues = results.map(result => result.spec?.upper ?? null);
-            const plottedValues = [
-                ...results.flatMap(result => result.samples.filter(value => value !== null)),
-                ...lowerValues.filter(value => value !== null),
-                ...upperValues.filter(value => value !== null)
-            ];
-            const yMin = plottedValues.length ? Math.max(0, Math.floor((Math.min(...plottedValues) - 0.1) * 10) / 10) : 0.8;
-            const yMax = plottedValues.length ? Math.ceil((Math.max(...plottedValues) + 0.1) * 10) / 10 : 2.0;
-
-            weightTrendChart = new Chart(context, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [
-                        ...sampleDatasets,
-                        {
-                            label: 'Lower Limit',
-                            data: lowerValues,
-                            borderColor: '#38bdf8',
-                            backgroundColor: '#38bdf8',
-                            borderWidth: 2,
-                            borderDash: [7, 5],
-                            pointRadius: 0,
-                            stepped: 'middle',
-                            spanGaps: false
-                        },
-                        {
-                            label: 'Upper Limit',
-                            data: upperValues,
-                            borderColor: '#fb7185',
-                            backgroundColor: '#fb7185',
-                            borderWidth: 2,
-                            borderDash: [7, 5],
-                            pointRadius: 0,
-                            stepped: 'middle',
-                            spanGaps: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        x: {
-                            grid: { color: '#2f0c54' },
-                            ticks: { color: '#c4b5fd', font: { size: 9 }, autoSkip: true, maxTicksLimit: 14, maxRotation: 45, minRotation: 0 }
-                        },
-                        y: {
-                            min: yMin,
-                            max: yMax,
-                            grid: { color: '#2f0c54' },
-                            ticks: { color: '#e2e8f0', callback: value => `${Number(value).toFixed(2).replace('.', ',')} g` },
-                            title: { display: true, text: 'Berat (gram)', color: '#c4b5fd', font: { size: 11, weight: 'bold' } }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#f7f0ff', font: { size: 10 }, usePointStyle: true, padding: 14 } },
-                        tooltip: {
-                            callbacks: {
-                                title: items => {
-                                    const item = rows[items[0]?.dataIndex];
-                                    return item ? `${item.date} · ${item.samplingTime} · ${item.brand} · ${item.kelompok}` : '';
-                                },
-                                label: tooltipItem => tooltipItem.parsed.y === null
-                                    ? `${tooltipItem.dataset.label}: —`
-                                    : `${tooltipItem.dataset.label}: ${formatWeightNumber(tooltipItem.parsed.y)} g`
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderWeightSamplingHistory(rows) {
-            const tbody = document.getElementById('weightHistoryBody');
-            const countLabel = document.getElementById('weightHistoryCount');
-            countLabel.innerText = `${rows.length.toLocaleString('id-ID')} data sampling`;
-            if (!rows.length) {
-                tbody.innerHTML = `<tr><td colspan="13" class="p-6 text-center text-slate-400">Belum ada data sampling berat pada filter terpilih.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = rows.slice().reverse().map(item => {
-                const result = getWeightInspectionResult(item);
-                const sampleCells = result.samples.map(value => {
-                    const isOutSpec = value !== null && result.spec && (value < result.spec.lower || value > result.spec.upper);
-                    const valueClass = value === null
-                        ? 'text-slate-500'
-                        : isOutSpec ? 'text-rose-300 bg-rose-950/30' : result.spec ? 'text-emerald-300' : 'text-white';
-                    return `<td class="p-2.5 text-center font-semibold ${valueClass}">${formatWeightNumber(value)}</td>`;
-                }).join('');
-                const statusClass = result.status === 'IN-SPEC'
-                    ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50'
-                    : result.status === 'OUT-SPEC'
-                        ? 'bg-rose-950/70 text-rose-300 border-rose-500/50'
-                        : 'bg-amber-950/60 text-amber-300 border-amber-500/50';
-                const statusLabel = result.status === 'OUT-SPEC'
-                    ? `OUT-SPEC (${result.outSpecCount})`
-                    : result.status.replaceAll('_', ' ');
-
-                return `
-                    <tr class="hover:bg-purple-950/50">
-                        <td class="p-2.5 whitespace-nowrap text-slate-300">
-                            <span class="font-semibold text-white">${item.date}</span>
-                            <span class="block text-[10px] text-purple-400">Sampling ${item.sampling} · ${item.samplingTime}</span>
-                        </td>
-                        <td class="p-2.5 whitespace-nowrap text-purple-200">${item.kelompok}</td>
-                        <td class="p-2.5"><span class="rounded-md border border-purple-700 bg-purple-950 px-2 py-0.5 font-bold text-purple-200">${item.brand}</span></td>
-                        <td class="p-2.5 whitespace-nowrap text-slate-300">${item.inspector}</td>
-                        ${sampleCells}
-                        <td class="p-2.5 text-center bg-purple-900/20 font-black text-white">${formatWeightNumber(result.average)}</td>
-                        <td class="p-2.5 text-center font-semibold text-sky-300">${formatWeightNumber(result.spec?.lower ?? null)}</td>
-                        <td class="p-2.5 text-center font-semibold text-rose-300">${formatWeightNumber(result.spec?.upper ?? null)}</td>
-                        <td class="p-2.5 text-center whitespace-nowrap"><span class="inline-flex rounded-lg border px-2 py-1 text-[10px] font-black ${statusClass}">${statusLabel}</span></td>
-                    </tr>
-                `;
-            }).join('');
         }
 
         function renderCharts(agg) {
@@ -2954,14 +2817,6 @@
 
                 const pIn = item.params.brt + item.params.dmt;
                 const pPct = ((pIn / (item.sampleSize * 2)) * 100).toFixed(1);
-                const weightSamples = getWeightSamples(item);
-                const hasCompleteWeightSamples = weightSamples.length === 5 && weightSamples.every(value => value !== null);
-                const weightAverage = hasCompleteWeightSamples
-                    ? (weightSamples.reduce((total, value) => total + value, 0) / weightSamples.length).toFixed(3).replace('.', ',')
-                    : null;
-                const weightTooltip = hasCompleteWeightSamples
-                    ? ` title="Berat aktual: ${weightSamples.map(value => String(value).replace('.', ',')).join(' | ')} gram"`
-                    : '';
 
                 const oPct = (((vIn + pIn) / (item.sampleSize * 9)) * 100).toFixed(1);
 
@@ -2985,10 +2840,7 @@
                         <td class="p-3 text-slate-300">${item.inspector}</td>
                         <td class="p-3 text-center font-bold text-white">${item.sampleSize}</td>
                         <td class="p-3 text-center font-semibold text-purple-200">${vPct}%</td>
-                        <td class="p-3 text-center font-semibold text-purple-300"${weightTooltip}>
-                            ${pPct}%
-                            ${weightAverage ? `<span class="block text-[10px] text-slate-400 mt-0.5">Avg berat: ${weightAverage} g</span>` : ''}
-                        </td>
+                        <td class="p-3 text-center font-semibold text-purple-300">${pPct}%</td>
                         <td class="p-3 text-center"><span class="font-bold px-2 py-0.5 rounded-lg ${oPct >= masterData.targetGreen ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-rose-950 text-rose-300 border border-rose-500/50'}">${oPct}%</span></td>
                         <td class="p-3 text-center">${actionBtns}</td>
                     </tr>
@@ -3121,6 +2973,8 @@
 
             document.getElementById('settingTargetGreen').value = masterData.targetGreen;
             document.getElementById('settingTargetYellow').value = masterData.targetYellow;
+            document.getElementById('settingPackagingTargetGreen').value = masterData.packagingTargetGreen;
+            document.getElementById('settingPackagingTargetYellow').value = masterData.packagingTargetYellow;
             document.getElementById('settingDefaultSample').value = masterData.defaultSampleSize;
             renderUserList();
         }
@@ -3221,25 +3075,69 @@
             }
         }
 
-        async function saveTargets() {
-            if (!ensureAdmin('mengubah target dan pengaturan')) return;
-            masterData.targetGreen = parseFloat(document.getElementById('settingTargetGreen').value) || 95;
-            masterData.targetYellow = parseFloat(document.getElementById('settingTargetYellow').value) || 90;
-            masterData.defaultSampleSize = parseInt(document.getElementById('settingDefaultSample').value) || 10;
+        function readTargetPair(greenInputId, yellowInputId, stationLabel) {
+            const green = Number(document.getElementById(greenInputId).value);
+            const yellow = Number(document.getElementById(yellowInputId).value);
+            if (!Number.isFinite(green) || !Number.isFinite(yellow) || green < 1 || green > 100 || yellow < 1 || yellow > 100) {
+                showToast(`Target ${stationLabel} harus berada pada rentang 1–100%.`, 'error');
+                return null;
+            }
+            if (yellow > green) {
+                showToast(`Batas Kuning ${stationLabel} tidak boleh lebih tinggi dari Target Hijau.`, 'error');
+                return null;
+            }
+            return { green, yellow };
+        }
+
+        async function saveGilingTargets() {
+            if (!ensureAdmin('mengubah target Giling Gunting')) return;
+            const target = readTargetPair('settingTargetGreen', 'settingTargetYellow', 'Giling Gunting');
+            if (!target) return;
+            const defaultSampleSize = parseInt(document.getElementById('settingDefaultSample').value, 10);
+            if (!Number.isInteger(defaultSampleSize) || defaultSampleSize < 1) {
+                showToast('Default jumlah batang sampel minimal 1.', 'error');
+                return;
+            }
             try {
                 await apiFetch('/api/master', {
                     method: 'PATCH',
                     body: JSON.stringify({
-                        targetGreen: masterData.targetGreen,
-                        targetYellow: masterData.targetYellow,
-                        defaultSampleSize: masterData.defaultSampleSize,
+                        targetGreen: target.green,
+                        targetYellow: target.yellow,
+                        defaultSampleSize,
                         samplingTimes: masterRows.samplingTimes.map(item => ({ samplingNo: item.samplingNo, timeLabel: item.timeLabel }))
                     })
                 });
-                showToast('Konfigurasi target berhasil disimpan untuk semua pengguna!', 'success');
+                masterData.targetGreen = target.green;
+                masterData.targetYellow = target.yellow;
+                masterData.defaultSampleSize = defaultSampleSize;
+                showToast('Target Giling Gunting berhasil disimpan.', 'success');
                 renderDashboard();
+                renderOverview();
             } catch (error) {
-                showToast(error.message || 'Konfigurasi gagal disimpan.', 'error');
+                showToast(error.message || 'Target Giling Gunting gagal disimpan.', 'error');
+            }
+        }
+
+        async function savePackagingTargets() {
+            if (!ensureAdmin('mengubah target Packaging')) return;
+            const target = readTargetPair('settingPackagingTargetGreen', 'settingPackagingTargetYellow', 'Packaging');
+            if (!target) return;
+            try {
+                await apiFetch('/api/master', {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        packagingTargetGreen: target.green,
+                        packagingTargetYellow: target.yellow
+                    })
+                });
+                masterData.packagingTargetGreen = target.green;
+                masterData.packagingTargetYellow = target.yellow;
+                showToast('Target Packaging berhasil disimpan.', 'success');
+                renderPackSection();
+                renderOverview();
+            } catch (error) {
+                showToast(error.message || 'Target Packaging gagal disimpan.', 'error');
             }
         }
 
@@ -3458,8 +3356,7 @@
                 'SPT': item.params.spt,
                 'KRT': item.params.krt,
                 'BRT': item.params.brt,
-                'DMT': item.params.dmt,
-                ...buildWeightExportColumns(item)
+                'DMT': item.params.dmt
             }));
             const packRows = packRecords.filter(item => inRange(item.date)).map(item => ({
                 'Tanggal': item.date,
@@ -3539,8 +3436,7 @@
                     'SPT': item.params.spt,
                     'KRT': item.params.krt,
                     'BRT': item.params.brt,
-                    'DMT': item.params.dmt,
-                    ...buildWeightExportColumns(item)
+                    'DMT': item.params.dmt
                 }));
                 const packRows = packRecords.map(item => ({
                     'Tanggal': item.date,
@@ -3618,8 +3514,7 @@
                 'SPT In-Spec': d.params.spt,
                 'KRT In-Spec': d.params.krt,
                 'BRT In-Spec': d.params.brt,
-                'DMT In-Spec': d.params.dmt,
-                ...buildWeightExportColumns(d)
+                'DMT In-Spec': d.params.dmt
             }));
             const ws1 = XLSX.utils.json_to_sheet(rawRows);
             XLSX.utils.book_append_sheet(wb, ws1, "Raw Data Inspection");
