@@ -868,9 +868,14 @@
                             <h4 class="text-xs font-bold text-white">Riwayat Berat Rata-rata Sampling</h4>
                             <p class="text-[10px] text-slate-400">Average Weight per sampling, batas spesifikasi brand, dan status hasil</p>
                         </div>
-                        <span id="weightHistoryCount" class="text-[10px] font-semibold text-purple-300">0 data sampling</span>
+                        <div class="flex items-center gap-2">
+                            <span id="weightHistoryCount" class="text-[10px] font-semibold text-purple-300">0 data sampling</span>
+                            <button type="button" id="btnToggleWeightHistory" onclick="toggleCollapsible('weightHistoryTableWrap','btnToggleWeightHistory')" class="flex items-center gap-1.5 rounded-lg border border-purple-700/80 bg-purple-950 px-2.5 py-1 text-[10px] font-bold text-purple-200 hover:bg-purple-900">
+                                <i data-lucide="chevron-down" class="h-3.5 w-3.5"></i> <span data-toggle-label>Tampilkan</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto custom-scroll">
+                    <div id="weightHistoryTableWrap" class="hidden overflow-x-auto custom-scroll">
                         <table class="w-full min-w-[860px] text-[11px] text-left border-collapse">
                             <thead>
                                 <tr class="bg-purple-950/90 text-purple-200 border-b border-purple-800">
@@ -904,29 +909,34 @@
                     <button type="button" onclick="downloadHistoryChart()" class="flex items-center gap-2 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-black text-white shadow hover:bg-purple-500">
                         <i data-lucide="image-down" class="h-4 w-4"></i> Unduh Ringkasan Grafik
                     </button>
+                    <button type="button" id="btnToggleGilingHistory" onclick="toggleCollapsible('gilingHistoryTableWrap','btnToggleGilingHistory')" class="flex items-center gap-2 rounded-xl border border-purple-700/80 bg-purple-950 px-3.5 py-2 text-xs font-bold text-purple-200 hover:bg-purple-900">
+                        <i data-lucide="chevron-down" class="h-4 w-4"></i> <span data-toggle-label>Tampilkan</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
-                <div class="overflow-x-auto custom-scroll">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
-                                <th class="p-3 font-semibold">Tanggal</th>
-                                <th class="p-3 font-semibold">Kelompok & Sampling</th>
-                                <th class="p-3 font-semibold">Brand</th>
-                                <th class="p-3 font-semibold">Inspector</th>
-                                <th class="p-3 font-semibold text-center">Sampel</th>
-                                <th class="p-3 font-semibold text-center">Visual In-Spec</th>
-                                <th class="p-3 font-semibold text-center">Physical In-Spec</th>
-                                <th class="p-3 font-semibold text-center">Overall In-Spec</th>
-                                <th class="p-3 font-semibold text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableHistoryBody" class="divide-y divide-purple-800/30">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
+            <div id="gilingHistoryTableWrap" class="hidden">
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
+                    <div class="overflow-x-auto custom-scroll">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
+                                    <th class="p-3 font-semibold">Tanggal</th>
+                                    <th class="p-3 font-semibold">Kelompok & Sampling</th>
+                                    <th class="p-3 font-semibold">Brand</th>
+                                    <th class="p-3 font-semibold">Inspector</th>
+                                    <th class="p-3 font-semibold text-center">Sampel</th>
+                                    <th class="p-3 font-semibold text-center">Visual In-Spec</th>
+                                    <th class="p-3 font-semibold text-center">Physical In-Spec</th>
+                                    <th class="p-3 font-semibold text-center">Overall In-Spec</th>
+                                    <th class="p-3 font-semibold text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableHistoryBody" class="divide-y divide-purple-800/30">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1000,9 +1010,14 @@
                         <h3 id="mcTableTitle" class="text-sm font-bold text-white">Riwayat Penerimaan Tembakau</h3>
                         <p id="mcTableCaption" class="text-[11px] text-purple-300">MC dan tiga sampel berat per box penerimaan</p>
                     </div>
-                    <span id="mcLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+                    <div class="flex items-center gap-2">
+                        <span id="mcLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+                        <button type="button" id="btnToggleMcHistory" onclick="toggleCollapsible('mcTableWrap','btnToggleMcHistory')" class="flex items-center gap-1.5 rounded-lg border border-purple-700/80 bg-purple-950 px-2.5 py-1.5 text-[11px] font-bold text-purple-200 hover:bg-purple-900">
+                            <i data-lucide="chevron-down" class="h-3.5 w-3.5"></i> <span data-toggle-label>Tampilkan</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto custom-scroll">
+                <div id="mcTableWrap" class="hidden overflow-x-auto custom-scroll">
                     <table class="w-full text-xs text-left border-collapse">
                         <thead id="mcTableHead"></thead>
                         <tbody id="mcTableBody" class="divide-y divide-purple-800/30">
@@ -1064,9 +1079,14 @@
                         <h3 class="text-sm font-bold text-white">Riwayat Quality Packaging</h3>
                         <p class="text-[11px] text-purple-300">Hasil per station sesuai jumlah sampel: 10 atau 5</p>
                     </div>
-                    <span id="packLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+                    <div class="flex items-center gap-2">
+                        <span id="packLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+                        <button type="button" id="btnTogglePackHistory" onclick="toggleCollapsible('packTableWrap','btnTogglePackHistory')" class="flex items-center gap-1.5 rounded-lg border border-purple-700/80 bg-purple-950 px-2.5 py-1.5 text-[11px] font-bold text-purple-200 hover:bg-purple-900">
+                            <i data-lucide="chevron-down" class="h-3.5 w-3.5"></i> <span data-toggle-label>Tampilkan</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto custom-scroll">
+                <div id="packTableWrap" class="hidden overflow-x-auto custom-scroll">
                     <table class="w-full min-w-[1120px] text-xs text-left border-collapse">
                         <thead>
                             <tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
@@ -4567,6 +4587,21 @@
         }
 
         // Helpers
+        // Toggle collapse/expand panel riwayat (master data) agar tampilan tidak numpuk
+        function toggleCollapsible(contentId, btnId) {
+            const content = document.getElementById(contentId);
+            const btn = document.getElementById(btnId);
+            if (!content || !btn) return;
+            const nowHidden = content.classList.toggle('hidden');
+            const label = btn.querySelector('[data-toggle-label]');
+            const icon = btn.querySelector('[data-lucide]');
+            if (label) label.innerText = nowHidden ? 'Tampilkan' : 'Sembunyikan';
+            if (icon) {
+                icon.setAttribute('data-lucide', nowHidden ? 'chevron-down' : 'chevron-up');
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
         function escapeHtml(value) {
             return String(value ?? '')
                 .replaceAll('&', '&amp;')
