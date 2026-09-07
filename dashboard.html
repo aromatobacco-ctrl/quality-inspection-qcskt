@@ -1046,18 +1046,36 @@
                     </div>
                 </div>
 
-                <!-- Kategori C: Berat Rata-rata Sampling -->
+                <!-- Kategori C: Sampling Berat Aktual -->
                 <div class="p-3.5 bg-purple-950/50 rounded-2xl border border-purple-800/60 space-y-3">
                     <div class="flex flex-wrap justify-between items-center gap-2">
                         <div>
-                            <span class="font-bold text-purple-200">C. Berat Rata-rata Sampling <span class="text-purple-400">— Opsional</span></span>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Masukkan satu nilai rata-rata berat dalam gram untuk sampling pada waktu terpilih.</p>
+                            <span class="font-bold text-purple-200">C. Sampling Berat Aktual (5 Batang) <span class="text-purple-400">— Opsional</span></span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Masukkan berat Batang 1–5 satu per satu. Sistem hanya menyimpan dan menampilkan hasil rata-ratanya.</p>
                         </div>
-                        <span class="text-[10px] text-purple-300 font-semibold">Trend mengikuti sampling per 2 jam</span>
+                        <span id="weightSummary" class="text-[10px] text-purple-300 font-semibold">Rata-rata: — g</span>
                     </div>
-                    <div class="max-w-sm">
-                        <label class="block text-slate-300 text-[11px] mb-0.5">Average Weight (g)</label>
-                        <input type="text" inputmode="decimal" id="weight_average" autocomplete="off" placeholder="Contoh: 1,150" class="w-full bg-slate-900 border border-purple-700/80 rounded-lg px-3 py-2 text-white font-bold text-center focus:outline-none focus:border-purple-400">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                        <div>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 1 (g)</label>
+                            <input type="text" inputmode="decimal" id="weight_sample_1" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 2 (g)</label>
+                            <input type="text" inputmode="decimal" id="weight_sample_2" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 3 (g)</label>
+                            <input type="text" inputmode="decimal" id="weight_sample_3" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 4 (g)</label>
+                            <input type="text" inputmode="decimal" id="weight_sample_4" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 5 (g)</label>
+                            <input type="text" inputmode="decimal" id="weight_sample_5" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
+                        </div>
                     </div>
                 </div>
 
@@ -1629,15 +1647,19 @@
             return Number.isFinite(number) && number > 0 ? number : null;
         }
 
-        function getLegacyWeightAverage(source) {
+        function getLegacyWeightSamples(source) {
             const params = source && source.params ? source.params : (source || {});
             const raw = Array.isArray(params.weightSamples)
                 ? params.weightSamples
                 : [params.weight1, params.weight2, params.weight3, params.weight4, params.weight5];
-            const samples = raw.slice(0, 5).map(value => {
+            return raw.slice(0, 5).map(value => {
                 const number = Number(value);
                 return Number.isFinite(number) && number > 0 ? number : null;
             });
+        }
+
+        function getLegacyWeightAverage(source) {
+            const samples = getLegacyWeightSamples(source);
             return samples.length === 5 && samples.every(value => value !== null)
                 ? samples.reduce((total, value) => total + value, 0) / samples.length
                 : null;
@@ -1673,11 +1695,42 @@
             return { spec, average, isOutSpec, status };
         }
 
-        function setAverageWeightInput(source = null) {
-            const value = source ? getAverageWeight(source) : null;
-            document.getElementById('weight_average').value = Number.isFinite(value)
-                ? String(Number(value.toFixed(3))).replace('.', ',')
+        function setWeightSampleInputs(source = null) {
+            const samples = source ? getLegacyWeightSamples(source) : [];
+            const hasCompleteLegacySamples = samples.length === 5 && samples.every(value => value !== null);
+            for (let index = 1; index <= 5; index += 1) {
+                const value = hasCompleteLegacySamples ? samples[index - 1] : null;
+                document.getElementById(`weight_sample_${index}`).value = Number.isFinite(value)
+                    ? String(value).replace('.', ',')
+                    : '';
+            }
+            const summary = document.getElementById('weightSummary');
+            summary.dataset.storedAverage = source && Number.isFinite(getAverageWeight(source))
+                ? String(getAverageWeight(source))
                 : '';
+            updateWeightSummary();
+        }
+
+        function updateWeightSummary() {
+            const samples = Array.from({ length: 5 }, (_, index) =>
+                parseExactWeight(document.getElementById(`weight_sample_${index + 1}`)?.value)
+            );
+            const validSamples = samples.filter(value => value !== null);
+            const summary = document.getElementById('weightSummary');
+            if (!summary) return;
+            if (!validSamples.length) {
+                const storedAverage = Number(summary.dataset.storedAverage);
+                summary.innerText = storedAverage > 0
+                    ? `Rata-rata tersimpan: ${formatWeightNumber(storedAverage)} g`
+                    : 'Rata-rata: — g';
+                return;
+            }
+            if (validSamples.length !== 5) {
+                summary.innerText = `Terisi: ${validSamples.length}/5 batang`;
+                return;
+            }
+            const average = validSamples.reduce((total, value) => total + value, 0) / validSamples.length;
+            summary.innerText = `Rata-rata: ${formatWeightNumber(average)} g`;
         }
 
         function buildWeightExportColumns(source) {
@@ -1715,7 +1768,7 @@
                 document.getElementById('param_krt').value = editItem.params.krt;
                 document.getElementById('param_brt').value = editItem.params.brt;
                 document.getElementById('param_dmt').value = editItem.params.dmt ?? '';
-                setAverageWeightInput(editItem);
+                setWeightSampleInputs(editItem);
             } else {
                 document.getElementById('modalTitle').innerText = 'Form Input Quality Inspection SKT';
                 document.getElementById('editRecordId').value = '';
@@ -1728,7 +1781,7 @@
                 ['gtg','krps','kmls','ring','bst','spt','krt','brt','dmt'].forEach(k => {
                     document.getElementById(`param_${k}`).value = '';
                 });
-                setAverageWeightInput();
+                setWeightSampleInputs();
             }
             updateParameterMax();
             lucide.createIcons();
@@ -1761,13 +1814,27 @@
                 return;
             }
 
-            const averageWeightInput = document.getElementById('weight_average');
-            const averageWeight = parseExactWeight(averageWeightInput.value);
-            if (averageWeightInput.value.trim() !== '' && averageWeight === null) {
-                showToast('Average Weight harus berupa angka positif. Contoh: 1,150', 'error');
-                averageWeightInput.focus();
+            const weightInputs = Array.from({ length: 5 }, (_, index) =>
+                document.getElementById(`weight_sample_${index + 1}`)
+            );
+            const weightSamples = weightInputs.map(input => parseExactWeight(input.value));
+            const invalidWeightIndex = weightSamples.findIndex((value, index) => weightInputs[index].value.trim() !== '' && value === null);
+            if (invalidWeightIndex !== -1) {
+                showToast(`Berat Batang ${invalidWeightIndex + 1} harus berupa angka positif. Contoh: 1,150`, 'error');
+                weightInputs[invalidWeightIndex].focus();
                 return;
             }
+            const filledWeightCount = weightInputs.filter(input => input.value.trim() !== '').length;
+            if (filledWeightCount > 0 && filledWeightCount < 5) {
+                showToast('Sampling berat bersifat opsional, tetapi jika mulai diisi maka Batang 1–5 harus lengkap.', 'error');
+                weightInputs.find(input => input.value.trim() === '')?.focus();
+                return;
+            }
+            const enteredAverageWeight = filledWeightCount === 5
+                ? weightSamples.reduce((total, value) => total + value, 0) / weightSamples.length
+                : null;
+            const existingItem = editId ? inspections.find(item => item.id === editId) : null;
+            const averageWeight = enteredAverageWeight ?? (existingItem ? getAverageWeight(existingItem) : null);
 
             const paramData = {
                 gtg: parseInt(document.getElementById('param_gtg').value) || 0,
