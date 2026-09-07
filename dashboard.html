@@ -1154,7 +1154,7 @@
                 </div>
                 <div id="mcReceivingFields" class="rounded-2xl border border-purple-700/60 bg-purple-950/35 p-4 space-y-3">
                     <div>
-                        <label class="block text-purple-300 font-medium mb-1">Nomor Series Tembakau</label>
+                        <label class="block text-purple-300 font-medium mb-1">Nomor Series Tembakau — Opsional</label>
                         <input type="text" id="mcInputSeries" maxlength="80" placeholder="Contoh: S-001" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <p class="text-[11px] text-purple-300">Sampel berat bersifat opsional. Isi hanya berat yang tersedia.</p>
@@ -2041,12 +2041,12 @@
             document.getElementById('mcRecordType').value = receiving ? 'receiving' : 'usage';
             document.getElementById('mcReceivingFields').classList.toggle('hidden', !receiving);
             document.getElementById('mcUsageFields').classList.toggle('hidden', receiving);
-            document.getElementById('mcInputSeries').required = receiving;
+            document.getElementById('mcInputSeries').required = false;
             ['mcInputWeight1', 'mcInputWeight2', 'mcInputWeight3'].forEach(id => document.getElementById(id).required = false);
             document.getElementById('mcInputStockType').required = !receiving;
             document.getElementById('mcModalTitle').innerText = receiving ? 'Form Penerimaan Tembakau' : 'Form Pemakaian Tembakau';
             document.getElementById('mcModalCaption').innerText = receiving
-                ? 'Isi nomor series dan MC. Sampel berat box boleh dikosongkan'
+                ? 'Isi MC. Nomor series dan sampel berat box boleh dikosongkan'
                 : 'Isi MC berdasarkan Stock Pagi atau Stock Lanjutan';
             document.getElementById('mcSubmitButton').innerText = receiving ? 'Simpan Penerimaan' : 'Simpan Pemakaian';
         }
@@ -2103,7 +2103,10 @@
                 if (item.id === editId || item.date !== payload.date || item.brand !== payload.brand) return false;
                 const itemMeta = getTobaccoMeta(item);
                 if (itemMeta.type !== type) return false;
-                if (receiving) return String(item.seriesNumber).toLowerCase() === payload.seriesNumber.toLowerCase();
+                if (receiving) {
+                    if (!payload.seriesNumber) return false;
+                    return String(item.seriesNumber || '').toLowerCase() === payload.seriesNumber.toLowerCase();
+                }
                 return itemMeta.stockType === stockType;
             });
             if (duplicate) {
