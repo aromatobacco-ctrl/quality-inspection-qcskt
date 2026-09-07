@@ -216,7 +216,7 @@
                         <span id="overviewAverageWeight" class="text-2xl font-black text-white">—</span>
                         <span class="text-xs font-bold text-purple-300">gram</span>
                     </div>
-                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewWeightSampleCount">0</span> batang tertimbang · seluruh brand</p>
+                    <p class="mt-1 text-[10px] text-slate-400"><span id="overviewWeightSampleCount">0</span> data sampling · seluruh brand</p>
                 </button>
 
                 <button type="button" onclick="switchTab('pack')" data-overview-drilldown class="text-left bg-purple-900/30 border border-purple-700/60 hover:border-purple-400 rounded-2xl p-4 transition-all group">
@@ -280,6 +280,29 @@
                 <div class="relative h-[340px]">
                     <canvas id="overviewParameterChart"></canvas>
                     <div id="overviewParameterEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Giling Gunting pada tanggal ini.</div>
+                </div>
+            </div>
+
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Pergerakan Average Weight per Sampling</h3>
+                        <p id="overviewWeightTrendCaption" class="text-[11px] text-purple-300">Average Weight pada sampling per 2 jam dan batas spesifikasi brand</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 text-[10px]">
+                        <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
+                        <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
+                        <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
+                            <span>Brand Grafik</span>
+                            <select id="overviewWeightBrandFilter" onchange="renderOverviewWeightTrendOnly()" class="bg-transparent font-bold text-white focus:outline-none">
+                                <option value="ALL">Semua Brand</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="relative h-[300px]">
+                    <canvas id="overviewWeightTrendChart"></canvas>
+                    <div id="overviewWeightTrendEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 items-center justify-center text-sm text-purple-300">Belum ada data Average Weight pada periode ini.</div>
                 </div>
             </div>
 
@@ -533,14 +556,19 @@
                     <div>
                         <h3 class="text-sm font-bold text-white flex items-center gap-2">
                             <i data-lucide="activity" class="w-4 h-4 text-purple-400"></i>
-                            Trend Berat Batang per Waktu Sampling
+                            Pergerakan Berat Rata-rata per Sampling
                         </h3>
-                        <p id="weightTrendCaption" class="text-[11px] text-purple-300 mt-1">Berat Batang 1–5 dengan Lower Limit dan Upper Limit sesuai brand</p>
+                        <p id="weightTrendCaption" class="text-[11px] text-purple-300 mt-1">Average Weight per waktu sampling dengan Lower Limit dan Upper Limit sesuai brand</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-[10px]">
                         <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
                         <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
-                        <span class="rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">Mengikuti filter Brand di atas</span>
+                        <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
+                            <span>Brand Grafik</span>
+                            <select id="weightTrendBrandFilter" onchange="renderWeightTrendOnly()" class="bg-transparent font-bold text-white focus:outline-none">
+                                <option value="ALL">Semua Brand</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
                 <div class="relative h-[330px]">
@@ -551,25 +579,20 @@
                 <div class="border-t border-purple-800/60 pt-4">
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <div>
-                            <h4 class="text-xs font-bold text-white">Riwayat Sampling Berat</h4>
-                            <p class="text-[10px] text-slate-400">Exact number per batang, average, batas spesifikasi, dan status hasil sampling</p>
+                            <h4 class="text-xs font-bold text-white">Riwayat Berat Rata-rata Sampling</h4>
+                            <p class="text-[10px] text-slate-400">Average Weight per sampling, batas spesifikasi brand, dan status hasil</p>
                         </div>
                         <span id="weightHistoryCount" class="text-[10px] font-semibold text-purple-300">0 data sampling</span>
                     </div>
                     <div class="overflow-x-auto custom-scroll">
-                        <table class="w-full min-w-[1180px] text-[11px] text-left border-collapse">
+                        <table class="w-full min-w-[860px] text-[11px] text-left border-collapse">
                             <thead>
                                 <tr class="bg-purple-950/90 text-purple-200 border-b border-purple-800">
                                     <th class="p-2.5 font-semibold">Tanggal & Jam</th>
                                     <th class="p-2.5 font-semibold">Kelompok</th>
                                     <th class="p-2.5 font-semibold">Brand</th>
                                     <th class="p-2.5 font-semibold">Inspector</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 1</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 2</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 3</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 4</th>
-                                    <th class="p-2.5 font-semibold text-center">Batang 5</th>
-                                    <th class="p-2.5 font-semibold text-center bg-purple-900/60">Average</th>
+                                    <th class="p-2.5 font-semibold text-center bg-purple-900/60">Average Weight (g)</th>
                                     <th class="p-2.5 font-semibold text-center">Lower</th>
                                     <th class="p-2.5 font-semibold text-center">Upper</th>
                                     <th class="p-2.5 font-semibold text-center">Status</th>
@@ -577,7 +600,7 @@
                                 </tr>
                             </thead>
                             <tbody id="weightHistoryBody" class="divide-y divide-purple-800/30">
-                                <tr><td colspan="14" class="p-6 text-center text-slate-400">Belum ada data sampling berat.</td></tr>
+                                <tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data average weight.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1023,36 +1046,18 @@
                     </div>
                 </div>
 
-                <!-- Kategori C: Sampling Berat Aktual -->
+                <!-- Kategori C: Berat Rata-rata Sampling -->
                 <div class="p-3.5 bg-purple-950/50 rounded-2xl border border-purple-800/60 space-y-3">
                     <div class="flex flex-wrap justify-between items-center gap-2">
                         <div>
-                            <span class="font-bold text-purple-200">C. Sampling Berat Aktual (5 Batang) <span class="text-purple-400">— Opsional</span></span>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Boleh dikosongkan. Jika diisi, masukkan hasil penimbangan exact dalam gram memakai koma atau titik desimal.</p>
+                            <span class="font-bold text-purple-200">C. Berat Rata-rata Sampling <span class="text-purple-400">— Opsional</span></span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Masukkan satu nilai rata-rata berat dalam gram untuk sampling pada waktu terpilih.</p>
                         </div>
-                        <span id="weightSummary" class="text-[10px] text-purple-300 font-semibold">Rata-rata: — g</span>
+                        <span class="text-[10px] text-purple-300 font-semibold">Trend mengikuti sampling per 2 jam</span>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 1 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_1" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 2 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_2" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 3 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_3" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 4 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_4" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
-                        <div>
-                            <label class="block text-slate-300 text-[11px] mb-0.5">Batang 5 (g)</label>
-                            <input type="text" inputmode="decimal" id="weight_sample_5" autocomplete="off" placeholder="Opsional" oninput="updateWeightSummary()" class="weight-input w-full bg-slate-900 border border-purple-700/80 rounded-lg px-2.5 py-1.5 text-white font-bold text-center focus:outline-none focus:border-purple-400">
-                        </div>
+                    <div class="max-w-sm">
+                        <label class="block text-slate-300 text-[11px] mb-0.5">Average Weight (g)</label>
+                        <input type="text" inputmode="decimal" id="weight_average" autocomplete="off" placeholder="Contoh: 1,150" class="w-full bg-slate-900 border border-purple-700/80 rounded-lg px-3 py-2 text-white font-bold text-center focus:outline-none focus:border-purple-400">
                     </div>
                 </div>
 
@@ -1249,6 +1254,7 @@
         let overviewParamChart = null;
         let overviewSamplingChart = null;
         let overviewPackStationChart = null;
+        let overviewWeightTrendChart = null;
         let weightTrendChart = null;
 
         const WEIGHT_SPEC_BY_BRAND = Object.freeze({
@@ -1567,15 +1573,32 @@
             const inputBrand = document.getElementById('inputBrand');
             const mcFilterBrand = document.getElementById('mcFilterBrand');
             const mcInputBrand = document.getElementById('mcInputBrand');
+            const weightTrendBrandFilter = document.getElementById('weightTrendBrandFilter');
+            const overviewWeightBrandFilter = document.getElementById('overviewWeightBrandFilter');
+            const selectedWeightBrand = weightTrendBrandFilter?.value || 'ALL';
+            const selectedOverviewWeightBrand = overviewWeightBrandFilter?.value || 'ALL';
             filterBrand.innerHTML = '<option value="ALL">Semua Brand</option>';
             inputBrand.innerHTML = '';
             mcFilterBrand.innerHTML = '<option value="ALL">Semua Brand</option>';
             mcInputBrand.innerHTML = '';
+            if (weightTrendBrandFilter) weightTrendBrandFilter.innerHTML = '<option value="ALL">Semua Brand</option>';
+            if (overviewWeightBrandFilter) overviewWeightBrandFilter.innerHTML = '<option value="ALL">Semua Brand</option>';
 
             masterData.brands.forEach(b => {
                 filterBrand.innerHTML += `<option value="${b}">${b}</option>`;
                 inputBrand.innerHTML += `<option value="${b}">${b}</option>`;
             });
+            const graphBrands = [...new Set([...masterData.brands, ...inspections.map(item => item.brand).filter(Boolean)])].sort();
+            graphBrands.forEach(brand => {
+                if (weightTrendBrandFilter) weightTrendBrandFilter.innerHTML += `<option value="${brand}">${brand}</option>`;
+                if (overviewWeightBrandFilter) overviewWeightBrandFilter.innerHTML += `<option value="${brand}">${brand}</option>`;
+            });
+            if (weightTrendBrandFilter) {
+                weightTrendBrandFilter.value = graphBrands.includes(selectedWeightBrand) ? selectedWeightBrand : 'ALL';
+            }
+            if (overviewWeightBrandFilter) {
+                overviewWeightBrandFilter.value = graphBrands.includes(selectedOverviewWeightBrand) ? selectedOverviewWeightBrand : 'ALL';
+            }
             tobaccoBrands.forEach(b => {
                 mcFilterBrand.innerHTML += `<option value="${b}">${b}</option>`;
                 mcInputBrand.innerHTML += `<option value="${b}">${b}</option>`;
@@ -1606,15 +1629,26 @@
             return Number.isFinite(number) && number > 0 ? number : null;
         }
 
-        function getWeightSamples(source) {
+        function getLegacyWeightAverage(source) {
             const params = source && source.params ? source.params : (source || {});
             const raw = Array.isArray(params.weightSamples)
                 ? params.weightSamples
                 : [params.weight1, params.weight2, params.weight3, params.weight4, params.weight5];
-            return raw.slice(0, 5).map(value => {
+            const samples = raw.slice(0, 5).map(value => {
                 const number = Number(value);
                 return Number.isFinite(number) && number > 0 ? number : null;
             });
+            return samples.length === 5 && samples.every(value => value !== null)
+                ? samples.reduce((total, value) => total + value, 0) / samples.length
+                : null;
+        }
+
+        function getAverageWeight(source) {
+            const params = source && source.params ? source.params : (source || {});
+            const stored = [params.averageWeight, params.weightAverage, params.avgWeight]
+                .map(value => Number(value))
+                .find(value => Number.isFinite(value) && value > 0);
+            return stored ?? getLegacyWeightAverage(source);
         }
 
         function getWeightSpec(brand) {
@@ -1626,61 +1660,34 @@
         }
 
         function getWeightInspectionResult(source) {
-            const samples = getWeightSamples(source);
-            const complete = samples.length === 5 && samples.every(value => value !== null);
             const spec = getWeightSpec(source?.brand);
-            const average = complete
-                ? samples.reduce((total, value) => total + value, 0) / samples.length
+            const average = getAverageWeight(source);
+            const isOutSpec = average !== null && spec
+                ? average < spec.lower || average > spec.upper
                 : null;
-            const outSpecCount = complete && spec
-                ? samples.filter(value => value < spec.lower || value > spec.upper).length
-                : null;
-            const status = !complete
-                ? 'BELUM LENGKAP'
+            const status = average === null
+                ? 'BELUM DIISI'
                 : !spec
                     ? 'LIMIT BELUM DIATUR'
-                    : outSpecCount === 0 ? 'IN-SPEC' : 'OUT-SPEC';
-            return { samples, complete, spec, average, outSpecCount, status };
+                    : isOutSpec ? 'OUT-SPEC' : 'IN-SPEC';
+            return { spec, average, isOutSpec, status };
         }
 
-        function setWeightSampleInputs(values = []) {
-            for (let index = 1; index <= 5; index += 1) {
-                const value = values[index - 1];
-                document.getElementById(`weight_sample_${index}`).value = Number.isFinite(value)
-                    ? String(value).replace('.', ',')
-                    : '';
-            }
-            updateWeightSummary();
-        }
-
-        function updateWeightSummary() {
-            const samples = Array.from({ length: 5 }, (_, index) =>
-                parseExactWeight(document.getElementById(`weight_sample_${index + 1}`)?.value)
-            );
-            const validSamples = samples.filter(value => value !== null);
-            const summary = document.getElementById('weightSummary');
-            if (!summary) return;
-            if (validSamples.length !== 5) {
-                summary.innerText = validSamples.length ? `Terisi: ${validSamples.length}/5 batang` : 'Rata-rata: — g';
-                return;
-            }
-            const average = validSamples.reduce((total, value) => total + value, 0) / validSamples.length;
-            summary.innerText = `Rata-rata: ${average.toFixed(3).replace('.', ',')} g`;
+        function setAverageWeightInput(source = null) {
+            const value = source ? getAverageWeight(source) : null;
+            document.getElementById('weight_average').value = Number.isFinite(value)
+                ? String(Number(value.toFixed(3))).replace('.', ',')
+                : '';
         }
 
         function buildWeightExportColumns(source) {
             const result = getWeightInspectionResult(source);
-            const samples = result.samples;
-            const columns = {};
-            samples.forEach((value, index) => {
-                columns[`Berat Aktual Batang ${index + 1} (g)`] = value ?? '';
-            });
-            columns['Rata-rata Berat Aktual (g)'] = result.average === null ? '' : Number(result.average.toFixed(3));
-            columns['Lower Limit Berat (g)'] = result.spec?.lower ?? '';
-            columns['Upper Limit Berat (g)'] = result.spec?.upper ?? '';
-            columns['Status Berat'] = result.status;
-            columns['Jumlah Batang Out-Spec Berat'] = result.outSpecCount ?? '';
-            return columns;
+            return {
+                'Average Weight Sampling (g)': result.average === null ? '' : Number(result.average.toFixed(3)),
+                'Lower Limit Berat (g)': result.spec?.lower ?? '',
+                'Upper Limit Berat (g)': result.spec?.upper ?? '',
+                'Status Average Weight': result.status
+            };
         }
 
         function openModalInput(editItem = null) {
@@ -1708,7 +1715,7 @@
                 document.getElementById('param_krt').value = editItem.params.krt;
                 document.getElementById('param_brt').value = editItem.params.brt;
                 document.getElementById('param_dmt').value = editItem.params.dmt ?? '';
-                setWeightSampleInputs(getWeightSamples(editItem));
+                setAverageWeightInput(editItem);
             } else {
                 document.getElementById('modalTitle').innerText = 'Form Input Quality Inspection SKT';
                 document.getElementById('editRecordId').value = '';
@@ -1721,7 +1728,7 @@
                 ['gtg','krps','kmls','ring','bst','spt','krt','brt','dmt'].forEach(k => {
                     document.getElementById(`param_${k}`).value = '';
                 });
-                setWeightSampleInputs([]);
+                setAverageWeightInput();
             }
             updateParameterMax();
             lucide.createIcons();
@@ -1754,14 +1761,11 @@
                 return;
             }
 
-            const weightInputs = Array.from({ length: 5 }, (_, index) =>
-                document.getElementById(`weight_sample_${index + 1}`)
-            );
-            const weightSamples = weightInputs.map(input => parseExactWeight(input.value));
-            const invalidWeightIndex = weightSamples.findIndex((value, index) => weightInputs[index].value.trim() !== '' && value === null);
-            if (invalidWeightIndex !== -1) {
-                showToast(`Berat Batang ${invalidWeightIndex + 1} harus berupa angka positif. Contoh: 1,150`, 'error');
-                weightInputs[invalidWeightIndex].focus();
+            const averageWeightInput = document.getElementById('weight_average');
+            const averageWeight = parseExactWeight(averageWeightInput.value);
+            if (averageWeightInput.value.trim() !== '' && averageWeight === null) {
+                showToast('Average Weight harus berupa angka positif. Contoh: 1,150', 'error');
+                averageWeightInput.focus();
                 return;
             }
 
@@ -1776,7 +1780,7 @@
                 brt: parseInt(document.getElementById('param_brt').value) || 0,
                 dmt: parseInt(document.getElementById('param_dmt').value) || 0,
             };
-            if (weightSamples.some(value => value !== null)) paramData.weightSamples = weightSamples;
+            if (averageWeight !== null) paramData.averageWeight = averageWeight;
 
             const payload = { date, groupId: group.id, brand, sampling, sampleSize, params: paramData };
             try {
@@ -2287,6 +2291,86 @@
             samplingPercentEl.className = `text-xs font-black ${samplingPercent >= 100 ? 'text-emerald-400' : samplingPercent > 0 ? 'text-amber-300' : 'text-rose-400'}`;
 
             renderOverviewCharts(gilingData, gilingAggregate, packData, range);
+            renderOverviewWeightTrend(gilingData, range);
+        }
+
+        function renderOverviewWeightTrendOnly() {
+            const range = getOverviewRange();
+            const gilingData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
+            renderOverviewWeightTrend(gilingData, range);
+        }
+
+        function renderOverviewWeightTrend(gilingData, range) {
+            const selectedBrand = document.getElementById('overviewWeightBrandFilter')?.value || 'ALL';
+            const { rows, points, results } = buildAverageWeightTrendSeries(gilingData, selectedBrand);
+            const rangeLabel = range.mode === 'daily'
+                ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
+                : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
+            document.getElementById('overviewWeightTrendCaption').innerText = `${points.length} titik trend · ${rows.length} data sampling · ${selectedBrand === 'ALL' ? 'semua brand' : selectedBrand} · ${rangeLabel}`;
+
+            const hasData = points.length > 0;
+            const emptyState = document.getElementById('overviewWeightTrendEmpty');
+            emptyState.classList.toggle('hidden', hasData);
+            emptyState.classList.toggle('flex', !hasData);
+            if (overviewWeightTrendChart) overviewWeightTrendChart.destroy();
+
+            const labels = points.map(point => range.mode === 'daily'
+                ? `${point.samplingTime} · ${point.brand}`
+                : `${point.date.slice(5)} · ${point.samplingTime} · ${point.brand}`
+            );
+            const averageValues = results.map(result => result.average);
+            const lowerValues = results.map(result => result.spec?.lower ?? null);
+            const upperValues = results.map(result => result.spec?.upper ?? null);
+            const plottedValues = [...averageValues, ...lowerValues, ...upperValues].filter(value => value !== null);
+            const yMin = plottedValues.length ? Math.max(0, Math.floor((Math.min(...plottedValues) - 0.1) * 10) / 10) : 0.8;
+            const yMax = plottedValues.length ? Math.ceil((Math.max(...plottedValues) + 0.1) * 10) / 10 : 2.0;
+
+            overviewWeightTrendChart = new Chart(document.getElementById('overviewWeightTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Average Weight', data: averageValues, borderColor: '#c084fc', backgroundColor: 'rgba(192,132,252,0.18)',
+                            borderWidth: 3, pointBackgroundColor: '#e9d5ff', pointBorderColor: '#7e22ce', pointBorderWidth: 2,
+                            pointRadius: 5, pointHoverRadius: 7, tension: 0.25, spanGaps: false, fill: true
+                        },
+                        {
+                            label: 'Lower Limit', data: lowerValues, borderColor: '#38bdf8', backgroundColor: '#38bdf8',
+                            borderWidth: 2, borderDash: [7, 5], pointRadius: 0, stepped: 'middle', spanGaps: false
+                        },
+                        {
+                            label: 'Upper Limit', data: upperValues, borderColor: '#fb7185', backgroundColor: '#fb7185',
+                            borderWidth: 2, borderDash: [7, 5], pointRadius: 0, stepped: 'middle', spanGaps: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { grid: { color: '#2f0c54' }, ticks: { color: '#c4b5fd', font: { size: 9 }, autoSkip: true, maxTicksLimit: 14, maxRotation: 45, minRotation: 0 } },
+                        y: {
+                            min: yMin, max: yMax, grid: { color: '#2f0c54' },
+                            ticks: { color: '#e2e8f0', callback: value => `${Number(value).toFixed(2).replace('.', ',')} g` },
+                            title: { display: true, text: 'Average Weight (gram)', color: '#c4b5fd', font: { size: 11, weight: 'bold' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#f7f0ff', font: { size: 10 }, usePointStyle: true, padding: 14 } },
+                        tooltip: {
+                            callbacks: {
+                                title: items => {
+                                    const point = points[items[0]?.dataIndex];
+                                    return point ? `${point.date} · ${point.samplingTime} · ${point.brand} · ${point.count} kelompok` : '';
+                                },
+                                label: item => item.parsed.y === null
+                                    ? `${item.dataset.label}: —`
+                                    : `${item.dataset.label}: ${formatWeightNumber(item.parsed.y)} g`
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         const overviewTargetLinePlugin = {
@@ -2796,9 +2880,8 @@
                         parameterDenominators[k] += sampleSize;
                     }
                 });
-                getWeightSamples(d).forEach(value => {
-                    if (value !== null) weightValues.push(value);
-                });
+                const averageWeight = getAverageWeight(d);
+                if (averageWeight !== null) weightValues.push(averageWeight);
             });
 
             const visualKeys = ['gtg', 'krps', 'kmls', 'ring', 'bst', 'spt', 'krt'];
@@ -2861,7 +2944,7 @@
                 ? '—'
                 : agg.averageWeight.toFixed(3).replace('.', ',');
             document.getElementById('kpiWeightSampleCount').innerText = agg.weightSampleCount
-                ? `${agg.weightSampleCount.toLocaleString('id-ID')} batang tertimbang`
+                ? `${agg.weightSampleCount.toLocaleString('id-ID')} data average weight`
                 : 'Belum ada data berat';
 
             applyKpiColor('kpiOverallBadge', agg.overallInSpecPct);
@@ -2902,7 +2985,7 @@
             matrixPanel.classList.toggle('hidden', range.mode !== 'daily');
             if (range.mode === 'daily') renderKelompokMatrix(periodData);
             renderGilingPeriodTrend(data, range);
-            renderWeightTrend(data, range);
+            renderWeightTrend(periodData, range);
             renderCharts(agg);
             renderParameterTable(agg);
 
@@ -3028,16 +3111,50 @@
             });
         }
 
-        function renderWeightTrend(data, range) {
+        function buildAverageWeightTrendSeries(data, selectedBrand = 'ALL') {
             const rows = data
-                .filter(item => getWeightSamples(item).some(value => value !== null))
+                .filter(item => getAverageWeight(item) !== null)
+                .filter(item => selectedBrand === 'ALL' || item.brand === selectedBrand)
                 .slice()
                 .sort((a, b) => {
                     const keyA = `${a.date}|${a.samplingTime || ''}|${a.brand}|${a.kelompok}`;
                     const keyB = `${b.date}|${b.samplingTime || ''}|${b.brand}|${b.kelompok}`;
                     return keyA.localeCompare(keyB);
                 });
-            const results = rows.map(item => getWeightInspectionResult(item));
+            const pointMap = new Map();
+            rows.forEach(item => {
+                const key = `${item.date}|${item.samplingTime || ''}|${item.brand}`;
+                const point = pointMap.get(key) || {
+                    date: item.date,
+                    sampling: item.sampling,
+                    samplingTime: item.samplingTime,
+                    brand: item.brand,
+                    total: 0,
+                    count: 0
+                };
+                point.total += getAverageWeight(item);
+                point.count += 1;
+                pointMap.set(key, point);
+            });
+            const points = [...pointMap.values()].sort((a, b) =>
+                `${a.date}|${a.samplingTime || ''}|${a.brand}`.localeCompare(`${b.date}|${b.samplingTime || ''}|${b.brand}`)
+            );
+            const results = points.map(point => ({
+                average: point.total / point.count,
+                spec: getWeightSpec(point.brand)
+            }));
+            return { rows, points, results };
+        }
+
+        function renderWeightTrendOnly() {
+            const range = getGilingFilterRange();
+            const periodData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
+            renderWeightTrend(periodData, range);
+        }
+
+        function renderWeightTrend(data, range) {
+            const selectedBrand = document.getElementById('weightTrendBrandFilter')?.value || 'ALL';
+            const { rows, points, results } = buildAverageWeightTrendSeries(data, selectedBrand);
             const rangeLabel = range.mode === 'daily'
                 ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
                 : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
@@ -3045,6 +3162,7 @@
             const brandsWithoutSpec = brands.filter(brand => !getWeightSpec(brand));
             const captionParts = [
                 `${rows.length} data sampling`,
+                `${points.length} titik trend`,
                 `${brands.length} brand`,
                 rangeLabel
             ];
@@ -3060,28 +3178,16 @@
             const context = document.getElementById('weightTrendChart').getContext('2d');
             if (weightTrendChart) weightTrendChart.destroy();
 
-            const labels = rows.map(item => {
-                const groupCode = String(item.kelompok || '').replace('Kelompok ', 'K-');
+            const labels = points.map(point => {
                 return range.mode === 'daily'
-                    ? `${item.samplingTime} · ${item.brand} · ${groupCode}`
-                    : `${item.date.slice(5)} · ${item.samplingTime} · ${item.brand} · ${groupCode}`;
+                    ? `${point.samplingTime} · ${point.brand}`
+                    : `${point.date.slice(5)} · ${point.samplingTime} · ${point.brand}`;
             });
-            const lineColors = ['#a78bfa', '#34d399', '#fbbf24', '#22d3ee', '#f472b6'];
-            const sampleDatasets = Array.from({ length: 5 }, (_, sampleIndex) => ({
-                label: `Batang ${sampleIndex + 1}`,
-                data: results.map(result => result.samples[sampleIndex]),
-                borderColor: lineColors[sampleIndex],
-                backgroundColor: lineColors[sampleIndex],
-                borderWidth: 1.6,
-                pointRadius: 2.8,
-                pointHoverRadius: 5,
-                tension: 0.2,
-                spanGaps: false
-            }));
+            const averageValues = results.map(result => result.average);
             const lowerValues = results.map(result => result.spec?.lower ?? null);
             const upperValues = results.map(result => result.spec?.upper ?? null);
             const plottedValues = [
-                ...results.flatMap(result => result.samples.filter(value => value !== null)),
+                ...averageValues.filter(value => value !== null),
                 ...lowerValues.filter(value => value !== null),
                 ...upperValues.filter(value => value !== null)
             ];
@@ -3093,7 +3199,21 @@
                 data: {
                     labels,
                     datasets: [
-                        ...sampleDatasets,
+                        {
+                            label: 'Average Weight',
+                            data: averageValues,
+                            borderColor: '#c084fc',
+                            backgroundColor: 'rgba(192,132,252,0.18)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#e9d5ff',
+                            pointBorderColor: '#7e22ce',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            tension: 0.25,
+                            spanGaps: false,
+                            fill: true
+                        },
                         {
                             label: 'Lower Limit',
                             data: lowerValues,
@@ -3140,8 +3260,8 @@
                         tooltip: {
                             callbacks: {
                                 title: items => {
-                                    const item = rows[items[0]?.dataIndex];
-                                    return item ? `${item.date} · ${item.samplingTime} · ${item.brand} · ${item.kelompok}` : '';
+                                    const point = points[items[0]?.dataIndex];
+                                    return point ? `${point.date} · ${point.samplingTime} · ${point.brand} · ${point.count} kelompok` : '';
                                 },
                                 label: tooltipItem => tooltipItem.parsed.y === null
                                     ? `${tooltipItem.dataset.label}: —`
@@ -3158,30 +3278,21 @@
             const countLabel = document.getElementById('weightHistoryCount');
             countLabel.innerText = `${rows.length.toLocaleString('id-ID')} data sampling`;
             if (!rows.length) {
-                tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-400">Belum ada data sampling berat pada filter terpilih.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data average weight pada filter terpilih.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = rows.slice().reverse().map(item => {
                 const result = getWeightInspectionResult(item);
-                const sampleCells = result.samples.map(value => {
-                    const isOutSpec = value !== null && result.spec && (value < result.spec.lower || value > result.spec.upper);
-                    const valueClass = value === null
-                        ? 'text-slate-500'
-                        : isOutSpec ? 'text-rose-300 bg-rose-950/30' : result.spec ? 'text-emerald-300' : 'text-white';
-                    return `<td class="p-2.5 text-center font-semibold ${valueClass}">${formatWeightNumber(value)}</td>`;
-                }).join('');
                 const statusClass = result.status === 'IN-SPEC'
                     ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50'
                     : result.status === 'OUT-SPEC'
                         ? 'bg-rose-950/70 text-rose-300 border-rose-500/50'
                         : 'bg-amber-950/60 text-amber-300 border-amber-500/50';
-                const statusLabel = result.status === 'OUT-SPEC'
-                    ? `OUT-SPEC (${result.outSpecCount})`
-                    : result.status.replaceAll('_', ' ');
+                const statusLabel = result.status.replaceAll('_', ' ');
                 const canDeleteWeight = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
                 const deleteButton = canDeleteWeight
-                    ? `<button type="button" onclick="deleteWeightSampling('${item.id}')" class="rounded-lg border border-rose-500/40 bg-rose-950/50 p-1.5 text-rose-300 hover:bg-rose-900/70 hover:text-white" title="Hapus data berat 5 batang saja"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`
+                    ? `<button type="button" onclick="deleteWeightSampling('${item.id}')" class="rounded-lg border border-rose-500/40 bg-rose-950/50 p-1.5 text-rose-300 hover:bg-rose-900/70 hover:text-white" title="Hapus Average Weight saja"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`
                     : `<span class="text-slate-600">—</span>`;
 
                 return `
@@ -3193,7 +3304,6 @@
                         <td class="p-2.5 whitespace-nowrap text-purple-200">${item.kelompok}</td>
                         <td class="p-2.5"><span class="rounded-md border border-purple-700 bg-purple-950 px-2 py-0.5 font-bold text-purple-200">${item.brand}</span></td>
                         <td class="p-2.5 whitespace-nowrap text-slate-300">${item.inspector}</td>
-                        ${sampleCells}
                         <td class="p-2.5 text-center bg-purple-900/20 font-black text-white">${formatWeightNumber(result.average)}</td>
                         <td class="p-2.5 text-center font-semibold text-sky-300">${formatWeightNumber(result.spec?.lower ?? null)}</td>
                         <td class="p-2.5 text-center font-semibold text-rose-300">${formatWeightNumber(result.spec?.upper ?? null)}</td>
@@ -3334,13 +3444,12 @@
                 const pIn = (Number(item.params.brt) || 0) + (dmtIsFilled ? (Number(item.params.dmt) || 0) : 0);
                 const physicalParameterCount = dmtIsFilled ? 2 : 1;
                 const pPct = ((pIn / (item.sampleSize * physicalParameterCount)) * 100).toFixed(1);
-                const weightSamples = getWeightSamples(item);
-                const hasCompleteWeightSamples = weightSamples.length === 5 && weightSamples.every(value => value !== null);
-                const weightAverage = hasCompleteWeightSamples
-                    ? (weightSamples.reduce((total, value) => total + value, 0) / weightSamples.length).toFixed(3).replace('.', ',')
-                    : null;
-                const weightTooltip = hasCompleteWeightSamples
-                    ? ` title="Berat aktual: ${weightSamples.map(value => String(value).replace('.', ',')).join(' | ')} gram"`
+                const weightResult = getWeightInspectionResult(item);
+                const weightAverage = weightResult.average === null
+                    ? null
+                    : formatWeightNumber(weightResult.average);
+                const weightTooltip = weightResult.average !== null
+                    ? ` title="Average Weight sampling: ${formatWeightNumber(weightResult.average)} gram"`
                     : '';
 
                 const totalParameterCount = 7 + physicalParameterCount;
@@ -3488,9 +3597,12 @@
                 showToast('Kamu tidak memiliki izin menghapus data berat ini.', 'error');
                 return;
             }
-            if (!confirm('Hapus data berat 5 batang dari sampling ini? Data inspeksi Visual, BRT, DMT, kelompok, dan sampling tetap tersimpan.')) return;
+            if (!confirm('Hapus Average Weight dari sampling ini? Data inspeksi Visual, BRT, DMT, kelompok, dan sampling tetap tersimpan.')) return;
 
             const nextParams = { ...(item.params || {}) };
+            delete nextParams.averageWeight;
+            delete nextParams.weightAverage;
+            delete nextParams.avgWeight;
             delete nextParams.weightSamples;
             delete nextParams.weight1;
             delete nextParams.weight2;
