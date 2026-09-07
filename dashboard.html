@@ -906,9 +906,6 @@
                     <p class="text-xs text-purple-300">Daftar inspeksi Giling Gunting dan detail sampling kelompok — mengikuti filter di atas</p>
                 </div>
                 <div class="flex flex-wrap items-center justify-end gap-2">
-                    <button type="button" onclick="downloadHistoryChart()" class="flex items-center gap-2 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-black text-white shadow hover:bg-purple-500">
-                        <i data-lucide="image-down" class="h-4 w-4"></i> Unduh Ringkasan Grafik
-                    </button>
                     <button type="button" id="btnToggleGilingHistory" onclick="toggleCollapsible('gilingHistoryTableWrap','btnToggleGilingHistory')" class="flex items-center gap-2 rounded-xl border border-purple-700/80 bg-purple-950 px-3.5 py-2 text-xs font-bold text-purple-200 hover:bg-purple-900">
                         <i data-lucide="chevron-down" class="h-4 w-4"></i> <span data-toggle-label>Tampilkan</span>
                     </button>
@@ -3060,16 +3057,16 @@
             document.getElementById('packSampleSizeBadge').innerText = `${sampleSize} sampel`;
             document.getElementById('packParameterFields').innerHTML = config.parameters.map(parameter => {
                 const storedValue = source ? getPackParameterValue(source, parameter) : null;
-                const value = storedValue === null ? sampleSize : storedValue;
+                const value = storedValue === null ? '' : storedValue;
                 const note = source ? getPackParameterNote(source, parameter) : '';
                 return `
                     <div class="rounded-xl border border-purple-800/60 bg-purple-950/30 p-3">
                         <label class="mb-1 block font-semibold text-slate-200">${parameter.label}</label>
                         <div class="relative">
-                            <input type="number" id="pack_${parameter.key}" min="0" max="${sampleSize}" step="1" value="${value}" required class="pack-param w-full rounded-lg border border-purple-700 bg-slate-900 px-3 py-2 text-center font-bold text-white">
+                            <input type="number" id="pack_${parameter.key}" min="0" max="${sampleSize}" step="1" value="${value}" placeholder="0-${sampleSize}" required class="pack-param w-full rounded-lg border border-purple-700 bg-slate-900 px-3 py-2 text-center font-bold text-white">
                             <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[9px] text-slate-500">/${sampleSize}</span>
                         </div>
-                        <textarea id="pack_note_${parameter.key}" rows="2" maxlength="200" placeholder="Keterangan jika hasil < 10..." class="pack-note mt-2 w-full resize-none rounded-lg border border-purple-800 bg-slate-900 px-2.5 py-2 text-[10px] text-slate-200 placeholder:text-slate-600 focus:border-purple-500 focus:outline-none">${escapeHtml(note)}</textarea>
+                        <textarea id="pack_note_${parameter.key}" rows="3" maxlength="200" placeholder="Keterangan jika hasil < ${sampleSize}..." class="pack-note mt-2 w-full resize-none rounded-lg border border-purple-800 bg-slate-900 px-2.5 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:border-purple-500 focus:outline-none">${escapeHtml(note)}</textarea>
                     </div>
                 `;
             }).join('');
@@ -3124,6 +3121,11 @@
 
             for (const parameter of config.parameters) {
                 const input = document.getElementById(`pack_${parameter.key}`);
+                if (input.value.trim() === '') {
+                    showToast(`${parameter.label} wajib diisi.`, 'error');
+                    input.focus();
+                    return;
+                }
                 const value = Number(input.value);
                 if (!Number.isInteger(value) || value < 0 || value > sampleSize) {
                     showToast(`${parameter.label} harus berupa bilangan bulat 0–${sampleSize}.`, 'error');
