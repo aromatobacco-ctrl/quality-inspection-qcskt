@@ -273,16 +273,10 @@
                 white-space: nowrap;
             }
 
-            div:has(> #overviewParameterChart),
-            div:has(> #overviewWeightTrendChart),
             div:has(> #gilingPeriodTrendChart),
             div:has(> #weightTrendChart) {
                 height: 280px !important;
                 min-height: 280px !important;
-            }
-            div:has(> #overviewSamplingTrendChart),
-            div:has(> #overviewPackStationChart) {
-                height: 235px !important;
             }
 
             #toast {
@@ -566,72 +560,7 @@
                 </div>
             </div>
 
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
-                <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
-                    <div>
-                        <h3 class="text-sm font-bold text-white">Giling Gunting · In-Spec per Parameter</h3>
-                        <p class="text-[11px] text-purple-300">Diurutkan dari hasil terendah agar parameter bermasalah langsung terlihat</p>
-                    </div>
-                    <span id="overviewParameterTarget" class="text-[11px] font-bold text-amber-300">Target ≥ 90%</span>
-                </div>
-                <div class="relative h-[340px]">
-                    <canvas id="overviewParameterChart"></canvas>
-                    <div id="overviewParameterEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Giling Gunting pada tanggal ini.</div>
-                </div>
-            </div>
-
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
-                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-                    <div>
-                        <h3 class="text-sm font-bold text-white">Pergerakan Average Weight per Sampling</h3>
-                        <p id="overviewWeightTrendCaption" class="text-[11px] text-purple-300">Average Weight pada sampling per 2 jam dan batas spesifikasi brand</p>
-                    </div>
-                    <div class="chart-controls flex flex-wrap items-center gap-3 text-[10px]">
-                        <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
-                        <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
-                        <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
-                            <span>Kelompok</span>
-                            <select id="overviewWeightGroupFilter" onchange="renderOverviewWeightTrendOnly()" class="font-bold text-white focus:outline-none">
-                                <option value="ALL">Semua Kelompok</option>
-                            </select>
-                        </label>
-                        <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
-                            <span>Brand Grafik</span>
-                            <select id="overviewWeightBrandFilter" onchange="renderOverviewWeightTrendOnly()" class="font-bold text-white focus:outline-none">
-                                <option value="ALL">Semua Brand</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-                <div class="relative h-[300px]">
-                    <canvas id="overviewWeightTrendChart"></canvas>
-                    <div id="overviewWeightTrendEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 items-center justify-center text-sm text-purple-300">Belum ada data Average Weight pada periode ini.</div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
-                    <div class="mb-4">
-                        <h3 id="overviewTrendTitle" class="text-sm font-bold text-white">Trend Giling Gunting per Sampling</h3>
-                        <p id="overviewTrendCaption" class="text-[11px] text-purple-300">Overall in-spec pada sampling pukul 08.00, 10.00, dan 13.00</p>
-                    </div>
-                    <div class="relative h-[245px]">
-                        <canvas id="overviewSamplingTrendChart"></canvas>
-                        <div id="overviewSamplingEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data sampling pada tanggal ini.</div>
-                    </div>
-                </div>
-
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
-                    <div class="mb-4">
-                        <h3 class="text-sm font-bold text-white">Packaging In-Spec per Station</h3>
-                        <p class="text-[11px] text-purple-300">Persentase total Packing, Bandroll, OPP, dan MOP</p>
-                    </div>
-                    <div class="relative h-[245px]">
-                        <canvas id="overviewPackStationChart"></canvas>
-                        <div id="overviewPackStationEmpty" class="hidden absolute inset-0 rounded-xl bg-purple-950/80 flex items-center justify-center text-sm text-purple-300">Belum ada data Packaging per station pada tanggal ini.</div>
-                    </div>
-                </div>
-            </div>
+            <p class="text-center text-[11px] text-purple-400 -mt-1">Klik salah satu kartu di atas untuk melihat grafik detail & input data station tersebut</p>
         </section>
 
         <!-- ==================== TAB 2: GILING GUNTING STATION ==================== -->
@@ -2732,18 +2661,17 @@
             const samplingPercentEl = document.getElementById('overviewSamplingPercent');
             samplingPercentEl.innerText = `${samplingPercent.toFixed(0)}%`;
             samplingPercentEl.className = `text-xs font-black ${samplingPercent >= 100 ? 'text-emerald-400' : samplingPercent > 0 ? 'text-amber-300' : 'text-rose-400'}`;
-
-            renderOverviewCharts(gilingData, gilingAggregate, packData, range);
-            renderOverviewWeightTrend(gilingData, range);
         }
 
         function renderOverviewWeightTrendOnly() {
+            if (!document.getElementById('overviewWeightTrendChart')) return;
             const range = getOverviewRange();
             const gilingData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
             renderOverviewWeightTrend(gilingData, range);
         }
 
         function renderOverviewWeightTrend(gilingData, range) {
+            if (!document.getElementById('overviewWeightTrendChart')) return;
             const selectedGroup = document.getElementById('overviewWeightGroupFilter')?.value || 'ALL';
             const selectedBrand = document.getElementById('overviewWeightBrandFilter')?.value || 'ALL';
             const { rows, points, results } = buildAverageWeightTrendSeries(gilingData, selectedBrand, selectedGroup);
