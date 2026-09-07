@@ -56,6 +56,24 @@
         .bg-purple-950\/60,
         .bg-purple-950\/80,
         .bg-purple-950\/95 { background-color: #140d22 !important; }
+        #weightTrendBrandFilter,
+        #overviewWeightBrandFilter,
+        #weightTrendGroupFilter,
+        #overviewWeightGroupFilter {
+            min-width: 108px;
+            padding: 2px 24px 2px 6px;
+            border-radius: 6px;
+            background-color: #140d22 !important;
+            color: #ffffff !important;
+            color-scheme: dark;
+        }
+        #weightTrendBrandFilter option,
+        #overviewWeightBrandFilter option,
+        #weightTrendGroupFilter option,
+        #overviewWeightGroupFilter option {
+            background-color: #140d22 !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
@@ -293,8 +311,14 @@
                         <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
                         <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
                         <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
+                            <span>Kelompok</span>
+                            <select id="overviewWeightGroupFilter" onchange="renderOverviewWeightTrendOnly()" class="font-bold text-white focus:outline-none">
+                                <option value="ALL">Semua Kelompok</option>
+                            </select>
+                        </label>
+                        <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
                             <span>Brand Grafik</span>
-                            <select id="overviewWeightBrandFilter" onchange="renderOverviewWeightTrendOnly()" class="bg-transparent font-bold text-white focus:outline-none">
+                            <select id="overviewWeightBrandFilter" onchange="renderOverviewWeightTrendOnly()" class="font-bold text-white focus:outline-none">
                                 <option value="ALL">Semua Brand</option>
                             </select>
                         </label>
@@ -564,8 +588,14 @@
                         <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
                         <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
                         <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
+                            <span>Kelompok</span>
+                            <select id="weightTrendGroupFilter" onchange="renderWeightTrendOnly()" class="font-bold text-white focus:outline-none">
+                                <option value="ALL">Semua Kelompok</option>
+                            </select>
+                        </label>
+                        <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
                             <span>Brand Grafik</span>
-                            <select id="weightTrendBrandFilter" onchange="renderWeightTrendOnly()" class="bg-transparent font-bold text-white focus:outline-none">
+                            <select id="weightTrendBrandFilter" onchange="renderWeightTrendOnly()" class="font-bold text-white focus:outline-none">
                                 <option value="ALL">Semua Brand</option>
                             </select>
                         </label>
@@ -1127,17 +1157,18 @@
                         <label class="block text-purple-300 font-medium mb-1">Nomor Series Tembakau</label>
                         <input type="text" id="mcInputSeries" maxlength="80" placeholder="Contoh: S-001" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                     </div>
+                    <p class="text-[11px] text-purple-300">Sampel berat bersifat opsional. Isi hanya berat yang tersedia.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 1 (kg)</label>
+                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 1 (kg) — Opsional</label>
                             <input type="number" id="mcInputWeight1" min="0" step="0.01" inputmode="decimal" placeholder="Contoh: 40.25" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                         </div>
                         <div>
-                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 2 (kg)</label>
+                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 2 (kg) — Opsional</label>
                             <input type="number" id="mcInputWeight2" min="0" step="0.01" inputmode="decimal" placeholder="Contoh: 40.10" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                         </div>
                         <div>
-                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 3 (kg)</label>
+                            <label class="block text-purple-300 font-medium mb-1">Sampel Berat 3 (kg) — Opsional</label>
                             <input type="number" id="mcInputWeight3" min="0" step="0.01" inputmode="decimal" placeholder="Contoh: 40.30" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                         </div>
                     </div>
@@ -1583,6 +1614,20 @@
                 inputKelompok.innerHTML += `<option value="${name}">${name}</option>`;
             });
 
+            const graphGroups = [...new Set([
+                ...activeGroups.map(group => group.name),
+                ...inspections.map(item => item.kelompok).filter(Boolean)
+            ])].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+            ['weightTrendGroupFilter', 'overviewWeightGroupFilter'].forEach(id => {
+                const select = document.getElementById(id);
+                if (!select) return;
+                const selected = select.value || 'ALL';
+                select.innerHTML = '<option value="ALL">Semua Kelompok</option>' + graphGroups
+                    .map(group => `<option value="${group}">${group}</option>`)
+                    .join('');
+                select.value = graphGroups.includes(selected) ? selected : 'ALL';
+            });
+
             populateBrandDropdowns();
         }
 
@@ -1872,6 +1917,7 @@
             }
             if (prefix === 'PENERIMAAN') {
                 const weights = parts.slice(1, 4).map(value => {
+                    if (String(value).trim() === '') return null;
                     const number = Number(value);
                     return Number.isFinite(number) ? number : null;
                 });
@@ -1929,7 +1975,7 @@
             document.getElementById('mcKpiAverage').innerText = average === null ? '—' : `${average.toFixed(2)}%`;
             document.getElementById('mcTableTitle').innerText = receiving ? 'Riwayat Penerimaan Tembakau' : 'Riwayat Pemakaian Tembakau';
             document.getElementById('mcTableCaption').innerText = receiving
-                ? 'MC dan tiga sampel berat per box penerimaan'
+                ? 'MC dan sampel berat opsional per box penerimaan'
                 : 'MC stock pagi dan stock lanjutan per hari';
 
             if (receiving) {
@@ -1996,11 +2042,11 @@
             document.getElementById('mcReceivingFields').classList.toggle('hidden', !receiving);
             document.getElementById('mcUsageFields').classList.toggle('hidden', receiving);
             document.getElementById('mcInputSeries').required = receiving;
-            ['mcInputWeight1', 'mcInputWeight2', 'mcInputWeight3'].forEach(id => document.getElementById(id).required = receiving);
+            ['mcInputWeight1', 'mcInputWeight2', 'mcInputWeight3'].forEach(id => document.getElementById(id).required = false);
             document.getElementById('mcInputStockType').required = !receiving;
             document.getElementById('mcModalTitle').innerText = receiving ? 'Form Penerimaan Tembakau' : 'Form Pemakaian Tembakau';
             document.getElementById('mcModalCaption').innerText = receiving
-                ? 'Isi nomor series, MC, dan tiga sampel berat box penerimaan'
+                ? 'Isi nomor series dan MC. Sampel berat box boleh dikosongkan'
                 : 'Isi MC berdasarkan Stock Pagi atau Stock Lanjutan';
             document.getElementById('mcSubmitButton').innerText = receiving ? 'Simpan Penerimaan' : 'Simpan Pemakaian';
         }
@@ -2038,11 +2084,16 @@
             const type = document.getElementById('mcRecordType').value;
             const receiving = type === 'receiving';
             const stockType = document.getElementById('mcInputStockType').value;
-            const weights = [1, 2, 3].map(number => Number(document.getElementById(`mcInputWeight${number}`).value));
+            const weights = [1, 2, 3].map(number => {
+                const raw = document.getElementById(`mcInputWeight${number}`).value.trim();
+                if (raw === '') return null;
+                const value = Number(raw);
+                return Number.isFinite(value) ? value : null;
+            });
             const seriesNumber = receiving ? document.getElementById('mcInputSeries').value.trim() : stockType;
             const payload = {
                 date: document.getElementById('mcInputDate').value,
-                lotBatch: receiving ? `PENERIMAAN|${weights.map(value => value.toFixed(2)).join('|')}` : `PEMAKAIAN|${stockType}`,
+                lotBatch: receiving ? `PENERIMAAN|${weights.map(value => Number.isFinite(value) ? value.toFixed(2) : '').join('|')}` : `PEMAKAIAN|${stockType}`,
                 seriesNumber,
                 brand: document.getElementById('mcInputBrand').value,
                 moistureContent: Number(document.getElementById('mcInputValue').value)
@@ -2368,12 +2419,13 @@
         }
 
         function renderOverviewWeightTrend(gilingData, range) {
+            const selectedGroup = document.getElementById('overviewWeightGroupFilter')?.value || 'ALL';
             const selectedBrand = document.getElementById('overviewWeightBrandFilter')?.value || 'ALL';
-            const { rows, points, results } = buildAverageWeightTrendSeries(gilingData, selectedBrand);
+            const { rows, points, results } = buildAverageWeightTrendSeries(gilingData, selectedBrand, selectedGroup);
             const rangeLabel = range.mode === 'daily'
                 ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
                 : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
-            document.getElementById('overviewWeightTrendCaption').innerText = `${points.length} titik trend · ${rows.length} data sampling · ${selectedBrand === 'ALL' ? 'semua brand' : selectedBrand} · ${rangeLabel}`;
+            document.getElementById('overviewWeightTrendCaption').innerText = `${points.length} titik trend · ${rows.length} data sampling · ${selectedGroup === 'ALL' ? 'semua kelompok' : selectedGroup} · ${selectedBrand === 'ALL' ? 'semua brand' : selectedBrand} · ${rangeLabel}`;
 
             const hasData = points.length > 0;
             const emptyState = document.getElementById('overviewWeightTrendEmpty');
@@ -3178,10 +3230,11 @@
             });
         }
 
-        function buildAverageWeightTrendSeries(data, selectedBrand = 'ALL') {
+        function buildAverageWeightTrendSeries(data, selectedBrand = 'ALL', selectedGroup = 'ALL') {
             const rows = data
                 .filter(item => getAverageWeight(item) !== null)
                 .filter(item => selectedBrand === 'ALL' || item.brand === selectedBrand)
+                .filter(item => selectedGroup === 'ALL' || item.kelompok === selectedGroup)
                 .slice()
                 .sort((a, b) => {
                     const keyA = `${a.date}|${a.samplingTime || ''}|${a.brand}|${a.kelompok}`;
@@ -3220,8 +3273,9 @@
         }
 
         function renderWeightTrend(data, range) {
+            const selectedGroup = document.getElementById('weightTrendGroupFilter')?.value || 'ALL';
             const selectedBrand = document.getElementById('weightTrendBrandFilter')?.value || 'ALL';
-            const { rows, points, results } = buildAverageWeightTrendSeries(data, selectedBrand);
+            const { rows, points, results } = buildAverageWeightTrendSeries(data, selectedBrand, selectedGroup);
             const rangeLabel = range.mode === 'daily'
                 ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
                 : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
@@ -3230,7 +3284,8 @@
             const captionParts = [
                 `${rows.length} data sampling`,
                 `${points.length} titik trend`,
-                `${brands.length} brand`,
+                selectedGroup === 'ALL' ? 'semua kelompok' : selectedGroup,
+                selectedBrand === 'ALL' ? `${brands.length} brand` : selectedBrand,
                 rangeLabel
             ];
             if (brandsWithoutSpec.length) captionParts.push(`limit belum diatur: ${brandsWithoutSpec.join(', ')}`);
