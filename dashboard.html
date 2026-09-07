@@ -452,7 +452,7 @@
                             <input type="date" id="backupDateHarian" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
                         </div>
                         <div id="backupDateMingguanWrap" class="hidden">
-                            <label class="block text-[11px] text-purple-300 font-semibold mb-1">Pilih Tanggal Awal Minggu (7 hari otomatis)</label>
+                            <label class="block text-[11px] text-purple-300 font-semibold mb-1">Pilih Tanggal Awal Minggu Kerja (5 hari otomatis)</label>
                             <input type="date" id="backupDateMingguan" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
                         </div>
                         <div id="backupDateBulananWrap" class="hidden">
@@ -2632,7 +2632,7 @@
             const mode = document.getElementById('overviewMode').value;
             if (mode === 'weekly') {
                 const start = document.getElementById('overviewWeekStart').value || getTodayString();
-                return { mode, start, end: addDaysToDateString(start, 6), days: 7 };
+                return { mode, start, end: addDaysToDateString(start, 4), days: 5 };
             }
             const selected = document.getElementById('overviewDate').value || getTodayString();
             return { mode: 'daily', start: selected, end: selected, days: 1 };
@@ -3225,7 +3225,7 @@
             const mode = document.getElementById('gilingPeriodMode')?.value || 'daily';
             if (mode === 'weekly') {
                 const start = document.getElementById('gilingWeekStart').value || getTodayString();
-                return { mode, start, end: addDaysToDateString(start, 6), days: 7 };
+                return { mode, start, end: addDaysToDateString(start, 4), days: 5 };
             }
             if (mode === 'monthly') {
                 const selectedMonth = document.getElementById('gilingMonth').value || getTodayString().slice(0, 7);
@@ -4321,7 +4321,7 @@
                 if (!d) return null;
                 const start = new Date(`${d}T00:00:00`);
                 const end = new Date(start);
-                end.setDate(end.getDate() + 6);
+                end.setDate(end.getDate() + 4);
                 return { start: toStr(start), end: toStr(end), label: `Mingguan - ${toStr(start)} s/d ${toStr(end)}` };
             }
             if (mode === 'bulanan') {
