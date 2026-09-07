@@ -81,9 +81,17 @@
         }
         button, input, select, textarea { touch-action: manipulation; }
 
+        /* Safety net: cegah elemen manapun bikin halaman scroll horizontal
+           (sumber paling umum dari tampilan yang terasa "kepotong" di HP) */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        img, svg { max-width: 100%; height: auto; }
+        canvas { max-width: 100%; }
+
         @media (max-width: 640px) {
             body {
-                overflow-x: hidden;
                 padding-bottom: calc(70px + env(safe-area-inset-bottom));
             }
 
@@ -346,6 +354,7 @@
             .mobile-kpi-grid { grid-template-columns: 1fr !important; }
             .chart-controls { grid-template-columns: 1fr; }
             .chart-controls > span { display: none; }
+            #kelompokGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
         }
     </style>
 </head>
