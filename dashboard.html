@@ -730,6 +730,54 @@
 
             </div>
 
+            <!-- Matriks Status 24 Kelompok -->
+            <div id="kelompokMatrixPanel" class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="grid" class="w-4 h-4 text-purple-400"></i>
+                        Status Sampling 24 Kelompok (Hari Terpilih)
+                    </h3>
+                    <div class="flex items-center gap-3 text-[11px]">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-900 border border-slate-700"></span> 0 Sampling</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500/30 border border-amber-500 text-amber-300"></span> 1x</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-purple-500/40 border border-purple-400 text-purple-200"></span> 2x</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500/30 border border-emerald-400 text-emerald-300"></span> 3x Lengkap</span>
+                    </div>
+                </div>
+                <div id="kelompokGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Tabel Rekap Per Parameter -->
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
+                <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                    <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>
+                    Tabel Akumulasi Per Parameter Kualitas (Berdasarkan Filter)
+                </h3>
+                <div class="overflow-x-auto custom-scroll">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="bg-purple-950/80 text-purple-200 border-b border-purple-800">
+                                <th class="p-2.5 font-bold">Kategori / Parameter</th>
+                                <th class="p-2.5 font-bold text-center">GTG</th>
+                                <th class="p-2.5 font-bold text-center">KRPS</th>
+                                <th class="p-2.5 font-bold text-center">KMLS</th>
+                                <th class="p-2.5 font-bold text-center">RING</th>
+                                <th class="p-2.5 font-bold text-center">BST</th>
+                                <th class="p-2.5 font-bold text-center">SPT</th>
+                                <th class="p-2.5 font-bold text-center">KRT</th>
+                                <th class="p-2.5 font-bold text-center bg-purple-900/50">BRT</th>
+                                <th class="p-2.5 font-bold text-center bg-purple-900/50">DMT</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableParameterBody" class="divide-y divide-purple-800/40">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Charts Section -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Bar Chart: Per Parameter (GTG, KRPS, KMLS, RING, BST, SPT, KRT, BRT, DMT) -->
@@ -788,7 +836,7 @@
                     <div>
                         <h3 class="text-sm font-bold text-white flex items-center gap-2">
                             <i data-lucide="activity" class="w-4 h-4 text-purple-400"></i>
-                            Pergerakan Berat Rata-rata per Sampling
+                            Trend Average Weight
                         </h3>
                         <p id="weightTrendCaption" class="text-[11px] text-purple-300 mt-1">Average Weight per waktu sampling dengan Lower Limit dan Upper Limit sesuai brand</p>
                     </div>
@@ -845,67 +893,14 @@
                 </div>
             </div>
 
-            <!-- Matriks Status 24 Kelompok -->
-            <div id="kelompokMatrixPanel" class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
-                <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="grid" class="w-4 h-4 text-purple-400"></i>
-                        Status Sampling 24 Kelompok (Hari Terpilih)
-                    </h3>
-                    <div class="flex items-center gap-3 text-[11px]">
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-900 border border-slate-700"></span> 0 Sampling</span>
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500/30 border border-amber-500 text-amber-300"></span> 1x</span>
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-purple-500/40 border border-purple-400 text-purple-200"></span> 2x</span>
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500/30 border border-emerald-400 text-emerald-300"></span> 3x Lengkap</span>
-                    </div>
-                </div>
-                <div id="kelompokGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-
-            <!-- Tabel Rekap Per Parameter -->
-            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
-                <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                    <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>
-                    Tabel Akumulasi Per Parameter Kualitas (Berdasarkan Filter)
-                </h3>
-                <div class="overflow-x-auto custom-scroll">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-purple-950/80 text-purple-200 border-b border-purple-800">
-                                <th class="p-2.5 font-bold">Kategori / Parameter</th>
-                                <th class="p-2.5 font-bold text-center">GTG</th>
-                                <th class="p-2.5 font-bold text-center">KRPS</th>
-                                <th class="p-2.5 font-bold text-center">KMLS</th>
-                                <th class="p-2.5 font-bold text-center">RING</th>
-                                <th class="p-2.5 font-bold text-center">BST</th>
-                                <th class="p-2.5 font-bold text-center">SPT</th>
-                                <th class="p-2.5 font-bold text-center">KRT</th>
-                                <th class="p-2.5 font-bold text-center bg-purple-900/50">BRT</th>
-                                <th class="p-2.5 font-bold text-center bg-purple-900/50">DMT</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableParameterBody" class="divide-y divide-purple-800/40">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         <!-- ==================== RIWAYAT GILING (TERGABUNG) ==================== -->
         <div id="gilingHistoryPanel" class="space-y-4 border-t border-purple-700/40 pt-6">
             <div class="mobile-toolbar bg-purple-900/40 border border-purple-800/60 rounded-2xl p-4 shadow-md flex flex-wrap justify-between items-center gap-3">
                 <div>
                     <h2 class="text-base font-bold text-white">Riwayat Giling Gunting</h2>
-                    <p class="text-xs text-purple-300">Daftar inspeksi Giling Gunting dan detail sampling kelompok</p>
+                    <p class="text-xs text-purple-300">Daftar inspeksi Giling Gunting dan detail sampling kelompok — mengikuti filter di atas</p>
                 </div>
                 <div class="flex flex-wrap items-center justify-end gap-2">
-                    <div class="flex items-center gap-2 rounded-xl border border-purple-700/80 bg-purple-950 px-3 py-1.5">
-                        <i data-lucide="calendar-days" class="h-4 w-4 text-purple-300"></i>
-                        <input type="date" id="historyDate" onchange="renderHistoryTable()" class="bg-transparent text-xs text-white focus:outline-none [color-scheme:dark]">
-                    </div>
-                    <button type="button" onclick="clearHistoryDate()" class="rounded-xl border border-purple-700/80 bg-purple-950 px-3 py-2 text-xs font-semibold text-purple-200 hover:bg-purple-900">Semua Tanggal</button>
-                    <input type="text" id="searchHistory" oninput="renderHistoryTable()" placeholder="Cari kelompok, brand, inspector..." class="bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400 w-56">
                     <button type="button" onclick="downloadHistoryChart()" class="flex items-center gap-2 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-black text-white shadow hover:bg-purple-500">
                         <i data-lucide="image-down" class="h-4 w-4"></i> Unduh Ringkasan Grafik
                     </button>
@@ -1557,7 +1552,6 @@
                 document.getElementById('overviewDate').value = getTodayString();
                 document.getElementById('overviewWeekStart').value = getTodayString();
                 document.getElementById('inputDate').value = getTodayString();
-                document.getElementById('historyDate').value = getTodayString();
                 document.getElementById('mcFilterDate').value = getTodayString();
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
@@ -3193,7 +3187,7 @@
             if (mode === 'monthly' && !document.getElementById('gilingMonth').value) {
                 document.getElementById('gilingMonth').value = (document.getElementById('filterDate').value || today).slice(0, 7);
             }
-            if (shouldRender) renderDashboard();
+            if (shouldRender) { renderDashboard(); renderHistoryTable(); }
         }
 
         function getGilingFilterRange() {
@@ -3797,16 +3791,7 @@
 
         function renderHistoryTable() {
             const tbody = document.getElementById('tableHistoryBody');
-            const query = (document.getElementById('searchHistory') ? document.getElementById('searchHistory').value : '').toLowerCase();
-            const selectedDate = document.getElementById('historyDate') ? document.getElementById('historyDate').value : '';
-
-            const filtered = inspections.filter(i => {
-                if (selectedDate && i.date !== selectedDate) return false;
-                return i.kelompok.toLowerCase().includes(query) ||
-                       i.brand.toLowerCase().includes(query) ||
-                       i.inspector.toLowerCase().includes(query) ||
-                       i.date.includes(query);
-            });
+            const filtered = getFilteredData();
 
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada riwayat inspeksi yang sesuai filter/pencarian.</td></tr>`;
@@ -3865,26 +3850,8 @@
             lucide.createIcons();
         }
 
-        function clearHistoryDate() {
-            document.getElementById('historyDate').value = '';
-            renderHistoryTable();
-        }
-
-        function getHistoryFilteredRows() {
-            const selectedDate = document.getElementById('historyDate').value;
-            const query = document.getElementById('searchHistory').value.trim().toLowerCase();
-            return inspections.filter(item => {
-                if (selectedDate && item.date !== selectedDate) return false;
-                if (!query) return true;
-                return item.kelompok.toLowerCase().includes(query)
-                    || item.brand.toLowerCase().includes(query)
-                    || item.inspector.toLowerCase().includes(query)
-                    || item.date.includes(query);
-            });
-        }
-
         function downloadHistoryChart() {
-            const rows = getHistoryFilteredRows();
+            const rows = getFilteredData();
             if (!rows.length) {
                 showToast('Tidak ada data untuk dibuat menjadi grafik.', 'error');
                 return;
@@ -3903,8 +3870,8 @@
                 overallData.push(Number(agg.overallInSpecPct.toFixed(1)));
             });
 
-            const selectedDate = document.getElementById('historyDate').value;
-            const dateLabel = selectedDate || 'Semua Tanggal';
+            const range = getGilingFilterRange();
+            const dateLabel = range.start === range.end ? range.start : `${range.start} s/d ${range.end}`;
             const canvas = document.createElement('canvas');
             canvas.width = 1800;
             canvas.height = 1000;
@@ -3949,7 +3916,7 @@
             });
 
             const link = document.createElement('a');
-            link.download = `Ringkasan_Grafik_Giling_${selectedDate || 'Semua_Tanggal'}.png`;
+            link.download = `Ringkasan_Grafik_Giling_${dateLabel.replace(/\s+/g, '_')}.png`;
             link.href = chart.toBase64Image('image/png', 1);
             link.click();
             chart.destroy();
@@ -4609,7 +4576,7 @@
                 .replaceAll("'", '&#039;');
         }
 
-        function applyFilters() { renderDashboard(); }
+        function applyFilters() { renderDashboard(); renderHistoryTable(); }
         function resetFilters() {
             const today = getTodayString();
             document.getElementById('gilingPeriodMode').value = 'daily';
@@ -4622,6 +4589,7 @@
             document.getElementById('gilingMonth').value = today.slice(0, 7);
             updateGilingPeriodUI(false);
             renderDashboard();
+            renderHistoryTable();
         }
 
         function showToast(msg, type = 'info') {
