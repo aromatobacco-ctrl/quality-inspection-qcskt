@@ -677,7 +677,7 @@
             </div>
 
             <!-- KPI Cards Grid (7 Metrik Kunci) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3.5">
                 <!-- KPI 1: Sampel Terperiksa -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
                     <span class="text-xs text-purple-300 font-medium">Jumlah Sampel</span>
@@ -737,17 +737,30 @@
                     <span class="text-[10px] text-slate-400 mt-1">BRT + DMT jika diisi</span>
                 </div>
 
-                <!-- KPI 6: Average Weight -->
+                <!-- KPI 6: Average Weight Grup AR -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
                     <div class="flex justify-between items-center gap-2">
-                        <span class="text-xs text-purple-300 font-medium">Average Weight</span>
+                        <span class="text-xs text-purple-300 font-medium">Average Weight — Grup AR</span>
                         <i data-lucide="scale" class="w-4 h-4 text-purple-400"></i>
                     </div>
                     <div class="mt-2 flex items-baseline justify-between gap-2">
-                        <span id="kpiAverageWeight" class="text-2xl font-black text-white">—</span>
+                        <span id="kpiAverageWeightAR" class="text-2xl font-black text-white">—</span>
                         <span class="text-xs text-purple-400">gram</span>
                     </div>
-                    <span id="kpiWeightSampleCount" class="text-[10px] text-slate-400 mt-1">Belum ada data berat</span>
+                    <span class="text-[10px] text-slate-400 mt-1"><span id="kpiWeightSampleCountAR">0</span> data · ARA/ARI 12/ARI 16/ARO</span>
+                </div>
+
+                <!-- KPI 7: Average Weight Grup AS -->
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-3.5 flex flex-col justify-between">
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="text-xs text-purple-300 font-medium">Average Weight — Grup AS</span>
+                        <i data-lucide="scale" class="w-4 h-4 text-emerald-400"></i>
+                    </div>
+                    <div class="mt-2 flex items-baseline justify-between gap-2">
+                        <span id="kpiAverageWeightAS" class="text-2xl font-black text-white">—</span>
+                        <span class="text-xs text-purple-400">gram</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 mt-1"><span id="kpiWeightSampleCountAS">0</span> data · ASA/AST/ASB/ASM/ASC/AROS</span>
                 </div>
 
             </div>
@@ -863,8 +876,9 @@
                         <p id="weightTrendCaption" class="text-[11px] text-purple-300 mt-1">Average Weight per waktu sampling dengan Lower Limit dan Upper Limit sesuai brand</p>
                     </div>
                     <div class="chart-controls flex flex-wrap items-center gap-3 text-[10px]">
-                        <span class="flex items-center gap-1.5 text-sky-300"><span class="w-5 border-t-2 border-dashed border-sky-400"></span> Lower Limit</span>
-                        <span class="flex items-center gap-1.5 text-rose-300"><span class="w-5 border-t-2 border-dashed border-rose-400"></span> Upper Limit</span>
+                        <span class="flex items-center gap-1.5 text-purple-300"><span class="w-5 border-t-2 border-purple-400"></span> Grup AR</span>
+                        <span class="flex items-center gap-1.5 text-emerald-300"><span class="w-5 border-t-2 border-emerald-400"></span> Grup AS</span>
+                        <span class="text-slate-400">Batas spesifikasi mengikuti masing-masing grup</span>
                         <label class="flex items-center gap-2 rounded-lg border border-purple-700/70 bg-purple-950/70 px-2 py-1 text-purple-200">
                             <span>Kelompok</span>
                             <select id="weightTrendGroupFilter" onchange="renderWeightTrendOnly()" class="font-bold text-white focus:outline-none">
@@ -1574,6 +1588,7 @@
             'ASM': 'GRUP AS',
             'ASC': 'GRUP AS',
             'AROS': 'GRUP AS',
+            'ARS': 'GRUP AS',
             'ARA': 'GRUP AR',
             'ARI 16': 'GRUP AR',
             'ARI 12': 'GRUP AR',
@@ -3393,12 +3408,16 @@
             document.getElementById('kpiVisualOut').innerText = 'Out: ' + agg.visualOutSpecPct.toFixed(1) + '%';
             document.getElementById('kpiPhysicalIn').innerText = agg.physicalInSpecPct.toFixed(1) + '%';
             document.getElementById('kpiPhysicalOut').innerText = 'Out: ' + agg.physicalOutSpecPct.toFixed(1) + '%';
-            document.getElementById('kpiAverageWeight').innerText = agg.averageWeight === null
+            const weightGroupAR = getWeightGroupStats(data, 'GRUP AR');
+            const weightGroupAS = getWeightGroupStats(data, 'GRUP AS');
+            document.getElementById('kpiAverageWeightAR').innerText = weightGroupAR.average === null
                 ? '—'
-                : agg.averageWeight.toFixed(3).replace('.', ',');
-            document.getElementById('kpiWeightSampleCount').innerText = agg.weightSampleCount
-                ? `${agg.weightSampleCount.toLocaleString('id-ID')} data average weight`
-                : 'Belum ada data berat';
+                : formatWeightNumber(weightGroupAR.average);
+            document.getElementById('kpiWeightSampleCountAR').innerText = weightGroupAR.count.toLocaleString('id-ID');
+            document.getElementById('kpiAverageWeightAS').innerText = weightGroupAS.average === null
+                ? '—'
+                : formatWeightNumber(weightGroupAS.average);
+            document.getElementById('kpiWeightSampleCountAS').innerText = weightGroupAS.count.toLocaleString('id-ID');
 
             applyKpiColor('kpiOverallBadge', agg.overallInSpecPct);
             applyKpiColor('kpiVisualBadge', agg.visualInSpecPct);
@@ -3635,65 +3654,97 @@
             const context = document.getElementById('weightTrendChart').getContext('2d');
             if (weightTrendChart) weightTrendChart.destroy();
 
-            const labels = points.map(point => {
-                return range.mode === 'daily'
-                    ? `${point.samplingTime} · ${point.brand}`
-                    : `${point.date.slice(5)} · ${point.samplingTime} · ${point.brand}`;
+            // Satu posisi sumbu-X untuk setiap waktu sampling. Grup AR dan AS
+            // dibuat sebagai garis terpisah agar tidak tersambung zig-zag.
+            const labelKeys = [...new Set(points.map(point => `${point.date}|${point.samplingTime || ''}`))];
+            const labels = labelKeys.map(key => {
+                const [date, samplingTime] = key.split('|');
+                return range.mode === 'daily' ? samplingTime : `${date.slice(5)} · ${samplingTime}`;
             });
-            const averageValues = results.map(result => result.average);
-            const lowerValues = results.map(result => result.spec?.lower ?? null);
-            const upperValues = results.map(result => result.spec?.upper ?? null);
-            const plottedValues = [
-                ...averageValues.filter(value => value !== null),
-                ...lowerValues.filter(value => value !== null),
-                ...upperValues.filter(value => value !== null)
-            ];
-            const yMin = plottedValues.length ? Math.max(0, Math.floor((Math.min(...plottedValues) - 0.1) * 10) / 10) : 0.8;
-            const yMax = plottedValues.length ? Math.ceil((Math.max(...plottedValues) + 0.1) * 10) / 10 : 2.0;
+            const pointByKeyAndFamily = new Map(points.map(point => [
+                `${point.date}|${point.samplingTime || ''}|${point.brand}`,
+                point
+            ]));
+            const familyOrder = ['GRUP AR', 'GRUP AS'];
+            const families = [...new Set(points.map(point => point.brand))].sort((a, b) => {
+                const indexA = familyOrder.indexOf(a);
+                const indexB = familyOrder.indexOf(b);
+                return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB) || a.localeCompare(b);
+            });
+            const familyStyles = {
+                'GRUP AR': { line: '#c084fc', point: '#e9d5ff', lower: '#38bdf8', upper: '#fb7185' },
+                'GRUP AS': { line: '#34d399', point: '#a7f3d0', lower: '#22d3ee', upper: '#fb923c' }
+            };
+            const chartDatasets = [];
+            const plottedValues = [];
+
+            families.forEach((family, familyIndex) => {
+                const style = familyStyles[family] || { line: '#fbbf24', point: '#fde68a', lower: '#38bdf8', upper: '#fb7185' };
+                const averageValues = labelKeys.map(key => {
+                    const point = pointByKeyAndFamily.get(`${key}|${family}`);
+                    return point ? point.total / point.count : null;
+                });
+                const pointCounts = labelKeys.map(key => pointByKeyAndFamily.get(`${key}|${family}`)?.count || 0);
+                const spec = getWeightSpec(family);
+                const lowerValues = labelKeys.map(() => spec?.lower ?? null);
+                const upperValues = labelKeys.map(() => spec?.upper ?? null);
+                plottedValues.push(...averageValues, ...lowerValues, ...upperValues);
+
+                chartDatasets.push({
+                    label: `Average Weight — ${family.replace('GRUP ', 'Grup ')}`,
+                    data: averageValues,
+                    pointCounts,
+                    isAverageWeight: true,
+                    borderColor: style.line,
+                    backgroundColor: style.line,
+                    borderWidth: 3,
+                    pointBackgroundColor: style.point,
+                    pointBorderColor: style.line,
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.25,
+                    spanGaps: true,
+                    fill: false,
+                    order: 1
+                });
+
+                if (spec) {
+                    chartDatasets.push(
+                        {
+                            label: `Lower Limit — ${family.replace('GRUP ', 'Grup ')}`,
+                            data: lowerValues,
+                            borderColor: style.lower,
+                            backgroundColor: style.lower,
+                            borderWidth: 1.5,
+                            borderDash: familyIndex === 0 ? [7, 5] : [3, 4],
+                            pointRadius: 0,
+                            spanGaps: true,
+                            order: 2
+                        },
+                        {
+                            label: `Upper Limit — ${family.replace('GRUP ', 'Grup ')}`,
+                            data: upperValues,
+                            borderColor: style.upper,
+                            backgroundColor: style.upper,
+                            borderWidth: 1.5,
+                            borderDash: familyIndex === 0 ? [7, 5] : [3, 4],
+                            pointRadius: 0,
+                            spanGaps: true,
+                            order: 2
+                        }
+                    );
+                }
+            });
+            const validPlottedValues = plottedValues.filter(value => value !== null);
+            const yMin = validPlottedValues.length ? Math.max(0, Math.floor((Math.min(...validPlottedValues) - 0.1) * 10) / 10) : 0.8;
+            const yMax = validPlottedValues.length ? Math.ceil((Math.max(...validPlottedValues) + 0.1) * 10) / 10 : 2.0;
 
             weightTrendChart = new Chart(context, {
                 type: 'line',
                 data: {
                     labels,
-                    datasets: [
-                        {
-                            label: 'Average Weight',
-                            data: averageValues,
-                            borderColor: '#c084fc',
-                            backgroundColor: 'rgba(192,132,252,0.18)',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#e9d5ff',
-                            pointBorderColor: '#7e22ce',
-                            pointBorderWidth: 2,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            tension: 0.25,
-                            spanGaps: false,
-                            fill: true
-                        },
-                        {
-                            label: 'Lower Limit',
-                            data: lowerValues,
-                            borderColor: '#38bdf8',
-                            backgroundColor: '#38bdf8',
-                            borderWidth: 2,
-                            borderDash: [7, 5],
-                            pointRadius: 0,
-                            stepped: 'middle',
-                            spanGaps: false
-                        },
-                        {
-                            label: 'Upper Limit',
-                            data: upperValues,
-                            borderColor: '#fb7185',
-                            backgroundColor: '#fb7185',
-                            borderWidth: 2,
-                            borderDash: [7, 5],
-                            pointRadius: 0,
-                            stepped: 'middle',
-                            spanGaps: false
-                        }
-                    ]
+                    datasets: chartDatasets
                 },
                 options: {
                     responsive: true,
@@ -3717,12 +3768,18 @@
                         tooltip: {
                             callbacks: {
                                 title: items => {
-                                    const point = points[items[0]?.dataIndex];
-                                    return point ? `${point.date} · ${point.samplingTime} · ${point.brand} · ${point.count} data` : '';
+                                    const key = labelKeys[items[0]?.dataIndex];
+                                    if (!key) return '';
+                                    const [date, samplingTime] = key.split('|');
+                                    return `${date} · ${samplingTime}`;
                                 },
-                                label: tooltipItem => tooltipItem.parsed.y === null
-                                    ? `${tooltipItem.dataset.label}: —`
-                                    : `${tooltipItem.dataset.label}: ${formatWeightNumber(tooltipItem.parsed.y)} g`
+                                label: tooltipItem => {
+                                    if (tooltipItem.parsed.y === null) return `${tooltipItem.dataset.label}: —`;
+                                    const count = tooltipItem.dataset.isAverageWeight
+                                        ? tooltipItem.dataset.pointCounts?.[tooltipItem.dataIndex] || 0
+                                        : null;
+                                    return `${tooltipItem.dataset.label}: ${formatWeightNumber(tooltipItem.parsed.y)} g${count ? ` · ${count} data` : ''}`;
+                                }
                             }
                         }
                     }
