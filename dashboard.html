@@ -605,7 +605,7 @@
                     </div>
                     <span id="lastUpdatedText" class="text-xs text-purple-300/70 font-mono">Update: Baru saja</span>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-8 gap-3 text-xs">
+                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-9 gap-3 text-xs">
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Periode</label>
                         <select id="gilingPeriodMode" onchange="updateGilingPeriodUI()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
@@ -619,12 +619,20 @@
                         <input type="date" id="filterDate" onchange="applyFilters()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div id="gilingWeekWrap" class="hidden">
-                        <label class="block text-purple-300 font-medium mb-1">Mulai Minggu</label>
-                        <input type="date" id="gilingWeekStart" onchange="applyFilters()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Mulai</label>
+                        <input type="date" id="gilingWeekStart" onchange="handleGilingRangeChange('weekly', 'start')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
                     </div>
-                    <div id="gilingMonthWrap" class="hidden">
-                        <label class="block text-purple-300 font-medium mb-1">Bulan</label>
-                        <input type="month" id="gilingMonth" onchange="applyFilters()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                    <div id="gilingWeekEndWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Selesai</label>
+                        <input type="date" id="gilingWeekEnd" onchange="handleGilingRangeChange('weekly', 'end')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="gilingMonthStartWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Mulai</label>
+                        <input type="date" id="gilingMonthStart" onchange="handleGilingRangeChange('monthly', 'start')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="gilingMonthEndWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Selesai</label>
+                        <input type="date" id="gilingMonthEnd" onchange="handleGilingRangeChange('monthly', 'end')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Kelompok</label>
@@ -1635,13 +1643,19 @@
                     currentRole === 'ADMIN' ? Promise.all([loadUsers(), loadBackupStatus()]) : Promise.resolve()
                 ]);
                 initDropdowns();
-                document.getElementById('filterDate').value = getTodayString();
-                document.getElementById('gilingWeekStart').value = getTodayString();
-                document.getElementById('gilingMonth').value = getTodayString().slice(0, 7);
-                document.getElementById('overviewDate').value = getTodayString();
-                document.getElementById('overviewWeekStart').value = getTodayString();
-                document.getElementById('inputDate').value = getTodayString();
-                document.getElementById('mcFilterDate').value = getTodayString();
+                const initialToday = getTodayString();
+                const initialMonth = initialToday.slice(0, 7);
+                const [initialYear, initialMonthNumber] = initialMonth.split('-').map(Number);
+                const initialMonthEnd = `${initialMonth}-${String(new Date(initialYear, initialMonthNumber, 0).getDate()).padStart(2, '0')}`;
+                document.getElementById('filterDate').value = initialToday;
+                document.getElementById('gilingWeekStart').value = initialToday;
+                document.getElementById('gilingWeekEnd').value = addDaysToDateString(initialToday, 4);
+                document.getElementById('gilingMonthStart').value = `${initialMonth}-01`;
+                document.getElementById('gilingMonthEnd').value = initialMonthEnd;
+                document.getElementById('overviewDate').value = initialToday;
+                document.getElementById('overviewWeekStart').value = initialToday;
+                document.getElementById('inputDate').value = initialToday;
+                document.getElementById('mcFilterDate').value = initialToday;
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
                 document.getElementById('packInputDate').value = getTodayString();
@@ -2542,9 +2556,10 @@
                 icon: 'scan-line',
                 sampleSize: PACK_DEFAULT_SAMPLE_SIZE,
                 parameters: [
-                    { key: 'overheating', label: 'Overheating' },
+                    { key: 'heating', label: 'Heating', aliases: ['overheating'] },
                     { key: 'tearTapeAccess', label: 'Access Tear Tape' },
-                    { key: 'fold', label: 'Lipatan', aliases: ['oppFold'] }
+                    { key: 'fold', label: 'Lipatan', aliases: ['oppFold'] },
+                    { key: 'cleanliness', label: 'Kebersihan Kemasan' }
                 ]
             },
             MOP: {
@@ -2552,11 +2567,12 @@
                 icon: 'boxes',
                 sampleSize: 5,
                 parameters: [
-                    { key: 'overheating', label: 'Overheating' },
+                    { key: 'heating', label: 'Heating', aliases: ['overheating'] },
                     { key: 'tearTapeAccess', label: 'Access Tear Tape' },
                     { key: 'fold', label: 'Lipatan' },
                     { key: 'barcodeStickerPosition', label: 'Posisi Stiker Barcode' },
-                    { key: 'barcodeStickerNeatness', label: 'Kerapian Stiker Barcode' }
+                    { key: 'barcodeStickerNeatness', label: 'Kerapian Stiker Barcode' },
+                    { key: 'cleanliness', label: 'Kebersihan Kemasan' }
                 ]
             }
         });
@@ -3279,28 +3295,77 @@
             const today = getTodayString();
             document.getElementById('gilingDateWrap').classList.toggle('hidden', mode !== 'daily');
             document.getElementById('gilingWeekWrap').classList.toggle('hidden', mode !== 'weekly');
-            document.getElementById('gilingMonthWrap').classList.toggle('hidden', mode !== 'monthly');
+            document.getElementById('gilingWeekEndWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('gilingMonthStartWrap').classList.toggle('hidden', mode !== 'monthly');
+            document.getElementById('gilingMonthEndWrap').classList.toggle('hidden', mode !== 'monthly');
 
             if (mode === 'weekly' && !document.getElementById('gilingWeekStart').value) {
                 document.getElementById('gilingWeekStart').value = document.getElementById('filterDate').value || today;
             }
-            if (mode === 'monthly' && !document.getElementById('gilingMonth').value) {
-                document.getElementById('gilingMonth').value = (document.getElementById('filterDate').value || today).slice(0, 7);
+            if (mode === 'weekly' && !document.getElementById('gilingWeekEnd').value) {
+                document.getElementById('gilingWeekEnd').value = addDaysToDateString(document.getElementById('gilingWeekStart').value, 4);
             }
+            if (mode === 'monthly' && !document.getElementById('gilingMonthStart').value) {
+                const monthKey = (document.getElementById('filterDate').value || today).slice(0, 7);
+                document.getElementById('gilingMonthStart').value = `${monthKey}-01`;
+            }
+            if (mode === 'monthly' && !document.getElementById('gilingMonthEnd').value) {
+                const monthKey = document.getElementById('gilingMonthStart').value.slice(0, 7);
+                const [year, month] = monthKey.split('-').map(Number);
+                document.getElementById('gilingMonthEnd').value = `${monthKey}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`;
+            }
+            if (mode !== 'daily') syncGilingRangeConstraints(mode);
             if (shouldRender) { renderDashboard(); renderHistoryTable(); }
+        }
+
+        function getGilingRangeInputs(mode) {
+            return mode === 'monthly'
+                ? {
+                    startInput: document.getElementById('gilingMonthStart'),
+                    endInput: document.getElementById('gilingMonthEnd')
+                }
+                : {
+                    startInput: document.getElementById('gilingWeekStart'),
+                    endInput: document.getElementById('gilingWeekEnd')
+                };
+        }
+
+        function syncGilingRangeConstraints(mode) {
+            const { startInput, endInput } = getGilingRangeInputs(mode);
+            startInput.max = endInput.value || '';
+            endInput.min = startInput.value || '';
+        }
+
+        function handleGilingRangeChange(mode, changedField) {
+            const { startInput, endInput } = getGilingRangeInputs(mode);
+            if (startInput.value && endInput.value && endInput.value < startInput.value) {
+                if (changedField === 'start') endInput.value = startInput.value;
+                else startInput.value = endInput.value;
+            }
+            syncGilingRangeConstraints(mode);
+            applyFilters();
+        }
+
+        function getInclusiveDateCount(start, end) {
+            const startTime = new Date(`${start}T00:00:00Z`).getTime();
+            const endTime = new Date(`${end}T00:00:00Z`).getTime();
+            return Math.max(1, Math.round((endTime - startTime) / 86400000) + 1);
         }
 
         function getGilingFilterRange() {
             const mode = document.getElementById('gilingPeriodMode')?.value || 'daily';
             if (mode === 'weekly') {
                 const start = document.getElementById('gilingWeekStart').value || getTodayString();
-                return { mode, start, end: addDaysToDateString(start, 4), days: 5 };
+                const end = document.getElementById('gilingWeekEnd').value || addDaysToDateString(start, 4);
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
             }
             if (mode === 'monthly') {
-                const selectedMonth = document.getElementById('gilingMonth').value || getTodayString().slice(0, 7);
-                const [year, month] = selectedMonth.split('-').map(Number);
-                const days = new Date(year, month, 0).getDate();
-                return { mode, start: `${selectedMonth}-01`, end: `${selectedMonth}-${String(days).padStart(2, '0')}`, days };
+                const fallbackMonth = getTodayString().slice(0, 7);
+                const start = document.getElementById('gilingMonthStart').value || `${fallbackMonth}-01`;
+                const [year, month] = fallbackMonth.split('-').map(Number);
+                const fallbackEnd = `${fallbackMonth}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`;
+                const end = document.getElementById('gilingMonthEnd').value || fallbackEnd;
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
             }
             const selectedDate = document.getElementById('filterDate').value || getTodayString();
             return { mode: 'daily', start: selectedDate, end: selectedDate, days: 1 };
@@ -4744,7 +4809,11 @@
             document.getElementById('filterInspector').value = 'ALL';
             document.getElementById('filterDate').value = today;
             document.getElementById('gilingWeekStart').value = today;
-            document.getElementById('gilingMonth').value = today.slice(0, 7);
+            document.getElementById('gilingWeekEnd').value = addDaysToDateString(today, 4);
+            const monthKey = today.slice(0, 7);
+            const [year, month] = monthKey.split('-').map(Number);
+            document.getElementById('gilingMonthStart').value = `${monthKey}-01`;
+            document.getElementById('gilingMonthEnd').value = `${monthKey}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`;
             updateGilingPeriodUI(false);
             renderDashboard();
             renderHistoryTable();
