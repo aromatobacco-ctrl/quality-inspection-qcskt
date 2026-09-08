@@ -470,15 +470,16 @@
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
                         <h2 class="text-base font-bold text-white">Ringkasan Quality Inspection</h2>
-                        <p class="text-xs text-purple-300">Dashboard harian atau mingguan seluruh station dalam satu halaman</p>
+                        <p class="text-xs text-purple-300">Dashboard harian, mingguan, atau bulanan seluruh station dalam satu halaman</p>
                     </div>
                 </div>
-                <div class="w-full sm:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="w-full sm:w-auto grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-[11px] text-purple-300 font-semibold mb-1">Periode Dashboard</label>
                         <select id="overviewMode" onchange="updateOverviewModeUI()" class="w-full sm:w-40 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
                             <option value="daily">Harian</option>
                             <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
                         </select>
                     </div>
                     <div id="overviewDateWrap">
@@ -486,8 +487,20 @@
                         <input type="date" id="overviewDate" oninput="renderOverview()" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div id="overviewWeekWrap" class="hidden">
-                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Awal Minggu</label>
-                        <input type="date" id="overviewWeekStart" oninput="renderOverview()" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Mulai</label>
+                        <input type="date" id="overviewWeekStart" onchange="handleOverviewRangeChange('weekly', 'start')" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="overviewWeekEndWrap" class="hidden">
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Selesai</label>
+                        <input type="date" id="overviewWeekEnd" onchange="handleOverviewRangeChange('weekly', 'end')" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="overviewMonthStartWrap" class="hidden">
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Mulai</label>
+                        <input type="date" id="overviewMonthStart" onchange="handleOverviewRangeChange('monthly', 'start')" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="overviewMonthEndWrap" class="hidden">
+                        <label class="block text-[11px] text-purple-300 font-semibold mb-1">Tanggal Selesai</label>
+                        <input type="date" id="overviewMonthEnd" onchange="handleOverviewRangeChange('monthly', 'end')" class="w-full sm:w-48 bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
                     </div>
                 </div>
             </div>
@@ -1009,10 +1022,34 @@
             </div>
 
             <div class="bg-purple-900/30 border border-purple-800/60 rounded-2xl p-4 shadow-md">
-                <div class="mobile-filter-grid grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="mobile-filter-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
                     <div>
+                        <label class="block text-purple-300 font-medium mb-1">Periode</label>
+                        <select id="mcPeriodMode" onchange="updateMoisturePeriodUI()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                        </select>
+                    </div>
+                    <div id="mcDateWrap">
                         <label class="block text-purple-300 font-medium mb-1">Tanggal</label>
                         <input type="date" id="mcFilterDate" oninput="renderMoistureSection()" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="mcWeekStartWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Mulai</label>
+                        <input type="date" id="mcWeekStart" onchange="handleMoistureRangeChange('weekly', 'start')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="mcWeekEndWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Selesai</label>
+                        <input type="date" id="mcWeekEnd" onchange="handleMoistureRangeChange('weekly', 'end')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="mcMonthStartWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Mulai</label>
+                        <input type="date" id="mcMonthStart" onchange="handleMoistureRangeChange('monthly', 'start')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="mcMonthEndWrap" class="hidden">
+                        <label class="block text-purple-300 font-medium mb-1">Tanggal Selesai</label>
+                        <input type="date" id="mcMonthEnd" onchange="handleMoistureRangeChange('monthly', 'end')" class="w-full bg-purple-950 border border-purple-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Brand</label>
@@ -1087,7 +1124,12 @@
 
             <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
                 <div class="mobile-filter-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-                    <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div><label class="block text-purple-300 mb-1">Periode</label><select id="packPeriodMode" onchange="updatePackPeriodUI()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"><option value="daily">Harian</option><option value="weekly">Mingguan</option><option value="monthly">Bulanan</option></select></div>
+                    <div id="packDateWrap"><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packFilterDate" oninput="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packWeekStartWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Mulai</label><input type="date" id="packWeekStart" onchange="handlePackRangeChange('weekly', 'start')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packWeekEndWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Selesai</label><input type="date" id="packWeekEnd" onchange="handlePackRangeChange('weekly', 'end')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packMonthStartWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Mulai</label><input type="date" id="packMonthStart" onchange="handlePackRangeChange('monthly', 'start')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="packMonthEndWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Selesai</label><input type="date" id="packMonthEnd" onchange="handlePackRangeChange('monthly', 'end')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packFilterTime" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jam</option><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packFilterBuilding" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jenis Station</label><select id="packFilterStation" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Station</option><option value="PACKING">Packing</option><option value="BANDROLL">Bandroll</option><option value="OPP">OPP</option><option value="MOP">MOP</option></select></div>
@@ -1654,14 +1696,27 @@
                 document.getElementById('gilingMonthEnd').value = initialMonthEnd;
                 document.getElementById('overviewDate').value = initialToday;
                 document.getElementById('overviewWeekStart').value = initialToday;
+                document.getElementById('overviewWeekEnd').value = addDaysToDateString(initialToday, 4);
+                document.getElementById('overviewMonthStart').value = `${initialMonth}-01`;
+                document.getElementById('overviewMonthEnd').value = initialMonthEnd;
                 document.getElementById('inputDate').value = initialToday;
                 document.getElementById('mcFilterDate').value = initialToday;
+                document.getElementById('mcWeekStart').value = initialToday;
+                document.getElementById('mcWeekEnd').value = addDaysToDateString(initialToday, 4);
+                document.getElementById('mcMonthStart').value = `${initialMonth}-01`;
+                document.getElementById('mcMonthEnd').value = initialMonthEnd;
                 document.getElementById('mcInputDate').value = getTodayString();
                 document.getElementById('packFilterDate').value = getTodayString();
+                document.getElementById('packWeekStart').value = initialToday;
+                document.getElementById('packWeekEnd').value = addDaysToDateString(initialToday, 4);
+                document.getElementById('packMonthStart').value = `${initialMonth}-01`;
+                document.getElementById('packMonthEnd').value = initialMonthEnd;
                 document.getElementById('packInputDate').value = getTodayString();
                 document.getElementById('backupDateHarian').value = getTodayString();
                 updateOverviewModeUI();
                 updateGilingPeriodUI(false);
+                updateMoisturePeriodUI(false);
+                updatePackPeriodUI(false);
                 switchTobaccoView('receiving');
                 renderOverview();
                 renderBackupReminder();
@@ -2258,14 +2313,59 @@
             renderMoistureSection();
         }
 
+        function updateMoisturePeriodUI(shouldRender = true) {
+            const mode = document.getElementById('mcPeriodMode')?.value || 'daily';
+            document.getElementById('mcDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('mcWeekStartWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('mcWeekEndWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('mcMonthStartWrap').classList.toggle('hidden', mode !== 'monthly');
+            document.getElementById('mcMonthEndWrap').classList.toggle('hidden', mode !== 'monthly');
+            const baseDate = document.getElementById('mcFilterDate').value || getTodayString();
+            if (mode === 'weekly') {
+                if (!document.getElementById('mcWeekStart').value) document.getElementById('mcWeekStart').value = baseDate;
+                if (!document.getElementById('mcWeekEnd').value) document.getElementById('mcWeekEnd').value = addDaysToDateString(document.getElementById('mcWeekStart').value, 4);
+                normalizeRangeInputs('mcWeekStart', 'mcWeekEnd');
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange(baseDate);
+                if (!document.getElementById('mcMonthStart').value) document.getElementById('mcMonthStart').value = defaults.start;
+                if (!document.getElementById('mcMonthEnd').value) document.getElementById('mcMonthEnd').value = defaults.end;
+                normalizeRangeInputs('mcMonthStart', 'mcMonthEnd');
+            }
+            if (shouldRender) renderMoistureSection();
+        }
+
+        function handleMoistureRangeChange(mode, changedField) {
+            if (mode === 'monthly') normalizeRangeInputs('mcMonthStart', 'mcMonthEnd', changedField);
+            else normalizeRangeInputs('mcWeekStart', 'mcWeekEnd', changedField);
+            renderMoistureSection();
+        }
+
+        function getMoistureFilterRange() {
+            const mode = document.getElementById('mcPeriodMode')?.value || 'daily';
+            if (mode === 'weekly') {
+                const start = document.getElementById('mcWeekStart').value || getTodayString();
+                const end = document.getElementById('mcWeekEnd').value || addDaysToDateString(start, 4);
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange();
+                const start = document.getElementById('mcMonthStart').value || defaults.start;
+                const end = document.getElementById('mcMonthEnd').value || defaults.end;
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            const selected = document.getElementById('mcFilterDate').value || getTodayString();
+            return { mode: 'daily', start: selected, end: selected, days: 1 };
+        }
+
         function getFilteredMoistureData(type = currentTobaccoView) {
-            const date = document.getElementById('mcFilterDate').value;
+            const range = getMoistureFilterRange();
             const brand = document.getElementById('mcFilterBrand').value;
             const query = document.getElementById('mcSearch').value.trim().toLowerCase();
             return moistureRecords.filter(item => {
                 const meta = getTobaccoMeta(item);
                 if (meta.type !== type) return false;
-                if (date && item.date !== date) return false;
+                if (item.date < range.start || item.date > range.end) return false;
                 if (brand !== 'ALL' && item.brand !== brand) return false;
                 const searchable = `${item.seriesNumber} ${item.brand} ${item.inspector} ${meta.stockType} ${meta.legacyLot || ''}`.toLowerCase();
                 if (query && !searchable.includes(query)) return false;
@@ -2378,7 +2478,7 @@
             document.getElementById('modalMoisture').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
             document.getElementById('mcEditRecordId').value = editItem ? editItem.id : '';
-            document.getElementById('mcInputDate').value = editItem ? editItem.date : (document.getElementById('mcFilterDate').value || getTodayString());
+            document.getElementById('mcInputDate').value = editItem ? editItem.date : getMoistureFilterRange().start;
             document.getElementById('mcInputInspector').value = editItem ? editItem.inspector : (currentUser ? currentUser.displayName : '');
             document.getElementById('mcInputBrand').value = editItem ? editItem.brand : (masterData.brands[0] || '');
             document.getElementById('mcInputValue').value = editItem ? Number(editItem.moistureContent).toFixed(2) : '';
@@ -2524,7 +2624,8 @@
             const label = currentTobaccoView === 'receiving' ? 'Penerimaan Tembakau' : 'Pemakaian Tembakau';
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), label);
-            const fileName = `${label.replaceAll(' ', '_')}_${document.getElementById('mcFilterDate').value || getTodayString()}.xlsx`;
+            const range = getMoistureFilterRange();
+            const fileName = `${label.replaceAll(' ', '_')}_${range.start}_${range.end}.xlsx`;
             XLSX.writeFile(workbook, fileName);
             showToast(`File ${label} berhasil diunduh: ${fileName}`, 'success');
         }
@@ -2697,13 +2798,52 @@
             return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
         }
 
+        function getDefaultMonthRange(baseDate = getTodayString()) {
+            const monthKey = baseDate.slice(0, 7);
+            const [year, month] = monthKey.split('-').map(Number);
+            return {
+                start: `${monthKey}-01`,
+                end: `${monthKey}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`
+            };
+        }
+
+        function normalizeRangeInputs(startId, endId, changedField) {
+            const startInput = document.getElementById(startId);
+            const endInput = document.getElementById(endId);
+            if (startInput.value && endInput.value && endInput.value < startInput.value) {
+                if (changedField === 'start') endInput.value = startInput.value;
+                else startInput.value = endInput.value;
+            }
+            startInput.max = endInput.value || '';
+            endInput.min = startInput.value || '';
+        }
+
         function updateOverviewModeUI() {
-            const weekly = document.getElementById('overviewMode').value === 'weekly';
-            document.getElementById('overviewDateWrap').classList.toggle('hidden', weekly);
-            document.getElementById('overviewWeekWrap').classList.toggle('hidden', !weekly);
-            if (weekly && !document.getElementById('overviewWeekStart').value) {
+            const mode = document.getElementById('overviewMode').value;
+            document.getElementById('overviewDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('overviewWeekWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('overviewWeekEndWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('overviewMonthStartWrap').classList.toggle('hidden', mode !== 'monthly');
+            document.getElementById('overviewMonthEndWrap').classList.toggle('hidden', mode !== 'monthly');
+            if (mode === 'weekly' && !document.getElementById('overviewWeekStart').value) {
                 document.getElementById('overviewWeekStart').value = document.getElementById('overviewDate').value || getTodayString();
             }
+            if (mode === 'weekly' && !document.getElementById('overviewWeekEnd').value) {
+                document.getElementById('overviewWeekEnd').value = addDaysToDateString(document.getElementById('overviewWeekStart').value, 4);
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange(document.getElementById('overviewDate').value || getTodayString());
+                if (!document.getElementById('overviewMonthStart').value) document.getElementById('overviewMonthStart').value = defaults.start;
+                if (!document.getElementById('overviewMonthEnd').value) document.getElementById('overviewMonthEnd').value = defaults.end;
+            }
+            if (mode === 'weekly') normalizeRangeInputs('overviewWeekStart', 'overviewWeekEnd');
+            if (mode === 'monthly') normalizeRangeInputs('overviewMonthStart', 'overviewMonthEnd');
+            renderOverview();
+        }
+
+        function handleOverviewRangeChange(mode, changedField) {
+            if (mode === 'monthly') normalizeRangeInputs('overviewMonthStart', 'overviewMonthEnd', changedField);
+            else normalizeRangeInputs('overviewWeekStart', 'overviewWeekEnd', changedField);
             renderOverview();
         }
 
@@ -2711,7 +2851,14 @@
             const mode = document.getElementById('overviewMode').value;
             if (mode === 'weekly') {
                 const start = document.getElementById('overviewWeekStart').value || getTodayString();
-                return { mode, start, end: addDaysToDateString(start, 4), days: 5 };
+                const end = document.getElementById('overviewWeekEnd').value || addDaysToDateString(start, 4);
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange();
+                const start = document.getElementById('overviewMonthStart').value || defaults.start;
+                const end = document.getElementById('overviewMonthEnd').value || defaults.end;
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
             }
             const selected = document.getElementById('overviewDate').value || getTodayString();
             return { mode: 'daily', start: selected, end: selected, days: 1 };
@@ -2759,8 +2906,9 @@
             document.getElementById('overviewUsageCount').innerText = usageData.length;
             document.getElementById('overviewUsageScore').innerText = usageAverage === null ? '—' : `${usageAverage.toFixed(2)}%`;
             document.getElementById('overviewSamplingStatus').innerText = `${gilingData.length}/${samplingTarget}`;
-            document.getElementById('overviewSamplingTitle').innerText = range.mode === 'weekly' ? 'Status Sampling Mingguan' : 'Status Sampling Giling Gunting';
-            document.getElementById('overviewSamplingCaption').innerText = range.mode === 'weekly'
+            const overviewPeriodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
+            document.getElementById('overviewSamplingTitle').innerText = range.mode === 'daily' ? 'Status Sampling Giling Gunting' : `Status Sampling ${overviewPeriodName}`;
+            document.getElementById('overviewSamplingCaption').innerText = range.mode !== 'daily'
                 ? `${range.start} s/d ${range.end} · target 72 sampling/hari`
                 : '24 kelompok × 3 sampling per hari';
             const samplingPercentEl = document.getElementById('overviewSamplingPercent');
@@ -2929,14 +3077,15 @@
 
             let trendLabels;
             let trendValues;
-            if (range.mode === 'weekly') {
-                const dates = Array.from({ length: 7 }, (_, index) => addDaysToDateString(range.start, index));
+            if (range.mode !== 'daily') {
+                const dates = Array.from({ length: range.days }, (_, index) => addDaysToDateString(range.start, index));
                 trendLabels = dates.map(date => `${date.slice(8, 10)}/${date.slice(5, 7)}`);
                 trendValues = dates.map(date => {
                     const rows = gilingData.filter(item => item.date === date);
                     return rows.length ? Number(calculateAggregates(rows).overallInSpecPct.toFixed(1)) : null;
                 });
-                document.getElementById('overviewTrendTitle').innerText = 'Trend Giling Gunting Mingguan';
+                const periodName = range.mode === 'weekly' ? 'Mingguan' : 'Bulanan';
+                document.getElementById('overviewTrendTitle').innerText = `Trend Giling Gunting ${periodName}`;
                 document.getElementById('overviewTrendCaption').innerText = `Overall in-spec harian · ${range.start} s/d ${range.end}`;
             } else {
                 const samplingNumbers = [1, 2, 3];
@@ -3005,8 +3154,53 @@
             });
         }
 
+        function updatePackPeriodUI(shouldRender = true) {
+            const mode = document.getElementById('packPeriodMode')?.value || 'daily';
+            document.getElementById('packDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('packWeekStartWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('packWeekEndWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('packMonthStartWrap').classList.toggle('hidden', mode !== 'monthly');
+            document.getElementById('packMonthEndWrap').classList.toggle('hidden', mode !== 'monthly');
+            const baseDate = document.getElementById('packFilterDate').value || getTodayString();
+            if (mode === 'weekly') {
+                if (!document.getElementById('packWeekStart').value) document.getElementById('packWeekStart').value = baseDate;
+                if (!document.getElementById('packWeekEnd').value) document.getElementById('packWeekEnd').value = addDaysToDateString(document.getElementById('packWeekStart').value, 4);
+                normalizeRangeInputs('packWeekStart', 'packWeekEnd');
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange(baseDate);
+                if (!document.getElementById('packMonthStart').value) document.getElementById('packMonthStart').value = defaults.start;
+                if (!document.getElementById('packMonthEnd').value) document.getElementById('packMonthEnd').value = defaults.end;
+                normalizeRangeInputs('packMonthStart', 'packMonthEnd');
+            }
+            if (shouldRender) renderPackSection();
+        }
+
+        function handlePackRangeChange(mode, changedField) {
+            if (mode === 'monthly') normalizeRangeInputs('packMonthStart', 'packMonthEnd', changedField);
+            else normalizeRangeInputs('packWeekStart', 'packWeekEnd', changedField);
+            renderPackSection();
+        }
+
+        function getPackFilterRange() {
+            const mode = document.getElementById('packPeriodMode')?.value || 'daily';
+            if (mode === 'weekly') {
+                const start = document.getElementById('packWeekStart').value || getTodayString();
+                const end = document.getElementById('packWeekEnd').value || addDaysToDateString(start, 4);
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange();
+                const start = document.getElementById('packMonthStart').value || defaults.start;
+                const end = document.getElementById('packMonthEnd').value || defaults.end;
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            const selected = document.getElementById('packFilterDate').value || getTodayString();
+            return { mode: 'daily', start: selected, end: selected, days: 1 };
+        }
+
         function getFilteredPackData(options = {}) {
-            const date = document.getElementById('packFilterDate').value;
+            const range = getPackFilterRange();
             const time = document.getElementById('packFilterTime').value;
             const building = document.getElementById('packFilterBuilding').value;
             const station = document.getElementById('packFilterStation')?.value || 'ALL';
@@ -3015,7 +3209,7 @@
                 const itemBuilding = item.building || item.params?.building || '';
                 const stationKey = getPackStationKey(item);
                 const stationLabel = PACK_STATION_CONFIG[stationKey].label;
-                if (date && item.date !== date) return false;
+                if (item.date < range.start || item.date > range.end) return false;
                 if (time !== 'ALL' && item.samplingTime !== time) return false;
                 if (building !== 'ALL' && itemBuilding !== building) return false;
                 if (!options.ignoreStation && station !== 'ALL' && stationKey !== station) return false;
@@ -3185,7 +3379,7 @@
                 document.getElementById('packForm').reset();
                 document.getElementById('packModalTitle').innerText = 'Form Input Quality Packaging';
                 document.getElementById('packEditRecordId').value = '';
-                document.getElementById('packInputDate').value = document.getElementById('packFilterDate').value || getTodayString();
+                document.getElementById('packInputDate').value = getPackFilterRange().start;
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('packInputBuilding').value = '';
                 const filteredStation = document.getElementById('packFilterStation')?.value || 'ALL';
@@ -3285,7 +3479,8 @@
             const rows = filtered.map(buildPackExportRow);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Quality Packaging');
-            const fileName = `Quality_Packaging_${document.getElementById('packFilterDate').value || getTodayString()}.xlsx`;
+            const range = getPackFilterRange();
+            const fileName = `Quality_Packaging_${range.start}_${range.end}.xlsx`;
             XLSX.writeFile(workbook, fileName);
             showToast(`File Quality Packaging berhasil diunduh: ${fileName}`, 'success');
         }
