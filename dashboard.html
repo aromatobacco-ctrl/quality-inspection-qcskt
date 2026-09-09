@@ -1272,6 +1272,31 @@
         </footer>
     </main>
 
+    <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
+    <div id="modalEditWeight" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-purple-700/80 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-start border-b border-purple-800/60 pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-white">Edit Berat Rata-rata Sampling</h3>
+                    <p id="editWeightContext" class="mt-1 text-xs text-purple-300">Perbarui nilai Average Weight pada data terpilih.</p>
+                </div>
+                <button type="button" onclick="closeEditWeightModal()" class="text-slate-400 hover:text-white p-1 rounded-lg" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="saveWeightSamplingEdit(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="editWeightRecordId" value="">
+                <div>
+                    <label for="editWeightAverage" class="block text-purple-300 font-medium mb-1">Average Weight (g)</label>
+                    <input type="number" id="editWeightAverage" min="0.001" step="0.001" inputmode="decimal" required placeholder="Contoh: 1.250" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-purple-400">
+                    <p id="editWeightSpec" class="mt-1.5 text-[11px] text-slate-400"></p>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-purple-800/60 pt-4">
+                    <button type="button" onclick="closeEditWeightModal()" class="rounded-xl bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700">Batal</button>
+                    <button id="saveWeightEditButton" type="submit" class="rounded-xl bg-purple-600 px-5 py-2 text-xs font-black text-white hover:bg-purple-500 disabled:cursor-wait disabled:opacity-60">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ==================== MODAL FORM INPUT ==================== -->
     <div id="modalInput" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-purple-700/80 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll">
@@ -4064,9 +4089,12 @@
                         ? 'bg-rose-950/70 text-rose-300 border-rose-500/50'
                         : 'bg-amber-950/60 text-amber-300 border-amber-500/50';
                 const statusLabel = result.status.replaceAll('_', ' ');
-                const canDeleteWeight = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
-                const deleteButton = canDeleteWeight
-                    ? `<button type="button" onclick="deleteWeightSampling('${item.id}')" class="rounded-lg border border-rose-500/40 bg-rose-950/50 p-1.5 text-rose-300 hover:bg-rose-900/70 hover:text-white" title="Hapus Average Weight saja"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`
+                const canManageWeight = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
+                const actionButtons = canManageWeight
+                    ? `<div class="flex items-center justify-center gap-1.5">
+                        <button type="button" onclick="openEditWeightModal('${item.id}')" class="rounded-lg border border-purple-500/40 bg-purple-950/60 p-1.5 text-purple-300 hover:bg-purple-800/70 hover:text-white" title="Edit Average Weight"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <button type="button" onclick="deleteWeightSampling('${item.id}')" class="rounded-lg border border-rose-500/40 bg-rose-950/50 p-1.5 text-rose-300 hover:bg-rose-900/70 hover:text-white" title="Hapus Average Weight saja"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                       </div>`
                     : `<span class="text-slate-600">—</span>`;
 
                 return `
@@ -4082,7 +4110,7 @@
                         <td class="p-2.5 text-center font-semibold text-sky-300">${formatWeightNumber(result.spec?.lower ?? null)}</td>
                         <td class="p-2.5 text-center font-semibold text-rose-300">${formatWeightNumber(result.spec?.upper ?? null)}</td>
                         <td class="p-2.5 text-center whitespace-nowrap"><span class="inline-flex rounded-lg border px-2 py-1 text-[10px] font-black ${statusClass}">${statusLabel}</span></td>
-                        <td class="p-2.5 text-center">${deleteButton}</td>
+                        <td class="p-2.5 text-center">${actionButtons}</td>
                     </tr>
                 `;
             }).join('');
@@ -4330,6 +4358,95 @@
             if (!ensureNotGuest('mengedit data inspeksi')) return;
             const item = inspections.find(i => i.id === id);
             if (item) openModalInput(item);
+        }
+
+        function openEditWeightModal(id) {
+            if (!ensureNotGuest('mengedit data berat')) return;
+            const item = inspections.find(record => record.id === id);
+            if (!item) {
+                showToast('Data sampling tidak ditemukan.', 'error');
+                return;
+            }
+            const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
+            if (!canEdit) {
+                showToast('Kamu tidak memiliki izin mengedit data berat ini.', 'error');
+                return;
+            }
+
+            const average = getAverageWeight(item);
+            const spec = getWeightSpec(item.brand);
+            document.getElementById('editWeightRecordId').value = item.id;
+            document.getElementById('editWeightAverage').value = average === null ? '' : average.toFixed(3);
+            document.getElementById('editWeightContext').innerText = `${item.date} · ${item.kelompok} · Sampling ${item.sampling} (${item.samplingTime}) · ${item.brand}`;
+            document.getElementById('editWeightSpec').innerText = spec
+                ? `Batas spesifikasi ${item.brand}: ${formatWeightNumber(spec.lower)}–${formatWeightNumber(spec.upper)} g`
+                : `Batas spesifikasi ${item.brand} belum diatur.`;
+            document.getElementById('modalEditWeight').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            document.getElementById('editWeightAverage').focus();
+            document.getElementById('editWeightAverage').select();
+            lucide.createIcons();
+        }
+
+        function closeEditWeightModal() {
+            document.getElementById('modalEditWeight').classList.add('hidden');
+            document.getElementById('editWeightRecordId').value = '';
+            document.getElementById('editWeightAverage').value = '';
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        async function saveWeightSamplingEdit(event) {
+            event.preventDefault();
+            if (!ensureNotGuest('menyimpan perubahan data berat')) return;
+            const id = document.getElementById('editWeightRecordId').value;
+            const item = inspections.find(record => record.id === id);
+            if (!item) {
+                showToast('Data sampling tidak ditemukan.', 'error');
+                closeEditWeightModal();
+                return;
+            }
+            const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
+            if (!canEdit) {
+                showToast('Kamu tidak memiliki izin mengedit data berat ini.', 'error');
+                return;
+            }
+
+            const input = document.getElementById('editWeightAverage');
+            const averageWeight = parseExactWeight(input.value);
+            if (averageWeight === null) {
+                showToast('Average Weight harus berupa angka positif.', 'error');
+                input.focus();
+                return;
+            }
+
+            const button = document.getElementById('saveWeightEditButton');
+            const originalLabel = button.innerText;
+            button.disabled = true;
+            button.innerText = 'Menyimpan...';
+            const nextParams = { ...(item.params || {}), averageWeight };
+            delete nextParams.weightAverage;
+            delete nextParams.avgWeight;
+            delete nextParams.weightSamples;
+            delete nextParams.weight1;
+            delete nextParams.weight2;
+            delete nextParams.weight3;
+            delete nextParams.weight4;
+            delete nextParams.weight5;
+
+            try {
+                await apiFetch(`/api/inspections/${id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ params: nextParams })
+                });
+                await loadInspections(true);
+                closeEditWeightModal();
+                showToast('Data berat berhasil diperbarui dan grafik telah disesuaikan.', 'success');
+            } catch (error) {
+                showToast(error.message || 'Data berat gagal diperbarui.', 'error');
+            } finally {
+                button.disabled = false;
+                button.innerText = originalLabel;
+            }
         }
 
         async function deleteWeightSampling(id) {
