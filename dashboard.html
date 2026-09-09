@@ -1277,16 +1277,23 @@
         <div class="bg-slate-900 border border-purple-700/80 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-start border-b border-purple-800/60 pb-3">
                 <div>
-                    <h3 class="text-base font-bold text-white">Edit Berat Rata-rata Sampling</h3>
-                    <p id="editWeightContext" class="mt-1 text-xs text-purple-300">Perbarui nilai Average Weight pada data terpilih.</p>
+                    <h3 class="text-base font-bold text-white">Edit Berat Sampling</h3>
+                    <p id="editWeightContext" class="mt-1 text-xs text-purple-300">Perbarui berat masing-masing batang pada data terpilih.</p>
                 </div>
                 <button type="button" onclick="closeEditWeightModal()" class="text-slate-400 hover:text-white p-1 rounded-lg" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <form onsubmit="saveWeightSamplingEdit(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="editWeightRecordId" value="">
                 <div>
-                    <label for="editWeightAverage" class="block text-purple-300 font-medium mb-1">Average Weight (g)</label>
-                    <input type="number" id="editWeightAverage" min="0.001" step="0.001" inputmode="decimal" required placeholder="Contoh: 1.250" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-purple-400">
+                    <label class="block text-purple-300 font-medium mb-2">Berat per Batang (g)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <input type="number" id="edit_weight_1" min="0.001" step="0.001" inputmode="decimal" required oninput="updateEditWeightSummary()" placeholder="Batang 1" aria-label="Berat Batang 1" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-2 py-2.5 text-center text-white focus:outline-none focus:border-purple-400">
+                        <input type="number" id="edit_weight_2" min="0.001" step="0.001" inputmode="decimal" required oninput="updateEditWeightSummary()" placeholder="Batang 2" aria-label="Berat Batang 2" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-2 py-2.5 text-center text-white focus:outline-none focus:border-purple-400">
+                        <input type="number" id="edit_weight_3" min="0.001" step="0.001" inputmode="decimal" required oninput="updateEditWeightSummary()" placeholder="Batang 3" aria-label="Berat Batang 3" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-2 py-2.5 text-center text-white focus:outline-none focus:border-purple-400">
+                        <input type="number" id="edit_weight_4" min="0.001" step="0.001" inputmode="decimal" required oninput="updateEditWeightSummary()" placeholder="Batang 4" aria-label="Berat Batang 4" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-2 py-2.5 text-center text-white focus:outline-none focus:border-purple-400">
+                        <input type="number" id="edit_weight_5" min="0.001" step="0.001" inputmode="decimal" required oninput="updateEditWeightSummary()" placeholder="Batang 5" aria-label="Berat Batang 5" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-2 py-2.5 text-center text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div id="editWeightAverageSummary" class="mt-3 rounded-xl border border-purple-800/70 bg-purple-950/60 px-3 py-2 text-center font-bold text-purple-200">Rata-rata: — g</div>
                     <p id="editWeightSpec" class="mt-1.5 text-[11px] text-slate-400"></p>
                 </div>
                 <div class="flex justify-end gap-2 border-t border-purple-800/60 pt-4">
@@ -2283,6 +2290,7 @@
                 dmt: parseInt(document.getElementById('param_dmt').value) || 0,
             };
             if (averageWeight !== null) paramData.averageWeight = averageWeight;
+            if (filledWeightCount === 5) paramData.weightSamples = weightSamples;
 
             const payload = { date, groupId: group.id, brand, sampling, sampleSize, params: paramData };
             try {
@@ -4374,24 +4382,52 @@
             }
 
             const average = getAverageWeight(item);
+            const storedSamples = getLegacyWeightSamples(item);
+            const hasStoredSamples = storedSamples.length === 5 && storedSamples.every(value => value !== null);
+            // Data lama hanya menyimpan rata-rata. Isikan rata-rata ke lima kolom agar
+            // nilainya tetap sama sampai pengguna mengoreksi masing-masing batang.
+            const editableSamples = hasStoredSamples
+                ? storedSamples
+                : Array.from({ length: 5 }, () => average);
             const spec = getWeightSpec(item.brand);
             document.getElementById('editWeightRecordId').value = item.id;
-            document.getElementById('editWeightAverage').value = average === null ? '' : average.toFixed(3);
+            editableSamples.forEach((value, index) => {
+                document.getElementById(`edit_weight_${index + 1}`).value = value === null ? '' : Number(value).toFixed(3);
+            });
             document.getElementById('editWeightContext').innerText = `${item.date} · ${item.kelompok} · Sampling ${item.sampling} (${item.samplingTime}) · ${item.brand}`;
             document.getElementById('editWeightSpec').innerText = spec
                 ? `Batas spesifikasi ${item.brand}: ${formatWeightNumber(spec.lower)}–${formatWeightNumber(spec.upper)} g`
                 : `Batas spesifikasi ${item.brand} belum diatur.`;
             document.getElementById('modalEditWeight').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
-            document.getElementById('editWeightAverage').focus();
-            document.getElementById('editWeightAverage').select();
+            updateEditWeightSummary();
+            document.getElementById('edit_weight_1').focus();
+            document.getElementById('edit_weight_1').select();
             lucide.createIcons();
+        }
+
+        function updateEditWeightSummary() {
+            const values = Array.from({ length: 5 }, (_, index) =>
+                parseExactWeight(document.getElementById(`edit_weight_${index + 1}`)?.value)
+            );
+            const validValues = values.filter(value => value !== null);
+            const summary = document.getElementById('editWeightAverageSummary');
+            if (!summary) return;
+            if (validValues.length !== 5) {
+                summary.innerText = validValues.length ? `Terisi: ${validValues.length}/5 batang` : 'Rata-rata: — g';
+                return;
+            }
+            const average = validValues.reduce((total, value) => total + value, 0) / validValues.length;
+            summary.innerText = `Rata-rata: ${formatWeightNumber(average)} g`;
         }
 
         function closeEditWeightModal() {
             document.getElementById('modalEditWeight').classList.add('hidden');
             document.getElementById('editWeightRecordId').value = '';
-            document.getElementById('editWeightAverage').value = '';
+            for (let index = 1; index <= 5; index += 1) {
+                document.getElementById(`edit_weight_${index}`).value = '';
+            }
+            updateEditWeightSummary();
             document.body.classList.remove('overflow-hidden');
         }
 
@@ -4411,22 +4447,23 @@
                 return;
             }
 
-            const input = document.getElementById('editWeightAverage');
-            const averageWeight = parseExactWeight(input.value);
-            if (averageWeight === null) {
-                showToast('Average Weight harus berupa angka positif.', 'error');
-                input.focus();
+            const inputs = Array.from({ length: 5 }, (_, index) => document.getElementById(`edit_weight_${index + 1}`));
+            const weightSamples = inputs.map(input => parseExactWeight(input.value));
+            const invalidIndex = weightSamples.findIndex(value => value === null);
+            if (invalidIndex !== -1) {
+                showToast(`Berat Batang ${invalidIndex + 1} harus diisi dengan angka positif.`, 'error');
+                inputs[invalidIndex].focus();
                 return;
             }
+            const averageWeight = weightSamples.reduce((total, value) => total + value, 0) / weightSamples.length;
 
             const button = document.getElementById('saveWeightEditButton');
             const originalLabel = button.innerText;
             button.disabled = true;
             button.innerText = 'Menyimpan...';
-            const nextParams = { ...(item.params || {}), averageWeight };
+            const nextParams = { ...(item.params || {}), weightSamples, averageWeight };
             delete nextParams.weightAverage;
             delete nextParams.avgWeight;
-            delete nextParams.weightSamples;
             delete nextParams.weight1;
             delete nextParams.weight2;
             delete nextParams.weight3;
