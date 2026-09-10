@@ -396,6 +396,7 @@
                     <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
                     <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
                     <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
+                    <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
                     <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
                     <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
                 </nav>
@@ -1189,6 +1190,90 @@
             </div>
         </section>
 
+        <!-- ==================== TAB: WASTE PRODUKSI STATION ==================== -->
+        <section id="tabWaste" class="space-y-5 hidden">
+            <div class="station-hero bg-gradient-to-r from-purple-950 via-purple-900 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="trash-2" class="w-5 h-5 text-purple-300"></i></span>
+                    <div>
+                        <h2 class="text-base font-bold text-white">Waste Produksi Station</h2>
+                        <p class="text-xs text-purple-300">Pencatatan waste harian: Ambri, Etiket, Plastik OPP, dan MOP</p>
+                    </div>
+                </div>
+                <div class="station-actions flex items-center gap-2">
+                    <button onclick="exportWasteToExcel()" class="bg-purple-900 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i> Download Waste</button>
+                    <button onclick="openWasteModal()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Waste</button>
+                </div>
+            </div>
+
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
+                <div class="mobile-filter-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                    <div><label class="block text-purple-300 mb-1">Periode</label><select id="wastePeriodMode" onchange="updateWastePeriodUI()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"><option value="daily">Harian</option><option value="weekly">Mingguan</option><option value="monthly">Bulanan</option></select></div>
+                    <div id="wasteDateWrap"><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="wasteFilterDate" oninput="renderWasteSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="wasteWeekStartWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Mulai</label><input type="date" id="wasteWeekStart" onchange="handleWasteRangeChange('weekly', 'start')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="wasteWeekEndWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Selesai</label><input type="date" id="wasteWeekEnd" onchange="handleWasteRangeChange('weekly', 'end')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="wasteMonthStartWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Mulai</label><input type="date" id="wasteMonthStart" onchange="handleWasteRangeChange('monthly', 'start')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div id="wasteMonthEndWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Selesai</label><input type="date" id="wasteMonthEnd" onchange="handleWasteRangeChange('monthly', 'end')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
+                    <div><label class="block text-purple-300 mb-1">Brand</label><select id="wasteFilterBrand" onchange="renderWasteSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Brand</option></select></div>
+                    <div><label class="block text-purple-300 mb-1">Jenis Waste</label><select id="wasteFilterJenis" onchange="renderWasteSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jenis</option><option value="AMBRI">Ambri</option><option value="ETIKET">Etiket</option><option value="OPP">Plastik OPP</option><option value="MOP">MOP</option></select></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Total Waste per Jenis</h3>
+                        <p class="text-[11px] text-purple-300">Klik kartu untuk fokus/kontrol satu jenis waste pada grafik dan riwayat</p>
+                    </div>
+                </div>
+                <div id="wasteSummaryCards" class="mobile-kpi-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+            </div>
+
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md">
+                <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 id="wasteTrendTitle" class="text-sm font-bold text-white">Trend Waste Produksi</h3>
+                        <p id="wasteTrendCaption" class="text-[11px] text-purple-300">Jumlah waste (pcs) per hari</p>
+                    </div>
+                </div>
+                <div class="relative" style="height:280px">
+                    <canvas id="wasteTrendChartCanvas"></canvas>
+                    <div id="wasteTrendEmpty" class="hidden absolute inset-0 items-center justify-center text-xs text-slate-400">Belum ada data Waste pada periode ini.</div>
+                </div>
+            </div>
+
+            <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md overflow-hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Riwayat Waste Produksi</h3>
+                        <p class="text-[11px] text-purple-300">Hari, tanggal produksi, brand, jenis, dan jumlah waste sesuai filter di atas</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="wasteLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
+                        <button type="button" id="btnToggleWasteHistory" onclick="toggleCollapsible('wasteTableWrap','btnToggleWasteHistory')" class="flex items-center gap-1.5 rounded-lg border border-purple-700/80 bg-purple-950 px-2.5 py-1.5 text-[11px] font-bold text-purple-200 hover:bg-purple-900">
+                            <i data-lucide="chevron-down" class="h-3.5 w-3.5"></i> <span data-toggle-label>Tampilkan</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="wasteTableWrap" class="hidden overflow-x-auto custom-scroll">
+                    <table class="w-full min-w-[880px] text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
+                                <th class="p-3">Hari</th>
+                                <th class="p-3">Tanggal Produksi</th>
+                                <th class="p-3">Brand</th>
+                                <th class="p-3">Jenis Waste</th>
+                                <th class="p-3 text-right">Jumlah (pcs)</th>
+                                <th class="p-3">Inspector</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wasteTableBody"><tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data Waste Produksi.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- ==================== TAB 5: MASTER DATA & PENGATURAN ==================== -->
         <section id="tabSettings" class="space-y-6 hidden">
             <div class="bg-purple-900/40 border border-purple-800/60 rounded-2xl p-4 shadow-md">
@@ -1568,6 +1653,42 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL FORM WASTE PRODUKSI ==================== -->
+    <div id="modalWaste" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-[#171024] border border-purple-500/50 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll">
+            <div class="flex justify-between items-start gap-4 border-b border-purple-800/60 pb-3">
+                <div>
+                    <h3 id="wasteModalTitle" class="text-base font-bold text-white">Form Input Waste Produksi</h3>
+                    <p class="text-xs text-purple-300">Catat jumlah waste per jenis untuk brand dan tanggal produksi tertentu</p>
+                </div>
+                <button type="button" onclick="closeWasteModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="wasteForm" onsubmit="handleWasteSubmit(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="wasteEditRecordId">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div><label class="block text-purple-300 mb-1">Tanggal Produksi</label><input type="date" id="wasteInputDate" onchange="updateWasteDayLabel()" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
+                    <div><label class="block text-purple-300 mb-1">Hari</label><input type="text" id="wasteInputDay" readonly class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
+                    <div><label class="block text-purple-300 mb-1">Brand</label><select id="wasteInputBrand" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></select></div>
+                    <div><label class="block text-purple-300 mb-1">Jenis Waste</label><select id="wasteInputJenis" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white">
+                        <option value="AMBRI">Ambri</option>
+                        <option value="ETIKET">Etiket</option>
+                        <option value="OPP">Plastik OPP</option>
+                        <option value="MOP">MOP</option>
+                    </select></div>
+                    <div><label class="block text-purple-300 mb-1">Jumlah Waste (pcs)</label><input type="number" id="wasteInputJumlah" min="0" step="1" inputmode="numeric" placeholder="Contoh: 120" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
+                    <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="wasteInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
+                </div>
+                <div class="rounded-xl border border-purple-500/25 bg-purple-950/30 px-3 py-2 text-[11px] text-purple-200">
+                    Hari otomatis mengikuti Tanggal Produksi yang dipilih.
+                </div>
+                <div class="mobile-form-actions flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeWasteModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold">Batal</button>
+                    <button id="wasteSubmitButton" type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold rounded-xl shadow-lg transition-all">Simpan Waste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL TAMBAH / EDIT AKUN -->
     <div id="userModal" class="hidden fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-sm p-4 items-center justify-center">
         <div class="w-full max-w-lg rounded-2xl border border-purple-700/70 bg-purple-950 shadow-2xl overflow-hidden">
@@ -1632,6 +1753,15 @@
         let inspections = [];
         let moistureRecords = [];
         let packRecords = [];
+        let wasteRecords = [];
+        const WASTE_STORAGE_KEY = 'qc_skt_waste_records_v1';
+        const WASTE_TYPE_CONFIG = Object.freeze({
+            AMBRI: { label: 'Ambri', color: '#f87171', bg: 'rgba(248,113,113,0.18)' },
+            ETIKET: { label: 'Etiket', color: '#fbbf24', bg: 'rgba(251,191,36,0.18)' },
+            OPP: { label: 'Plastik OPP', color: '#34d399', bg: 'rgba(52,211,153,0.18)' },
+            MOP: { label: 'MOP', color: '#60a5fa', bg: 'rgba(96,165,250,0.18)' }
+        });
+        const WASTE_TYPE_KEYS = Object.keys(WASTE_TYPE_CONFIG);
         let backupStatus = { month: null, completedAt: null, completedBy: null };
         let currentTobaccoView = 'receiving';
 
@@ -1643,6 +1773,7 @@
         let overviewPackStationChart = null;
         let overviewWeightTrendChart = null;
         let weightTrendChart = null;
+        let wasteTrendChart = null;
 
         const WEIGHT_SPEC_BY_BRAND = Object.freeze({
             'ASA': { lower: 1.0, upper: 1.3 },
@@ -1708,7 +1839,9 @@
                 document.getElementById('inputInspector').value = currentUser.displayName;
                 document.getElementById('mcInputInspector').value = currentUser.displayName;
                 document.getElementById('packInputInspector').value = currentUser.displayName;
+                document.getElementById('wasteInputInspector').value = currentUser.displayName;
                 setRole(currentRole);
+                loadWasteRecords();
                 await Promise.all([
                     loadMasterData(),
                     loadInspections(),
@@ -1744,11 +1877,18 @@
                 document.getElementById('packMonthStart').value = `${initialMonth}-01`;
                 document.getElementById('packMonthEnd').value = initialMonthEnd;
                 document.getElementById('packInputDate').value = getTodayString();
+                document.getElementById('wasteFilterDate').value = initialToday;
+                document.getElementById('wasteWeekStart').value = initialToday;
+                document.getElementById('wasteWeekEnd').value = addDaysToDateString(initialToday, 4);
+                document.getElementById('wasteMonthStart').value = `${initialMonth}-01`;
+                document.getElementById('wasteMonthEnd').value = initialMonthEnd;
+                document.getElementById('wasteInputDate').value = getTodayString();
                 document.getElementById('backupDateHarian').value = getTodayString();
                 updateOverviewModeUI();
                 updateGilingPeriodUI(false);
                 updateMoisturePeriodUI(false);
                 updatePackPeriodUI(false);
+                updateWastePeriodUI(false);
                 switchTobaccoView('receiving');
                 renderOverview();
                 renderBackupReminder();
@@ -1756,6 +1896,7 @@
                 renderHistoryTable();
                 renderMoistureSection();
                 renderPackSection();
+                renderWasteSection();
                 if (currentRole === 'ADMIN') renderMasterSettings();
                 refreshInspectorFilter();
                 lucide.createIcons();
@@ -1828,6 +1969,20 @@
 
         function saveTobaccoBrands() {
             localStorage.setItem(TOBACCO_BRANDS_STORAGE_KEY, JSON.stringify(tobaccoBrands));
+        }
+
+        function loadWasteRecords() {
+            try {
+                const stored = localStorage.getItem(WASTE_STORAGE_KEY);
+                const parsed = stored === null ? null : JSON.parse(stored);
+                wasteRecords = Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                wasteRecords = [];
+            }
+        }
+
+        function saveWasteRecordsToStorage() {
+            localStorage.setItem(WASTE_STORAGE_KEY, JSON.stringify(wasteRecords));
         }
 
         async function loadInspections(silent = false) {
@@ -1924,7 +2079,7 @@
                 document.getElementById('tabBtnSettings').classList.add('hidden');
             }
 
-            ['Giling', 'Pack', 'Moisture', 'Settings'].forEach(tabName => {
+            ['Giling', 'Pack', 'Waste', 'Moisture', 'Settings'].forEach(tabName => {
                 document.getElementById(`tabBtn${tabName}`).classList.toggle('hidden', guestMode);
             });
             document.getElementById('guestReadOnlyNotice').classList.toggle('hidden', !guestMode);
@@ -1954,9 +2109,10 @@
             document.getElementById('tabGiling').classList.add('hidden');
             document.getElementById('tabMoisture').classList.add('hidden');
             document.getElementById('tabPack').classList.add('hidden');
+            document.getElementById('tabWaste').classList.add('hidden');
             document.getElementById('tabSettings').classList.add('hidden');
 
-            ['Dashboard', 'Giling', 'Pack', 'Moisture', 'Settings'].forEach(t => {
+            ['Dashboard', 'Giling', 'Pack', 'Waste', 'Moisture', 'Settings'].forEach(t => {
                 const btn = document.getElementById(`tabBtn${t}`);
                 btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all";
                 if ((t === 'Settings' && currentRole !== 'ADMIN') || (currentRole === 'GUEST' && t !== 'Dashboard')) btn.classList.add('hidden');
@@ -1980,6 +2136,10 @@
                 document.getElementById('tabPack').classList.remove('hidden');
                 document.getElementById('tabBtnPack').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all";
                 renderPackSection();
+            } else if (tabId === 'waste') {
+                document.getElementById('tabWaste').classList.remove('hidden');
+                document.getElementById('tabBtnWaste').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all";
+                renderWasteSection();
             } else if (tabId === 'settings') {
                 if (currentRole !== 'ADMIN') {
                     showToast('Menu Pengaturan hanya dapat dibuka oleh Admin.', 'error');
@@ -2031,21 +2191,29 @@
             const inputBrand = document.getElementById('inputBrand');
             const mcFilterBrand = document.getElementById('mcFilterBrand');
             const mcInputBrand = document.getElementById('mcInputBrand');
+            const wasteFilterBrand = document.getElementById('wasteFilterBrand');
+            const wasteInputBrand = document.getElementById('wasteInputBrand');
             const weightTrendBrandFilter = document.getElementById('weightTrendBrandFilter');
             const overviewWeightBrandFilter = document.getElementById('overviewWeightBrandFilter');
             const selectedWeightBrand = weightTrendBrandFilter?.value || 'ALL';
             const selectedOverviewWeightBrand = overviewWeightBrandFilter?.value || 'ALL';
+            const selectedWasteFilterBrand = wasteFilterBrand?.value || 'ALL';
             filterBrand.innerHTML = '<option value="ALL">Semua Brand</option>';
             inputBrand.innerHTML = '';
             mcFilterBrand.innerHTML = '<option value="ALL">Semua Brand</option>';
             mcInputBrand.innerHTML = '';
+            if (wasteFilterBrand) wasteFilterBrand.innerHTML = '<option value="ALL">Semua Brand</option>';
+            if (wasteInputBrand) wasteInputBrand.innerHTML = '';
             if (weightTrendBrandFilter) weightTrendBrandFilter.innerHTML = '<option value="ALL">Semua Brand</option>';
             if (overviewWeightBrandFilter) overviewWeightBrandFilter.innerHTML = '<option value="ALL">Semua Brand</option>';
 
             masterData.brands.forEach(b => {
                 filterBrand.innerHTML += `<option value="${b}">${b}</option>`;
                 inputBrand.innerHTML += `<option value="${b}">${b}</option>`;
+                if (wasteFilterBrand) wasteFilterBrand.innerHTML += `<option value="${b}">${b}</option>`;
+                if (wasteInputBrand) wasteInputBrand.innerHTML += `<option value="${b}">${b}</option>`;
             });
+            if (wasteFilterBrand) wasteFilterBrand.value = masterData.brands.includes(selectedWasteFilterBrand) ? selectedWasteFilterBrand : 'ALL';
             const graphBrands = [...new Set([...masterData.brands, ...inspections.map(item => item.brand).filter(Boolean)])].sort();
             graphBrands.forEach(brand => {
                 if (weightTrendBrandFilter) weightTrendBrandFilter.innerHTML += `<option value="${brand}">${brand}</option>`;
@@ -3516,6 +3684,360 @@
             const fileName = `Quality_Packaging_${range.start}_${range.end}.xlsx`;
             XLSX.writeFile(workbook, fileName);
             showToast(`File Quality Packaging berhasil diunduh: ${fileName}`, 'success');
+        }
+
+        // ==================== WASTE PRODUKSI STATION ====================
+        function getWasteDayName(dateString) {
+            if (!dateString) return '';
+            return new Date(`${dateString}T00:00:00`).toLocaleDateString('id-ID', { weekday: 'long' });
+        }
+
+        function updateWasteDayLabel() {
+            const date = document.getElementById('wasteInputDate').value;
+            const dayInput = document.getElementById('wasteInputDay');
+            if (dayInput) dayInput.value = date ? getWasteDayName(date) : '';
+        }
+
+        function updateWastePeriodUI(shouldRender = true) {
+            const mode = document.getElementById('wastePeriodMode')?.value || 'daily';
+            document.getElementById('wasteDateWrap').classList.toggle('hidden', mode !== 'daily');
+            document.getElementById('wasteWeekStartWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('wasteWeekEndWrap').classList.toggle('hidden', mode !== 'weekly');
+            document.getElementById('wasteMonthStartWrap').classList.toggle('hidden', mode !== 'monthly');
+            document.getElementById('wasteMonthEndWrap').classList.toggle('hidden', mode !== 'monthly');
+            const baseDate = document.getElementById('wasteFilterDate').value || getTodayString();
+            if (mode === 'weekly') {
+                if (!document.getElementById('wasteWeekStart').value) document.getElementById('wasteWeekStart').value = baseDate;
+                if (!document.getElementById('wasteWeekEnd').value) document.getElementById('wasteWeekEnd').value = addDaysToDateString(document.getElementById('wasteWeekStart').value, 4);
+                normalizeRangeInputs('wasteWeekStart', 'wasteWeekEnd');
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange(baseDate);
+                if (!document.getElementById('wasteMonthStart').value) document.getElementById('wasteMonthStart').value = defaults.start;
+                if (!document.getElementById('wasteMonthEnd').value) document.getElementById('wasteMonthEnd').value = defaults.end;
+                normalizeRangeInputs('wasteMonthStart', 'wasteMonthEnd');
+            }
+            if (shouldRender) renderWasteSection();
+        }
+
+        function handleWasteRangeChange(mode, changedField) {
+            if (mode === 'monthly') normalizeRangeInputs('wasteMonthStart', 'wasteMonthEnd', changedField);
+            else normalizeRangeInputs('wasteWeekStart', 'wasteWeekEnd', changedField);
+            renderWasteSection();
+        }
+
+        function getWasteFilterRange() {
+            const mode = document.getElementById('wastePeriodMode')?.value || 'daily';
+            if (mode === 'weekly') {
+                const start = document.getElementById('wasteWeekStart').value || getTodayString();
+                const end = document.getElementById('wasteWeekEnd').value || addDaysToDateString(start, 4);
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            if (mode === 'monthly') {
+                const defaults = getDefaultMonthRange();
+                const start = document.getElementById('wasteMonthStart').value || defaults.start;
+                const end = document.getElementById('wasteMonthEnd').value || defaults.end;
+                return { mode, start, end, days: getInclusiveDateCount(start, end) };
+            }
+            const selected = document.getElementById('wasteFilterDate').value || getTodayString();
+            return { mode: 'daily', start: selected, end: selected, days: 1 };
+        }
+
+        function getWasteRangeDates(range) {
+            return Array.from({ length: range.days }, (_, index) => addDaysToDateString(range.start, index));
+        }
+
+        function getFilteredWasteData(options = {}) {
+            const range = getWasteFilterRange();
+            const brand = document.getElementById('wasteFilterBrand')?.value || 'ALL';
+            const jenis = document.getElementById('wasteFilterJenis')?.value || 'ALL';
+            return wasteRecords.filter(item => {
+                if (item.date < range.start || item.date > range.end) return false;
+                if (brand !== 'ALL' && item.brand !== brand) return false;
+                if (!options.ignoreJenis && jenis !== 'ALL' && item.jenis !== jenis) return false;
+                return true;
+            });
+        }
+
+        function getWasteTypeTotal(data, jenisKey) {
+            return data.filter(item => item.jenis === jenisKey).reduce((total, item) => total + (Number(item.jumlah) || 0), 0);
+        }
+
+        function setWasteJenisFilter(key) {
+            const select = document.getElementById('wasteFilterJenis');
+            if (!select) return;
+            select.value = select.value === key ? 'ALL' : key;
+            renderWasteSection();
+        }
+
+        function renderWasteSummaryCards(summaryData) {
+            const cards = document.getElementById('wasteSummaryCards');
+            if (!cards) return;
+            const jenisFilter = document.getElementById('wasteFilterJenis')?.value || 'ALL';
+            cards.innerHTML = WASTE_TYPE_KEYS.map(key => {
+                const config = WASTE_TYPE_CONFIG[key];
+                const total = getWasteTypeTotal(summaryData, key);
+                const entryCount = summaryData.filter(item => item.jenis === key).length;
+                const activeClass = jenisFilter === key ? 'ring-2 ring-purple-400 bg-purple-800/40' : 'hover:border-purple-500';
+                return `
+                    <button type="button" onclick="setWasteJenisFilter('${key}')" class="text-left rounded-2xl border border-purple-800/50 ${activeClass} bg-purple-900/30 p-4 transition-all">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border" style="border-color:${config.color}55;background:${config.color}22;"><i data-lucide="trash-2" class="h-4 w-4" style="color:${config.color}"></i></span>
+                            <span class="text-[10px] font-semibold text-slate-400">${entryCount} entri</span>
+                        </div>
+                        <h4 class="mt-3 text-sm font-black text-white">${config.label}</h4>
+                        <div class="mt-2"><span class="block text-[9px] uppercase tracking-wide text-slate-400">Total Waste</span><span class="text-2xl font-black" style="color:${config.color}">${total.toLocaleString('id-ID')}</span><span class="ml-1 text-[10px] text-slate-400">pcs</span></div>
+                    </button>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderWasteTrendChart(data, range) {
+            const canvas = document.getElementById('wasteTrendChartCanvas');
+            const emptyState = document.getElementById('wasteTrendEmpty');
+            const title = document.getElementById('wasteTrendTitle');
+            const caption = document.getElementById('wasteTrendCaption');
+            if (!canvas) return;
+            const jenisFilter = document.getElementById('wasteFilterJenis')?.value || 'ALL';
+            const dates = getWasteRangeDates(range);
+            const labels = dates.map(date => formatGilingDate(date));
+            const activeKeys = jenisFilter === 'ALL' ? WASTE_TYPE_KEYS : [jenisFilter];
+
+            const datasets = activeKeys.map(key => {
+                const config = WASTE_TYPE_CONFIG[key];
+                const values = dates.map(date => {
+                    const hasEntry = data.some(item => item.date === date && item.jenis === key);
+                    if (!hasEntry) return null;
+                    return data.filter(item => item.date === date && item.jenis === key)
+                        .reduce((total, item) => total + (Number(item.jumlah) || 0), 0);
+                });
+                return {
+                    label: config.label,
+                    data: values,
+                    borderColor: config.color,
+                    backgroundColor: config.bg,
+                    pointBackgroundColor: config.color,
+                    pointBorderColor: config.color,
+                    pointRadius: range.mode === 'monthly' ? 2 : 3.5,
+                    pointHoverRadius: 6,
+                    borderWidth: 2.2,
+                    tension: 0.3,
+                    spanGaps: true,
+                    fill: activeKeys.length === 1
+                };
+            });
+
+            const hasData = data.length > 0;
+            if (emptyState) {
+                emptyState.classList.toggle('hidden', hasData);
+                emptyState.classList.toggle('flex', !hasData);
+            }
+
+            const periodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
+            if (title) title.innerText = jenisFilter === 'ALL' ? `Trend Waste Produksi ${periodName}` : `Trend Waste ${WASTE_TYPE_CONFIG[jenisFilter].label} ${periodName}`;
+            if (caption) caption.innerText = `Jumlah waste (pcs) per hari · ${formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })}${range.mode === 'daily' ? '' : ' – ' + formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })} · klik legenda untuk kontrol tampil/sembunyi tiap jenis`;
+
+            const context = canvas.getContext('2d');
+            if (wasteTrendChart) wasteTrendChart.destroy();
+            wasteTrendChart = new Chart(context, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            grid: { color: '#2f0c54' },
+                            ticks: { color: '#c4b5fd', font: { size: 10 }, maxRotation: 0, autoSkip: range.mode === 'monthly', maxTicksLimit: range.mode === 'monthly' ? 12 : 31 }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#2f0c54' },
+                            ticks: { color: '#e2e8f0', callback: value => `${value} pcs` }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f7f0ff', font: { size: 11 } } },
+                        tooltip: { callbacks: { label: context => context.parsed.y === null ? ` ${context.dataset.label}: belum ada data` : ` ${context.dataset.label}: ${context.parsed.y.toLocaleString('id-ID')} pcs` } }
+                    }
+                }
+            });
+        }
+
+        function renderWasteSection() {
+            const tbody = document.getElementById('wasteTableBody');
+            if (!tbody) return;
+            const summaryData = getFilteredWasteData({ ignoreJenis: true });
+            const filtered = getFilteredWasteData();
+            const range = getWasteFilterRange();
+            renderWasteSummaryCards(summaryData);
+            renderWasteTrendChart(summaryData, range);
+
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data Waste Produksi yang sesuai filter.</td></tr>`;
+                lucide.createIcons();
+                document.getElementById('wasteLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+                return;
+            }
+
+            const sorted = filtered.slice().sort((a, b) => {
+                if (a.date !== b.date) return b.date.localeCompare(a.date);
+                return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+            });
+
+            tbody.innerHTML = sorted.map(item => {
+                const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
+                const config = WASTE_TYPE_CONFIG[item.jenis] || { label: item.jenis, color: '#94a3b8' };
+                const actions = `<div class="flex justify-center gap-1">
+                    ${canEdit ? `<button onclick="editWasteRecord('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Edit Data Waste"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
+                    ${currentRole === 'ADMIN' ? `<button onclick="deleteWasteRecord('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus Data Waste"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                </div>`;
+                return `<tr class="border-b border-purple-900/60 hover:bg-purple-900/20">
+                    <td class="p-2.5 whitespace-nowrap text-purple-200">${escapeHtml(getWasteDayName(item.date))}</td>
+                    <td class="p-2.5 whitespace-nowrap text-purple-200">${formatGilingDate(item.date, { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                    <td class="p-2.5 whitespace-nowrap text-purple-200">${escapeHtml(item.brand)}</td>
+                    <td class="p-2.5 whitespace-nowrap"><span class="rounded-lg px-2 py-1 text-[11px] font-bold" style="background:${config.color}22;color:${config.color}">${escapeHtml(config.label)}</span></td>
+                    <td class="p-2.5 whitespace-nowrap text-right font-bold text-white">${Number(item.jumlah).toLocaleString('id-ID')} pcs</td>
+                    <td class="p-2.5 whitespace-nowrap text-purple-200">${escapeHtml(item.inspector)}</td>
+                    <td class="p-2.5 text-center">${actions}</td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+            document.getElementById('wasteLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+        }
+
+        function openWasteModal(editItem = null) {
+            if (!ensureNotGuest('menambahkan data Waste')) return;
+            document.getElementById('wasteForm').reset();
+            document.getElementById('wasteEditRecordId').value = '';
+            document.getElementById('wasteInputInspector').value = currentUser.displayName;
+            if (editItem) {
+                if (!(currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && editItem.inspectorId === currentUser.id))) {
+                    showToast('Anda tidak memiliki izin mengedit data Waste ini.', 'error');
+                    return;
+                }
+                document.getElementById('wasteModalTitle').innerText = 'Edit Data Waste Produksi';
+                document.getElementById('wasteEditRecordId').value = editItem.id;
+                document.getElementById('wasteInputDate').value = editItem.date;
+                document.getElementById('wasteInputBrand').value = editItem.brand;
+                document.getElementById('wasteInputJenis').value = editItem.jenis;
+                document.getElementById('wasteInputJumlah').value = editItem.jumlah;
+                document.getElementById('wasteInputInspector').value = editItem.inspector;
+            } else {
+                document.getElementById('wasteModalTitle').innerText = 'Form Input Waste Produksi';
+                document.getElementById('wasteInputDate').value = getTodayString();
+                const brandSelect = document.getElementById('wasteInputBrand');
+                if (brandSelect && brandSelect.options.length) brandSelect.selectedIndex = 0;
+            }
+            updateWasteDayLabel();
+            document.getElementById('modalWaste').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeWasteModal() {
+            document.getElementById('modalWaste').classList.add('hidden');
+        }
+
+        function handleWasteSubmit(event) {
+            event.preventDefault();
+            if (!ensureNotGuest('menyimpan data Waste')) return;
+            const editId = document.getElementById('wasteEditRecordId').value || null;
+            const date = document.getElementById('wasteInputDate').value;
+            const brand = document.getElementById('wasteInputBrand').value;
+            const jenis = document.getElementById('wasteInputJenis').value;
+            const jumlahRaw = document.getElementById('wasteInputJumlah').value;
+            const jumlah = Number(jumlahRaw);
+
+            if (!date) {
+                showToast('Tanggal produksi wajib diisi.', 'error');
+                document.getElementById('wasteInputDate').focus();
+                return;
+            }
+            if (!brand) {
+                showToast('Brand wajib dipilih.', 'error');
+                document.getElementById('wasteInputBrand').focus();
+                return;
+            }
+            if (!jenis) {
+                showToast('Jenis waste wajib dipilih.', 'error');
+                document.getElementById('wasteInputJenis').focus();
+                return;
+            }
+            if (jumlahRaw === '' || !Number.isFinite(jumlah) || jumlah < 0) {
+                showToast('Jumlah waste wajib diisi dengan angka 0 atau lebih.', 'error');
+                document.getElementById('wasteInputJumlah').focus();
+                return;
+            }
+
+            if (editId) {
+                const index = wasteRecords.findIndex(item => item.id === editId);
+                if (index !== -1) {
+                    wasteRecords[index] = {
+                        ...wasteRecords[index],
+                        date, brand, jenis, jumlah,
+                        updatedAt: new Date().toISOString()
+                    };
+                }
+            } else {
+                wasteRecords.push({
+                    id: `waste-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                    date, brand, jenis, jumlah,
+                    inspector: currentUser.displayName,
+                    inspectorId: currentUser.id,
+                    createdAt: new Date().toISOString()
+                });
+            }
+            saveWasteRecordsToStorage();
+            closeWasteModal();
+            renderWasteSection();
+            showToast(editId ? 'Data Waste Produksi berhasil diperbarui.' : 'Data Waste Produksi berhasil disimpan.', 'success');
+        }
+
+        function editWasteRecord(id) {
+            if (!ensureNotGuest('mengedit data Waste')) return;
+            const item = wasteRecords.find(record => record.id === id);
+            if (item) openWasteModal(item);
+        }
+
+        function deleteWasteRecord(id) {
+            if (!ensureAdmin('menghapus data Waste')) return;
+            if (!confirm('Yakin ingin menghapus data Waste Produksi ini secara permanen?')) return;
+            wasteRecords = wasteRecords.filter(item => item.id !== id);
+            saveWasteRecordsToStorage();
+            renderWasteSection();
+            showToast('Data Waste Produksi berhasil dihapus.', 'info');
+        }
+
+        function exportWasteToExcel() {
+            if (!ensureNotGuest('mengunduh data Waste')) return;
+            const filtered = getFilteredWasteData();
+            if (!filtered.length) {
+                showToast('Tidak ada data Waste Produksi untuk diekspor pada filter aktif.', 'error');
+                return;
+            }
+            const rows = filtered.slice().sort((a, b) => a.date.localeCompare(b.date)).map(item => ({
+                'Hari': getWasteDayName(item.date),
+                'Tanggal Produksi': item.date,
+                'Brand': item.brand,
+                'Jenis Waste': WASTE_TYPE_CONFIG[item.jenis]?.label || item.jenis,
+                'Jumlah Waste (pcs)': Number(item.jumlah),
+                'Inspector': item.inspector
+            }));
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Waste Produksi');
+
+            const rekap = WASTE_TYPE_KEYS.map(key => ({
+                'Jenis Waste': WASTE_TYPE_CONFIG[key].label,
+                'Total Waste (pcs)': getWasteTypeTotal(filtered, key)
+            }));
+            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rekap), 'Rekap per Jenis');
+
+            const range = getWasteFilterRange();
+            const fileName = `Waste_Produksi_${range.start}_${range.end}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+            showToast(`File Waste Produksi berhasil diunduh: ${fileName}`, 'success');
         }
 
         function updateGilingPeriodUI(shouldRender = true) {
