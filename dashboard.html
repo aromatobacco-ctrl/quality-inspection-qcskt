@@ -1183,7 +1183,7 @@
                     <table class="w-full text-xs text-left border-collapse">
                         <thead id="mcTableHead"></thead>
                         <tbody id="mcTableBody" class="divide-y divide-purple-800/30">
-                            <tr><td colspan="10" class="p-8 text-center text-slate-400">Belum ada data Penerimaan Tembakau.</td></tr>
+                            <tr><td colspan="11" class="p-8 text-center text-slate-400">Belum ada data Penerimaan Tembakau.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1630,7 +1630,7 @@
             <div class="flex justify-between items-center border-b border-purple-800/60 pb-3">
                 <div>
                     <h3 id="mcModalTitle" class="text-base font-bold text-white">Form Penerimaan Tembakau</h3>
-                    <p id="mcModalCaption" class="text-xs text-purple-300">Isi data penerimaan, MC, dan tiga sampel berat box</p>
+                    <p id="mcModalCaption" class="text-xs text-purple-300">Isi data penerimaan, jumlah box, MC, dan sampel berat box</p>
                 </div>
                 <button onclick="closeMoistureModal()" class="text-slate-400 hover:text-white p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -1659,9 +1659,16 @@
                     </div>
                 </div>
                 <div id="mcReceivingFields" class="rounded-2xl border border-purple-700/60 bg-purple-950/35 p-4 space-y-3">
-                    <div>
-                        <label class="block text-purple-300 font-medium mb-1">Nomor Series Tembakau</label>
-                        <input type="text" id="mcInputSeries" maxlength="80" placeholder="Contoh: S-001" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-purple-300 font-medium mb-1">Nomor Series Tembakau</label>
+                            <input type="text" id="mcInputSeries" maxlength="80" placeholder="Contoh: S-001" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <label for="mcInputBoxCount" class="block text-purple-300 font-medium mb-1">Jumlah box diterima (box)</label>
+                            <input type="number" id="mcInputBoxCount" min="1" step="1" inputmode="numeric" placeholder="Contoh: 25" aria-describedby="mcBoxCountHint" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                            <p id="mcBoxCountHint" class="mt-1 text-[11px] text-purple-300">Isi angka bulat jika tersedia.</p>
+                        </div>
                     </div>
                     <p class="text-[11px] text-purple-300">Sampel berat bersifat opsional. Isi hanya berat yang tersedia.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -2557,12 +2564,33 @@
             }
         }
 
+        function parseReceivedBoxCount(value) {
+            const raw = String(value ?? '').trim();
+            if (!/^\d+$/.test(raw)) return null;
+            const count = Number(raw);
+            return Number.isSafeInteger(count) && count > 0 ? count : null;
+        }
+
+        function buildReceivingLotBatch(weights, receivedBoxCount, previous = '') {
+            // Extend the existing receipt metadata without changing the API or
+            // the three weight positions used by older records.
+            const previousParts = String(previous || '').split('|');
+            const extras = previousParts[0].toUpperCase() === 'PENERIMAAN'
+                ? previousParts.slice(4).filter(part => !/^BOX=/i.test(part.trim()))
+                : [];
+            if (receivedBoxCount !== null && receivedBoxCount !== undefined) {
+                if (!Number.isSafeInteger(receivedBoxCount) || receivedBoxCount < 1) throw new Error('Jumlah box harus berupa angka bulat lebih dari 0.');
+                extras.push(`BOX=${receivedBoxCount}`);
+            }
+            return ['PENERIMAAN', ...Array.from({ length: 3 }, (_, index) => Number.isFinite(weights[index]) ? weights[index].toFixed(2) : ''), ...extras].join('|');
+        }
+
         function getTobaccoMeta(item) {
             const stored = String(item.lotBatch || '');
             const parts = stored.split('|');
             const prefix = String(parts[0] || '').toUpperCase();
             if (prefix === 'PEMAKAIAN') {
-                return { type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [] };
+                return { type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [], receivedBoxCount: null };
             }
             if (prefix === 'PENERIMAAN') {
                 const weights = parts.slice(1, 4).map(value => {
@@ -2571,9 +2599,11 @@
                     return Number.isFinite(number) ? number : null;
                 });
                 while (weights.length < 3) weights.push(null);
-                return { type: 'receiving', stockType: '', weights, legacyLot: '' };
+                const boxPart = parts.slice(4).find(part => /^BOX=/i.test(part.trim()));
+                const receivedBoxCount = boxPart ? parseReceivedBoxCount(boxPart.trim().slice(4)) : null;
+                return { type: 'receiving', stockType: '', weights, receivedBoxCount, legacyLot: '' };
             }
-            return { type: 'receiving', stockType: '', weights: [null, null, null], legacyLot: stored };
+            return { type: 'receiving', stockType: '', weights: [null, null, null], receivedBoxCount: null, legacyLot: stored };
         }
 
         function formatTobaccoWeight(value) {
@@ -2669,7 +2699,7 @@
             document.getElementById('mcKpiAverage').innerText = average === null ? '—' : `${average.toFixed(2)}%`;
             document.getElementById('mcTableTitle').innerText = receiving ? 'Riwayat Penerimaan Tembakau' : 'Riwayat Pemakaian Tembakau';
             document.getElementById('mcTableCaption').innerText = receiving
-                ? 'MC dan sampel berat opsional per box penerimaan'
+                ? 'Jumlah box diterima, MC, dan sampel berat opsional per penerimaan'
                 : 'MC stock pagi dan stock lanjutan per hari';
 
             if (receiving) {
@@ -2680,7 +2710,7 @@
                 document.getElementById('mcKpiThirdNote').innerText = 'Gabungan sampel berat 1–3';
                 thead.innerHTML = `<tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
                     <th class="p-3 font-semibold">Tanggal</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Nomor Series</th>
-                    <th class="p-3 font-semibold">Brand</th><th class="p-3 font-semibold text-center">MC (%)</th>
+                    <th class="p-3 font-semibold">Brand</th><th class="p-3 font-semibold text-center">Jumlah Box Diterima</th><th class="p-3 font-semibold text-center">MC (%)</th>
                     <th class="p-3 font-semibold text-center">Sampel 1</th><th class="p-3 font-semibold text-center">Sampel 2</th>
                     <th class="p-3 font-semibold text-center">Sampel 3</th><th class="p-3 font-semibold text-center">Rata-rata</th>
                     <th class="p-3 font-semibold text-center">Aksi</th></tr>`;
@@ -2697,7 +2727,7 @@
             }
 
             if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="${receiving ? 10 : 6}" class="p-8 text-center text-slate-400">Belum ada data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau yang sesuai filter.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${receiving ? 11 : 6}" class="p-8 text-center text-slate-400">Belum ada data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau yang sesuai filter.</td></tr>`;
                 return;
             }
 
@@ -2717,6 +2747,7 @@
                     return `<tr class="hover:bg-purple-950/60 border-b border-purple-800/30">
                         <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
                         <td class="p-3 font-bold text-purple-200">${escapeHtml(item.seriesNumber)}</td><td class="p-3">${brandCell}</td>
+                        <td class="p-3 text-center font-bold text-purple-200">${meta.receivedBoxCount === null ? '—' : meta.receivedBoxCount.toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center">${mcCell}</td><td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[0])}</td>
                         <td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[1])}</td><td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[2])}</td>
                         <td class="p-3 text-center font-bold text-white">${formatTobaccoWeight(weightAverage)}</td><td class="p-3 text-center">${actions}</td></tr>`;
@@ -2739,6 +2770,7 @@
             seriesInput.required = receiving;
             if (receiving) seriesInput.setAttribute('required', '');
             else seriesInput.removeAttribute('required');
+            document.getElementById('mcInputBoxCount').disabled = !receiving;
             ['mcInputWeight1', 'mcInputWeight2', 'mcInputWeight3'].forEach(id => {
                 const optionalInput = document.getElementById(id);
                 optionalInput.required = false;
@@ -2747,7 +2779,7 @@
             document.getElementById('mcInputStockType').required = !receiving;
             document.getElementById('mcModalTitle').innerText = receiving ? 'Form Penerimaan Tembakau' : 'Form Pemakaian Tembakau';
             document.getElementById('mcModalCaption').innerText = receiving
-                ? 'Isi nomor series dan MC. Sampel berat box 1–3 boleh dikosongkan'
+                ? 'Isi nomor series dan MC. Catat jumlah box jika tersedia; sampel berat box 1–3 opsional'
                 : 'Isi MC berdasarkan Stock Pagi atau Stock Lanjutan';
             document.getElementById('mcSubmitButton').innerText = receiving ? 'Simpan Penerimaan' : 'Simpan Pemakaian';
         }
@@ -2767,6 +2799,7 @@
             document.getElementById('mcInputBrand').value = editItem ? editItem.brand : (masterData.brands[0] || '');
             document.getElementById('mcInputValue').value = editItem ? Number(editItem.moistureContent).toFixed(2) : '';
             document.getElementById('mcInputSeries').value = editItem && meta.type === 'receiving' ? editItem.seriesNumber : '';
+            document.getElementById('mcInputBoxCount').value = meta.receivedBoxCount ?? '';
             document.getElementById('mcInputWeight1').value = Number.isFinite(meta.weights[0]) ? meta.weights[0] : '';
             document.getElementById('mcInputWeight2').value = Number.isFinite(meta.weights[1]) ? meta.weights[1] : '';
             document.getElementById('mcInputWeight3').value = Number.isFinite(meta.weights[2]) ? meta.weights[2] : '';
@@ -2799,6 +2832,9 @@
                 return Number.isFinite(value) ? value : null;
             });
             const seriesNumber = receiving ? document.getElementById('mcInputSeries').value.trim() : stockType;
+            const boxCountInput = document.getElementById('mcInputBoxCount');
+            const boxCountRaw = receiving ? boxCountInput.value.trim() : '';
+            const receivedBoxCount = parseReceivedBoxCount(boxCountRaw);
 
             if (!date) {
                 showToast('Tanggal wajib diisi.', 'error');
@@ -2820,6 +2856,11 @@
                 document.getElementById('mcInputSeries').focus();
                 return;
             }
+            if (receiving && (boxCountInput.validity.badInput || (boxCountRaw !== '' && receivedBoxCount === null))) {
+                showToast('Jumlah box diterima harus berupa angka bulat lebih dari 0, contoh: 25.', 'error');
+                boxCountInput.focus();
+                return;
+            }
             const invalidWeightIndex = weights.findIndex((value, index) => weightInputs[index].value.trim() !== '' && (value === null || value < 0));
             if (invalidWeightIndex !== -1) {
                 showToast(`Sampel Berat ${invalidWeightIndex + 1} harus berupa angka positif atau dikosongkan.`, 'error');
@@ -2828,7 +2869,7 @@
             }
             const payload = {
                 date,
-                lotBatch: receiving ? `PENERIMAAN|${weights.map(value => Number.isFinite(value) ? value.toFixed(2) : '').join('|')}` : `PEMAKAIAN|${stockType}`,
+                lotBatch: receiving ? buildReceivingLotBatch(weights, receivedBoxCount, moistureRecords.find(item => item.id === editId)?.lotBatch) : `PEMAKAIAN|${stockType}`,
                 seriesNumber,
                 brand,
                 moistureContent
@@ -2886,7 +2927,7 @@
                     const averageWeight = availableWeights.length ? availableWeights.reduce((total, value) => total + value, 0) / availableWeights.length : null;
                     return {
                         'Tanggal': item.date, 'Inspector': item.inspector, 'Nomor Series Tembakau': item.seriesNumber,
-                        'Brand': item.brand, 'MC (%)': Number(item.moistureContent), 'Sampel Berat 1 (kg)': meta.weights[0],
+                        'Brand': item.brand, 'Jumlah Box Diterima (box)': meta.receivedBoxCount, 'MC (%)': Number(item.moistureContent), 'Sampel Berat 1 (kg)': meta.weights[0],
                         'Sampel Berat 2 (kg)': meta.weights[1], 'Sampel Berat 3 (kg)': meta.weights[2], 'Rata-rata Berat (kg)': averageWeight
                     };
                 }
@@ -5842,7 +5883,7 @@ window.QCSktOriginalPreview = (() => {
                 db.pack.push({id:`demo-skt-pack-${offset}-${index}`,date,samplingTime:'08:00',params,building:params.building,inspector:user.displayName,inspectorId:user.id});
             }
             for (const [index,brand] of master.brands.slice(0,4).map(item=>item.code).entries()) {
-                for (const type of ['PENERIMAAN|200.00|201.00|199.50','PEMAKAIAN|PAGI']) {
+                for (const type of [`PENERIMAAN|200.00|201.00|199.50|BOX=${12+index*3}`,'PEMAKAIAN|PAGI']) {
                     db.moisture.push({id:`demo-skt-mc-${offset}-${index}-${type.slice(0,3)}`,date,brand,lotBatch:type,seriesNumber:'CONTOH-'+(index+1),moistureContent:Number((12.2+(offset+index+7)%5*0.15).toFixed(2)),inspector:user.displayName,inspectorId:user.id});
                 }
             }
