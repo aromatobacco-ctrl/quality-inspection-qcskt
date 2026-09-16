@@ -2003,7 +2003,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 refreshInspectorFilter();
                 lucide.createIcons();
                 window.setInterval(() => {
-                    if (currentRole === 'DASHBOARD_VIEWER') { guestSummaryCache.clear(); renderOverview(); renderDashboard(); renderPackSection(); renderMoistureSection(); return; }
+                    if (currentRole === 'DASHBOARD_VIEWER') { guestSummaryCache.clear(); guestWeightTrendCache.clear(); renderOverview(); renderDashboard(); renderPackSection(); renderMoistureSection(); return; }
                     loadInspections(true);
                     loadMoistureRecords(true);
                     loadPackRecords(true);
@@ -2235,6 +2235,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
 
         // Aggregate-only Guest Eksternal, rendered into the ORIGINAL station layout.
         const guestSummaryCache = new Map();
+        const guestWeightTrendCache = new Map();
         const guestSummaryPending = new Map();
         const guestPaintVersions = {};
         const guestCharts = {};
@@ -2269,7 +2270,9 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 if(!guestSummaryCache.has(key)) {
                     if(!guestSummaryPending.has(key))guestSummaryPending.set(key,apiFetch('/api/dashboard-summary',{body:JSON.stringify({start:range.start,end:range.end})}).then(data=>{
                         if(data.schemaVersion!==1||!Array.isArray(data.metrics))throw new Error('Ringkasan belum tersedia. Pastikan SQL Guest Eksternal sudah terpasang.');
-                        guestSummaryCache.set(key,data.metrics);return data.metrics;
+                        guestSummaryCache.set(key,data.metrics);
+                        guestWeightTrendCache.set(key,data.weightTrendVersion===1&&Array.isArray(data.weightTrend)?data.weightTrend:null);
+                        return data.metrics;
                     }).finally(()=>guestSummaryPending.delete(key)));
                     await guestSummaryPending.get(key);
                 }
@@ -2280,7 +2283,13 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
         function guestLine(id,labels,series,unit='%') {
             const canvas=document.getElementById(id);if(!canvas)return;
             if(guestCharts[id])guestCharts[id].destroy();
-            guestCharts[id]=new Chart(canvas.getContext('2d'),{type:'line',data:{labels,datasets:series.map((s,i)=>({label:s.label,data:s.data,borderColor:s.color||['#9b3ff3','#34d399','#818cf8'][i%3],backgroundColor:s.color||'#9b3ff3',borderWidth:s.dash?1:2,borderDash:s.dash?[5,5]:[],pointRadius:s.dash?0:3,tension:.2,spanGaps:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#f7f0ff',font:{size:11}}}},scales:{x:{grid:{color:'#2f0c54'},ticks:{color:'#e2e8f0'}},y:{min:unit==='%'?0:undefined,max:unit==='%'?100:undefined,grid:{color:'#2f0c54'},ticks:{color:'#e2e8f0',callback:v=>v+unit}}}}});
+            guestCharts[id]=new Chart(canvas.getContext('2d'),{type:'line',plugins:[{id:'singlePointSpecLimits',afterDraw(chart){
+                if(labels.length!==1||!chart.chartArea||!chart.scales.y)return;
+                const ctx=chart.ctx;ctx.save();
+                series.forEach((s,index)=>{if(!s.dash||s.data[0]==null||!chart.isDatasetVisible(index))return;
+                    const y=chart.scales.y.getPixelForValue(s.data[0]);ctx.strokeStyle=s.color;ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(chart.chartArea.left,y);ctx.lineTo(chart.chartArea.right,y);ctx.stroke();});
+                ctx.restore();
+            }}],data:{labels,datasets:series.map((s,i)=>({label:s.label,data:s.data,borderColor:s.color||['#9b3ff3','#34d399','#818cf8'][i%3],backgroundColor:s.color||'#9b3ff3',borderWidth:s.dash?1:2,borderDash:s.dash?[5,5]:[],pointRadius:s.dash?0:3,tension:.2,spanGaps:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#f7f0ff',font:{size:11}}},tooltip:{callbacks:{label:context=>context.parsed.y===null?'Belum ada data':context.dataset.label+': '+context.parsed.y.toFixed(unit===' g'?3:1)+unit}}},interaction:{mode:'index',intersect:false},scales:{x:{grid:{color:'#2f0c54'},ticks:{color:'#e2e8f0'}},y:{min:unit==='%'?0:undefined,max:unit==='%'?100:undefined,grid:{color:'#2f0c54'},ticks:{color:'#e2e8f0',callback:v=>v+unit}}}}});
         }
         function guestDraw(station,all,range) {
             const rows=all.filter(r=>r.station==='GILING');
@@ -2319,10 +2328,22 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 guestLine('gilingPeriodTrendChart',days,[{label:'Overall In-Spec (%)',data:days.map(d=>guestStats(filtered.filter(r=>r.date===d)).overallInSpecPct)}]);
                 document.getElementById('gilingPeriodTrendEmpty').classList.toggle('hidden',days.length>0);
                 guestText('gilingPeriodTrendCaption','Akumulasi In-Spec harian pada periode terpilih');
-                const wr=guestRowsForBrand(rows,'weightTrendBrandFilter'),wd=[...new Set(wr.filter(r=>r.metric==='weight'&&r.denominator>0).map(r=>r.date))].sort(),series=[];
-                ['GRUP AR','GRUP AS'].forEach((f,i)=>{const color=i?'#34d399':'#9b3ff3';series.push({label:f,color,data:wd.map(d=>guestRatio(weight(wr.filter(r=>r.date===d),f),1))});const spec=getWeightSpec(f);if(spec){series.push({label:f+' Lower Limit',color,dash:true,data:wd.map(()=>spec.lower)},{label:f+' Upper Limit',color,dash:true,data:wd.map(()=>spec.upper)});}});
-                guestLine('weightTrendChart',wd,series,' g');document.getElementById('weightTrendEmpty').classList.toggle('hidden',wd.length>0);
-                guestText('weightTrendCaption','Average Weight harian dengan Lower Limit dan Upper Limit sesuai grup brand');guestText('lastUpdatedText','Update: '+new Date().toLocaleTimeString('id-ID'));
+                const trend=guestWeightTrendCache.get(range.start+'|'+range.end);
+                const wr=guestRowsForBrand(trend||[],'weightTrendBrandFilter');
+                const points=[...new Set(wr.filter(r=>r.denominator>0).map(r=>r.date+'|'+r.samplingTime))].sort();
+                const labels=points.map(p=>{const [date,time]=p.split('|');return range.start===range.end?time:date+' · '+time;});
+                const series=[];
+                ['GRUP AR','GRUP AS'].forEach((family,i)=>{
+                    const color=i?'#34d399':'#9b3ff3';
+                    series.push({label:family,color,data:points.map(p=>guestRatio(wr.filter(r=>r.date+'|'+r.samplingTime===p&&getWeightFamilyLabel(r.brand)===family),1))});
+                    const spec=getWeightSpec(family);
+                    if(spec)series.push({label:family+' Lower Limit',color,dash:true,data:points.map(()=>spec.lower)},{label:family+' Upper Limit',color,dash:true,data:points.map(()=>spec.upper)});
+                });
+                guestLine('weightTrendChart',labels,series,' g');
+                document.getElementById('weightTrendEmpty').classList.toggle('hidden',points.length>0);
+                guestText('weightTrendEmpty',trend===null||trend===undefined?'Trend per jam belum tersedia. Jalankan SQL perbaikan trend berat terbaru.':'Belum ada data sampling berat pada filter terpilih');
+                guestText('weightTrendCaption','Average Weight per waktu sampling dengan Lower Limit dan Upper Limit sesuai grup brand');
+                guestText('lastUpdatedText','Update: '+new Date().toLocaleTimeString('id-ID'));
                 return;
             }
             if(station==='pack') {
