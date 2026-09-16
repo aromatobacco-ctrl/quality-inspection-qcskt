@@ -440,6 +440,14 @@
 
 </style>
 <!-- SKT_SIDEBAR_STYLE_END -->
+<style>
+body.dashboard-viewer [data-viewer-hidden],
+body.dashboard-viewer #tabSettings,
+body.dashboard-viewer #tabBtnSettings,
+body.dashboard-viewer #customBackupPanel,
+body.dashboard-viewer #monthlyBackupReminder,
+body.dashboard-viewer main table { display: none !important; }
+</style>
 </head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
@@ -468,7 +476,8 @@
                 <!-- Authenticated User & Role -->
                 <div class="app-user-area flex items-center bg-purple-900/90 border border-purple-700/60 rounded-xl p-1 text-xs">
                     <span id="currentUserName" class="px-2 py-0.5 text-purple-200 font-semibold hidden md:inline">Pengguna</span>
-                    <button id="btnRoleGuest" disabled class="hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">Tamu</button>
+                    <span id="btnRoleViewer" class="hidden px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white">Guest Eksternal</span>
+                    <button id="btnRoleGuest" disabled class="hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">Guest Internal</button>
                     <button id="btnRoleInspector" disabled class="px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">QC Inspector</button>
                     <button id="btnRoleAdmin" disabled class="px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">Admin</button>
                     <button onclick="logoutDashboard()" class="px-2 py-1 text-rose-300 hover:text-white" title="Keluar"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -495,7 +504,7 @@
             <div id="guestReadOnlyNotice" class="hidden bg-purple-950/90 border border-purple-500/50 rounded-2xl px-4 py-3 shadow-md">
                 <div class="flex items-center gap-3">
                     <span class="w-9 h-9 shrink-0 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="eye" class="w-4 h-4 text-purple-200"></i></span>
-                    <div><h3 class="text-sm font-bold text-white">Mode Tamu — hanya lihat</h3><p class="text-[11px] text-purple-300">Anda hanya dapat melihat ringkasan hasil pada Dashboard. Input, edit, hapus, download, riwayat detail, dan pengaturan dinonaktifkan.</p></div>
+                    <div><h3 class="text-sm font-bold text-white">Guest Internal — hanya lihat</h3><p class="text-[11px] text-purple-300">Anda hanya dapat melihat ringkasan hasil pada Dashboard. Input, edit, hapus, download, riwayat detail, dan pengaturan dinonaktifkan.</p></div>
                 </div>
             </div>
             <div id="monthlyBackupReminder" class="hidden bg-gradient-to-r from-purple-800/80 via-purple-700/70 to-purple-900/80 border border-purple-400/60 rounded-2xl p-4 shadow-lg">
@@ -1306,7 +1315,7 @@
                 <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
                     <div>
                         <h3 class="text-sm font-bold text-white">Total Waste per Jenis</h3>
-                        <p class="text-[11px] text-purple-300">Klik kartu untuk fokus/kontrol satu jenis waste pada grafik dan riwayat</p>
+                        <p class="text-[11px] text-purple-300">Klik kartu untuk fokus/kontrol satu jenis waste pada grafik</p>
                     </div>
                 </div>
                 <div id="wasteSummaryCards" class="mobile-kpi-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
@@ -1811,7 +1820,8 @@
                 <div>
                     <label for="userRole" class="mb-1.5 block text-xs font-semibold text-purple-200">Role / Hak Akses <span class="text-rose-400">*</span></label>
                     <select id="userRole" required class="w-full rounded-xl border border-purple-700 bg-purple-900/50 px-3 py-2.5 text-sm text-white focus:border-purple-400 focus:outline-none">
-                        <option value="GUEST">Tamu / Guest — hanya melihat Dashboard</option>
+                        <option value="DASHBOARD_VIEWER">Guest Eksternal — grafik dan ringkasan saja</option>
+                        <option value="GUEST">Guest Internal — hanya melihat Dashboard</option>
                         <option value="INSPECTOR">QC Inspector — input dan mengoreksi data sendiri</option>
                         <option value="ADMIN">Admin — akses penuh dan Pengaturan</option>
                     </select>
@@ -1924,7 +1934,7 @@
                 }
                 currentUser = auth.user;
                 const authenticatedRole = String(currentUser.role || '').toUpperCase();
-                currentRole = ['ADMIN', 'INSPECTOR', 'GUEST'].includes(authenticatedRole) ? authenticatedRole : 'GUEST';
+                currentRole = ['ADMIN', 'INSPECTOR', 'GUEST', 'DASHBOARD_VIEWER'].includes(authenticatedRole) ? authenticatedRole : 'GUEST';
                 document.getElementById('currentUserName').innerText = currentUser.displayName;
                 document.getElementById('inputInspector').value = currentUser.displayName;
                 document.getElementById('mcInputInspector').value = currentUser.displayName;
@@ -2004,8 +2014,8 @@
         async function apiFetch(url, options = {}) {
             const method = String(options.method || 'GET').toUpperCase();
             const isLogoutRequest = url === '/api/auth/logout';
-            if (currentRole === 'GUEST' && method !== 'GET' && !isLogoutRequest) {
-                const readOnlyError = new Error('Akun Tamu hanya memiliki akses lihat dan tidak dapat mengubah data.');
+            if (['GUEST', 'DASHBOARD_VIEWER'].includes(currentRole) && method !== 'GET' && !isLogoutRequest) {
+                const readOnlyError = new Error('Akun ini hanya memiliki akses lihat dan tidak dapat mengubah data.');
                 readOnlyError.status = 403;
                 throw readOnlyError;
             }
@@ -2021,8 +2031,8 @@
         }
 
         function ensureNotGuest(action = 'melakukan tindakan ini') {
-            if (currentRole !== 'GUEST') return true;
-            showToast(`Akun Tamu tidak dapat ${action}.`, 'error');
+            if (!['GUEST', 'DASHBOARD_VIEWER'].includes(currentRole)) return true;
+            showToast(`${currentRole === 'DASHBOARD_VIEWER' ? 'Guest Eksternal' : 'Guest Internal'} tidak dapat ${action}.`, 'error');
             return false;
         }
 
@@ -2146,6 +2156,7 @@
 
         function setRole(role) {
             currentRole = role;
+            configureDashboardViewer();
             const btnGuest = document.getElementById('btnRoleGuest');
             const btnInsp = document.getElementById('btnRoleInspector');
             const btnAdm = document.getElementById('btnRoleAdmin');
@@ -2173,7 +2184,8 @@
                 document.getElementById(`tabBtn${tabName}`).classList.toggle('hidden', guestMode);
             });
             document.getElementById('guestReadOnlyNotice').classList.toggle('hidden', !guestMode);
-            document.getElementById('customBackupPanel').classList.toggle('hidden', guestMode);
+            document.getElementById('customBackupPanel').classList.toggle('hidden', guestMode || role === 'DASHBOARD_VIEWER');
+            document.getElementById('tabBtnSettings').classList.toggle('hidden', role !== 'ADMIN');
             document.querySelectorAll('[data-overview-drilldown]').forEach(button => {
                 button.disabled = guestMode;
                 button.classList.toggle('cursor-default', guestMode);
@@ -2185,14 +2197,45 @@
             renderHistoryTable();
         }
 
+        // Role labels: GUEST = Guest Internal; DASHBOARD_VIEWER = Guest Eksternal.
+        // Preserve stored role codes for compatibility. Backend must support DASHBOARD_VIEWER;
+        // existing chart loaders still use record APIs, so this is not server-side data isolation.
+        function configureDashboardViewer() {
+            const viewer = currentRole === 'DASHBOARD_VIEWER';
+            document.body.classList.toggle('dashboard-viewer', viewer);
+            document.getElementById('btnRoleViewer').classList.toggle('hidden', !viewer);
+            ['weightHistoryTableWrap', 'mcTableWrap', 'packTableWrap', 'wasteTableWrap'].forEach(id => {
+                document.getElementById(id)?.parentElement.setAttribute('data-viewer-hidden', '');
+            });
+            document.getElementById('gilingHistoryPanel')?.setAttribute('data-viewer-hidden', '');
+            const history = document.getElementById('gilingHistoryTableWrap');
+            history?.setAttribute('data-viewer-hidden', '');
+            history?.previousElementSibling?.setAttribute('data-viewer-hidden', '');
+            document.querySelectorAll('main button[onclick]').forEach(button => {
+                if (/^(export|download|open.*Modal|runMonthlyBackup)/.test(button.getAttribute('onclick').trim())) {
+                    button.setAttribute('data-viewer-hidden', '');
+                }
+            });
+            document.querySelectorAll('.station-hero p').forEach(p => {
+                if (!p.dataset.originalCopy) p.dataset.originalCopy = p.textContent;
+                p.textContent = viewer ? 'Dashboard station — grafik, persentase, dan ringkasan hasil' : p.dataset.originalCopy;
+            });
+            const hint = document.querySelector('#tabDashboard > p:last-child');
+            if (hint) {
+                if (!hint.dataset.originalCopy) hint.dataset.originalCopy = hint.textContent;
+                hint.textContent = viewer ? 'Pilih kartu atau menu station untuk melihat grafik dan ringkasan. Akses hanya lihat.' : hint.dataset.originalCopy;
+            }
+        }
+
         async function logoutDashboard() {
             await apiFetch('/api/auth/logout', { method: 'POST' });
             window.location.replace('index.html');
         }
 
         function switchTab(tabId) {
+            if (tabId === 'settings' && !ensureAdmin()) return;
             if (currentRole === 'GUEST' && tabId !== 'dashboard') {
-                showToast('Akun Tamu hanya dapat melihat ringkasan pada Dashboard.', 'error');
+                showToast('Guest Internal hanya dapat melihat ringkasan pada Dashboard.', 'error');
                 return;
             }
             document.getElementById('tabDashboard').classList.add('hidden');
@@ -4729,6 +4772,7 @@
         function renderWeightSamplingHistory(rows) {
             const tbody = document.getElementById('weightHistoryBody');
             const countLabel = document.getElementById('weightHistoryCount');
+            if (currentRole === 'DASHBOARD_VIEWER') { tbody.innerHTML = ''; countLabel.textContent = ''; return; }
             countLabel.innerText = `${rows.length.toLocaleString('id-ID')} data sampling`;
             if (!rows.length) {
                 tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data average weight pada filter terpilih.</td></tr>`;
@@ -4876,6 +4920,7 @@
 
         function renderHistoryTable() {
             const tbody = document.getElementById('tableHistoryBody');
+            if (currentRole === 'DASHBOARD_VIEWER') { tbody.innerHTML = ''; return; }
             const filtered = getFilteredData();
 
             if (filtered.length === 0) {
@@ -5332,7 +5377,7 @@
                 <div class="flex justify-between items-center gap-3 bg-purple-950/60 p-2.5 rounded-xl border border-purple-800/40">
                     <div class="min-w-0">
                         <div class="font-bold text-purple-200 truncate">${escapeHtml(user.displayName)}</div>
-                        <div class="text-[10px] text-slate-400">${escapeHtml(user.username)} · ${user.role === 'ADMIN' ? 'Admin' : user.role === 'GUEST' ? 'Tamu / Guest' : 'QC Inspector'}</div>
+                        <div class="text-[10px] text-slate-400">${escapeHtml(user.username)} · ${user.role === 'ADMIN' ? 'Admin' : user.role === 'DASHBOARD_VIEWER' ? 'Guest Eksternal' : user.role === 'GUEST' ? 'Guest Internal' : 'QC Inspector'}</div>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
                         <button onclick="openUserModal('${user.id}')" class="text-[10px] px-2 py-1 rounded-lg bg-amber-900/50 text-amber-300 hover:bg-amber-800/70">Edit</button>
