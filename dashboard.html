@@ -1940,6 +1940,10 @@ body.dashboard-viewer main table { display: none !important; }
                 document.getElementById('mcInputInspector').value = currentUser.displayName;
                 document.getElementById('packInputInspector').value = currentUser.displayName;
                 document.getElementById('wasteInputInspector').value = currentUser.displayName;
+                if (currentRole === 'DASHBOARD_VIEWER') {
+                    await initExternalDashboard();
+                    return;
+                }
                 setRole(currentRole);
                 loadWasteRecords();
                 await Promise.all([
@@ -2198,8 +2202,7 @@ body.dashboard-viewer main table { display: none !important; }
         }
 
         // Role labels: GUEST = Guest Internal; DASHBOARD_VIEWER = Guest Eksternal.
-        // Preserve stored role codes for compatibility. Backend must support DASHBOARD_VIEWER;
-        // existing chart loaders still use record APIs, so this is not server-side data isolation.
+        // Preserve stored role codes for compatibility. Guest Eksternal uses /api/dashboard-summary only.
         function configureDashboardViewer() {
             const viewer = currentRole === 'DASHBOARD_VIEWER';
             document.body.classList.toggle('dashboard-viewer', viewer);
@@ -2227,12 +2230,165 @@ body.dashboard-viewer main table { display: none !important; }
             }
         }
 
+        // Guest Eksternal: dedicated aggregate-only data path. No raw-data loader runs.
+        let externalMetrics = [];
+        let externalStation = 'dashboard';
+        let externalCharts = [];
+        let externalLoadVersion = 0;
+        const externalParamLabels = {gtg:'GTG',krps:'KRPS',kmls:'KMLS',ring:'RING',bst:'BST',spt:'SPT',krt:'KRT',brt:'Berat',dmt:'Diameter',foldNotSquare:'Lipatan Tidak Siku',depositGlue:'Deposit Lem',innerFrame:'Inner Frame',cigarettePosition:'Posisi Batangan',taxStampPosition:'Posisi Pita Cukai',heating:'Heating',tearTapeAccess:'Access Tear Tape',fold:'Lipatan',cleanliness:'Kebersihan Kemasan',barcodeStickerPosition:'Posisi Stiker Barcode',barcodeStickerNeatness:'Kerapian Stiker Barcode'};
+        function externalSum(rows, key) { return rows.reduce((sum,r)=>sum+(Number(r[key])||0),0); }
+        function externalRatio(rows, scale=100) {
+            const denominator=externalSum(rows,'denominator');
+            return denominator ? externalSum(rows,'numerator')/denominator*scale : null;
+        }
+        function externalFormat(value, unit='%', digits=1) {
+            return value===null ? '—' : value.toLocaleString('id-ID',{minimumFractionDigits:digits,maximumFractionDigits:digits})+unit;
+        }
+        async function initExternalDashboard() {
+            setRole(currentRole);
+            document.querySelector('main').innerHTML = `
+                <section class="space-y-5">
+                    <div class="bg-purple-900/40 border border-purple-700 rounded-2xl p-5">
+                        <h2 class="text-lg font-bold text-white">Dashboard · Guest Eksternal</h2>
+                        <p class="text-xs text-purple-300 mt-1">Grafik dan ringkasan tiap station. Pilih station melalui menu di samping atau di atas.</p>
+                        <div class="flex flex-wrap gap-3 mt-4 items-end text-xs">
+                            <label>Periode<select id="extPeriod" onchange="externalPeriodChanged()" class="block bg-purple-950 border border-purple-700 p-2 rounded-lg mt-1"><option value="daily">Harian</option><option value="weekly">Mingguan (5 hari kerja)</option><option value="monthly">Bulanan</option><option value="custom" selected>Rentang tanggal</option></select></label>
+                            <label>Mulai<input id="extStart" type="date" onchange="document.getElementById('extPeriod').value='custom'" class="block bg-purple-950 border border-purple-700 p-2 rounded-lg mt-1"></label>
+                            <label>Selesai<input id="extEnd" type="date" onchange="document.getElementById('extPeriod').value='custom'" class="block bg-purple-950 border border-purple-700 p-2 rounded-lg mt-1"></label>
+                            <button onclick="loadExternalSummary()" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg font-bold">Terapkan / Perbarui</button>
+                            <label>Brand (Giling & Tembakau)<select id="extBrand" onchange="renderExternalDashboard()" class="block bg-purple-950 border border-purple-700 p-2 rounded-lg mt-1"><option value="ALL">Semua brand</option></select></label>
+                        </div>
+                        <p id="extStatus" role="status" class="text-xs text-purple-300 mt-3"></p>
+                    </div>
+                    <div id="extContent" class="space-y-5"></div>
+                </section>`;
+            const today=getTodayString();
+            document.getElementById('extStart').value=today.slice(0,7)+'-01';
+            document.getElementById('extEnd').value=today;
+            await loadExternalSummary();
+        }
+        function externalPeriodChanged() {
+            const mode=document.getElementById('extPeriod').value;
+            let start=document.getElementById('extStart').value||getTodayString();
+            let end=start;
+            if(mode==='custom') return;
+            if(mode==='weekly') {
+                // Monday–Friday; use UTC arithmetic to avoid time-zone date shifts.
+                const d=new Date(start+'T12:00:00Z');
+                d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));
+                start=d.toISOString().slice(0,10); d.setUTCDate(d.getUTCDate()+4); end=d.toISOString().slice(0,10);
+            }
+            if(mode==='monthly') {
+                start=start.slice(0,7)+'-01';
+                const d=new Date(start+'T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()+1);d.setUTCDate(0);end=d.toISOString().slice(0,10);
+            }
+            document.getElementById('extStart').value=start;
+            document.getElementById('extEnd').value=end;
+            loadExternalSummary();
+        }
+        async function loadExternalSummary() {
+            const version=++externalLoadVersion;
+            const start=document.getElementById('extStart').value;
+            const end=document.getElementById('extEnd').value;
+            const status=document.getElementById('extStatus');
+            if(!start||!end||end<start||(Date.parse(end)-Date.parse(start))/86400000>366) {
+                externalMetrics=[];renderExternalDashboard();
+                status.textContent='Pilih rentang tanggal yang valid, maksimal 367 hari.';return;
+            }
+            externalMetrics=[];renderExternalDashboard();
+            status.textContent='Memuat ringkasan…';
+            try {
+                const data=await apiFetch('/api/dashboard-summary',{body:JSON.stringify({start,end})});
+                if(version!==externalLoadVersion) return;
+                if(data.schemaVersion!==1||!Array.isArray(data.metrics)) throw new Error('Ringkasan belum tersedia. Admin perlu memasang pembaruan SQL Guest Eksternal.');
+                externalMetrics=data.metrics;
+                const select=document.getElementById('extBrand'), selected=select.value;
+                select.replaceChildren(new Option('Semua brand','ALL'));
+                [...new Set(externalMetrics.map(r=>r.brand).filter(Boolean))].sort().forEach(brand=>select.add(new Option(brand,brand)));
+                if([...select.options].some(o=>o.value===selected))select.value=selected;
+                renderExternalDashboard();
+                status.textContent=`Periode ditampilkan: ${start} – ${end} · Diperbarui ${new Date().toLocaleTimeString('id-ID')}`;
+            } catch(error) {
+                if(version!==externalLoadVersion)return;
+                externalMetrics=[];renderExternalDashboard();
+                status.textContent=error.message;
+            }
+        }
+        function setExternalStation(station) {
+            if(!['dashboard','giling','pack','moisture','waste'].includes(station))return;
+            externalStation=station;
+            ['Dashboard','Giling','Pack','Moisture','Waste'].forEach(name=>{
+                const button=document.getElementById('tabBtn'+name);
+                button.classList.toggle('bg-purple-600',name.toLowerCase()===station);
+            });
+            renderExternalDashboard();
+        }
+        function renderExternalDashboard() {
+            const host=document.getElementById('extContent');if(!host)return;
+            externalCharts.forEach(c=>c.destroy());externalCharts=[];host.replaceChildren();
+            const brand=document.getElementById('extBrand').value;
+            const data=externalMetrics.filter(r=>!r.brand||brand==='ALL'||r.brand===brand);
+            const colors=['#c084fc','#34d399','#38bdf8','#fb923c','#f472b6','#a3e635'];
+            const card=(title,value)=>{
+                const d=document.createElement('div');d.className='rounded-xl bg-purple-950/70 border border-purple-800 p-4';
+                const h=document.createElement('p');h.className='text-xs text-purple-300';h.textContent=title;
+                const p=document.createElement('p');p.className='text-2xl font-bold text-white mt-1';p.textContent=value;d.append(h,p);return d;
+            };
+            function section(title) {
+                const node=document.createElement('section');node.className='bg-purple-900/30 border border-purple-800 rounded-2xl p-5 space-y-4';
+                const h=document.createElement('h3');h.className='font-bold text-white';h.textContent=title;node.append(h);host.append(node);return node;
+            }
+            function cards(node,items) {const row=document.createElement('div');row.className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3';items.forEach(([t,v])=>row.append(card(t,v)));node.append(row);}
+            function chart(node,title,labels,series,unit,bar=false) {
+                const h=document.createElement('h4');h.className='text-xs font-semibold text-purple-200';h.textContent=title;node.append(h);
+                if(!series.some(s=>s.values.some(v=>v!==null))) {const p=document.createElement('p');p.className='text-xs text-purple-400';p.textContent='Belum ada data pada periode/filter ini.';node.append(p);return;}
+                const wrap=document.createElement('div');wrap.style.height='280px';const canvas=document.createElement('canvas');wrap.append(canvas);node.append(wrap);
+                externalCharts.push(new Chart(canvas,{type:bar?'bar':'line',data:{labels,datasets:series.map((s,i)=>({label:s.label,data:s.values,borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length],tension:.2,spanGaps:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#e9d5ff'}}},scales:{x:{ticks:{color:'#c4b5fd'}},y:{beginAtZero:unit!=='g',suggestedMax:unit==='%'?100:undefined,title:{display:true,text:unit,color:'#c4b5fd'},ticks:{color:'#c4b5fd'}}}}}));
+            }
+            const dates=rows=>[...new Set(rows.map(r=>r.date))].sort();
+            const count=(rows,m)=>externalFormat(externalSum(rows.filter(r=>r.metric===m),'numerator'),'',0);
+            if(['dashboard','giling'].includes(externalStation)) {
+                const n=section('Giling Gunting'),rows=data.filter(r=>r.station==='GILING');
+                const visual=['gtg','krps','kmls','ring','bst','spt','krt'],physical=['brt','dmt'];
+                const pct=keys=>externalRatio(rows.filter(r=>keys.includes(r.metric)));
+                cards(n,[['Total batang sampel',count(rows,'samples')],['Jumlah sampling',count(rows,'records')],['Visual In-Spec',externalFormat(pct(visual))],['Physical In-Spec',externalFormat(pct(physical))]]);
+                cards(n,[['Visual Out-Spec',externalFormat(pct(visual)===null?null:100-pct(visual))],['Physical Out-Spec',externalFormat(pct(physical)===null?null:100-pct(physical))]]);
+                const ds=dates(rows);
+                chart(n,'Trend In-Spec harian',ds,[{label:'Visual',values:ds.map(d=>externalRatio(rows.filter(r=>r.date===d&&visual.includes(r.metric))))},{label:'Physical',values:ds.map(d=>externalRatio(rows.filter(r=>r.date===d&&physical.includes(r.metric))))}],'%');
+                const keys=[...visual,...physical];chart(n,'Akumulasi In-Spec per parameter',keys.map(k=>externalParamLabels[k]),[{label:'In-Spec',values:keys.map(k=>pct([k]))}],'%',true);
+                const weights=rows.filter(r=>r.metric==='weight');
+                const families=[...new Set(weights.map(r=>getWeightFamilyLabel(r.brand)))].sort();
+                cards(n,families.map(f=>['Average Weight · '+f,externalFormat(externalRatio(weights.filter(r=>getWeightFamilyLabel(r.brand)===f),1),' g',3)]));
+                chart(n,'Trend average weight harian',ds,families.map(f=>({label:f,values:ds.map(d=>externalRatio(weights.filter(r=>r.date===d&&getWeightFamilyLabel(r.brand)===f),1))})),'g');
+            }
+            if(['dashboard','pack'].includes(externalStation)) {
+                const n=section('Packaging · Packing, Bandroll, OPP, MOP');
+                const stations=['PACKING','BANDROLL','OPP','MOP'],rows=data.filter(r=>stations.includes(r.station));
+                cards(n,stations.map(s=>['In-Spec · '+PACK_STATION_CONFIG[s].label,externalFormat(externalRatio(rows.filter(r=>r.station===s&&r.metric!=='records')))]));
+                cards(n,stations.map(s=>{const v=externalRatio(rows.filter(r=>r.station===s&&r.metric!=='records'));return ['Out-Spec · '+PACK_STATION_CONFIG[s].label,externalFormat(v===null?null:100-v)];}));
+                const ds=dates(rows);chart(n,'Trend In-Spec harian',ds,stations.map(s=>({label:PACK_STATION_CONFIG[s].label,values:ds.map(d=>externalRatio(rows.filter(r=>r.date===d&&r.station===s&&r.metric!=='records')))})),'%');
+                stations.forEach(s=>{const keys=PACK_STATION_CONFIG[s].parameters.map(p=>p.key);chart(n,PACK_STATION_CONFIG[s].label+' · Akumulasi per parameter',keys.map(k=>externalParamLabels[k]),[{label:'In-Spec',values:keys.map(k=>externalRatio(rows.filter(r=>r.station===s&&r.metric===k)))}],'%',true);});
+            }
+            if(['dashboard','moisture'].includes(externalStation)) {
+                const n=section('Tembakau'),rows=data.filter(r=>['RECEIVING','USAGE'].includes(r.station)),ds=dates(rows);
+                const defs=[['RECEIVING','Penerimaan'],['USAGE','Pemakaian']];
+                cards(n,defs.map(([s,t])=>['Rata-rata MC · '+t,externalFormat(externalRatio(rows.filter(r=>r.station===s),1),'%',2)]));
+                cards(n,defs.map(([s,t])=>['Jumlah pemeriksaan · '+t,externalFormat(externalSum(rows.filter(r=>r.station===s),'denominator'),'',0)]));
+                chart(n,'Trend moisture content harian',ds,defs.map(([s,t])=>({label:t,values:ds.map(d=>externalRatio(rows.filter(r=>r.station===s&&r.date===d),1))})),'% MC');
+            }
+            if(['dashboard','waste'].includes(externalStation)) {
+                const n=section('Waste Produksi');const p=document.createElement('p');p.className='text-sm text-purple-300';
+                p.textContent='Ringkasan Waste bersama belum tersedia. Data Waste masih tersimpan di browser penginput dan belum tersinkron ke Supabase.';n.append(p);
+            }
+        }
+
         async function logoutDashboard() {
             await apiFetch('/api/auth/logout', { method: 'POST' });
             window.location.replace('index.html');
         }
 
         function switchTab(tabId) {
+            if (currentRole === 'DASHBOARD_VIEWER') { setExternalStation(tabId); return; }
             if (tabId === 'settings' && !ensureAdmin()) return;
             if (currentRole === 'GUEST' && tabId !== 'dashboard') {
                 showToast('Guest Internal hanya dapat melihat ringkasan pada Dashboard.', 'error');
