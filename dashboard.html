@@ -1284,6 +1284,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
 
         <!-- ==================== TAB: WASTE PRODUKSI STATION ==================== -->
         <section id="tabWaste" class="space-y-5 hidden">
+            <div class="bg-purple-950 rounded-xl p-3 text-xs flex flex-wrap items-center gap-3"><span id="wasteSyncStatus">Menghubungkan Waste ke Supabase…</span><button onclick="loadWasteRecords()" class="text-purple-200 underline">Muat Ulang</button><button onclick="downloadWasteLocalBackup()" class="text-purple-200 underline">Cadangkan Data Browser</button></div>
             <div class="station-hero bg-gradient-to-r from-purple-950 via-purple-900 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="trash-2" class="w-5 h-5 text-purple-300"></i></span>
@@ -1935,7 +1936,6 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 document.getElementById('wasteInputInspector').value = currentUser.displayName;
                 setRole(currentRole);
                 if (currentRole !== 'DASHBOARD_VIEWER') {
-                loadWasteRecords();
                 await Promise.all([
                     loadMasterData(),
                     loadInspections(),
@@ -1991,11 +1991,12 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 renderHistoryTable();
                 renderMoistureSection();
                 renderPackSection();
-                renderWasteSection();
+                await loadWasteRecords();
                 if (currentRole === 'ADMIN') renderMasterSettings();
                 refreshInspectorFilter();
                 lucide.createIcons();
                 window.setInterval(() => {
+                    loadWasteRecords();
                     if (currentRole === 'DASHBOARD_VIEWER') { guestSummaryCache.clear(); guestWeightTrendCache.clear(); renderOverview(); renderDashboard(); renderPackSection(); renderMoistureSection(); return; }
                     loadInspections(true);
                     loadMoistureRecords(true);
@@ -2067,18 +2068,60 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             localStorage.setItem(TOBACCO_BRANDS_STORAGE_KEY, JSON.stringify(tobaccoBrands));
         }
 
-        function loadWasteRecords() {
-            try {
-                const stored = localStorage.getItem(WASTE_STORAGE_KEY);
-                const parsed = stored === null ? null : JSON.parse(stored);
-                wasteRecords = Array.isArray(parsed) ? parsed : [];
-            } catch (error) {
-                wasteRecords = [];
+        let wasteClient = null;
+        let wasteLoading = false;
+        let wasteReady = false;
+        async function wasteRequest(method = 'GET', payload = {}) {
+            if (!wasteClient) {
+                const config = window.QC_SUPABASE_CONFIG || {};
+                if (!config.url || !config.publishableKey) throw new Error('Konfigurasi Supabase belum tersedia.');
+                wasteClient = supabase.createClient(config.url, config.publishableKey, {auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
             }
+            const {data,error} = await wasteClient.rpc('qc_waste_request', {p_method:method,p_payload:payload,p_session_token:localStorage.getItem('qc_skt_session_token')});
+            if (error) throw new Error(error.message.includes('qc_waste_request') ? 'Jalankan waste-supabase.sql di Supabase SQL Editor terlebih dahulu.' : error.message);
+            if (!data || data.__error) throw new Error(data?.__error || 'Respons penyimpanan Waste tidak valid.');
+            return data;
         }
-
-        function saveWasteRecordsToStorage() {
-            localStorage.setItem(WASTE_STORAGE_KEY, JSON.stringify(wasteRecords));
+        function wasteSyncStatus(message, failed=false) {
+            const el=document.getElementById('wasteSyncStatus');
+            if(el) {el.textContent=message;el.style.color=failed?'#fda4af':'#6ee7b7';}
+        }
+        async function loadWasteRecords() {
+            if(wasteLoading) return;
+            wasteLoading=true;
+            try {
+                let data=await wasteRequest();
+                if(['ADMIN','INSPECTOR'].includes(currentRole)) {
+                    const marker='qc_waste_imported_v2_'+currentUser.id;
+                    if(!localStorage.getItem(marker)) {
+                        const raw=localStorage.getItem(WASTE_STORAGE_KEY);
+                        const local=raw ? JSON.parse(raw) : [];
+                        if(!Array.isArray(local)) throw new Error('Data Waste lama tidak valid; cadangan tetap disimpan.');
+                        const pending=local.filter(r=>currentRole==='ADMIN'||r.inspectorId===currentUser.id);
+                        if(pending.length) {
+                            localStorage.setItem('qc_waste_backup_before_sync_v2',raw);
+                            wasteSyncStatus('Memindahkan '+pending.length+' entri lama ke Supabase…');
+                            for(let i=0;i<pending.length;i+=100) await wasteRequest('IMPORT',{records:pending.slice(i,i+100)});
+                            data=await wasteRequest();
+                            localStorage.setItem(marker,new Date().toISOString());
+                        }
+                    }
+                }
+                wasteRecords=data.records || [];
+                wasteReady=true;
+                const brands=[...new Set(wasteRecords.map(r=>r.brand))];
+                const select=document.getElementById('wasteFilterBrand');
+                brands.forEach(brand=>{if(select && ![...select.options].some(o=>o.value===brand)) select.add(new Option(brand,brand));});
+                renderWasteSection();
+                wasteSyncStatus('Tersinkron dengan Supabase · '+new Date().toLocaleTimeString('id-ID'));
+            } catch(error) {
+                wasteSyncStatus('Belum tersinkron: '+error.message,true);
+            } finally {wasteLoading=false;}
+        }
+        function downloadWasteLocalBackup() {
+            const raw=localStorage.getItem(WASTE_STORAGE_KEY) || '[]';
+            const url=URL.createObjectURL(new Blob([raw],{type:'application/json'}));
+            const a=document.createElement('a');a.href=url;a.download='waste-cadangan-browser.json';a.click();URL.revokeObjectURL(url);
         }
 
         async function loadInspections(silent = false) {
@@ -4086,7 +4129,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 const config = WASTE_TYPE_CONFIG[key];
                 const total = getWasteTypeTotal(summaryData, key);
                 const items = summaryData.filter(item => item.jenis === key);
-                const entryCount = items.length;
+                const entryCount = items.reduce((n,i)=>n+(i.entryCount || 1),0);
                 const values = wasteMatrixValues(items);
                 const complete = entryCount > 0 && values[0] !== null;
                 const qty = v => v === null ? '—' : v.toLocaleString('id-ID');
@@ -4225,7 +4268,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
         }
 
         function renderWasteSection() {
-            if (currentRole === 'DASHBOARD_VIEWER') { guestUnavailableWaste(); return; }
+
             const tbody = document.getElementById('wasteTableBody');
             if (!tbody) return;
             const summaryData = getFilteredWasteData({ ignoreJenis: true });
@@ -4234,7 +4277,8 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             renderWasteSummaryCards(summaryData);
             renderWasteTrendChart(summaryData, range);
 
-            renderWasteMatrix(filtered);
+            if (!['GUEST','DASHBOARD_VIEWER'].includes(currentRole)) renderWasteMatrix(filtered);
+            else tbody.innerHTML='';
             lucide.createIcons();
             document.getElementById('wasteLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
         }
@@ -4275,7 +4319,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             document.getElementById('modalWaste').classList.add('hidden');
         }
 
-        function handleWasteSubmit(event) {
+        async function handleWasteSubmit(event) {
             event.preventDefault();
             if (!ensureNotGuest('menyimpan data Waste')) return;
             const editId = document.getElementById('wasteEditRecordId').value || null;
@@ -4318,28 +4362,16 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 return;
             }
 
-            if (editId) {
-                const index = wasteRecords.findIndex(item => item.id === editId);
-                if (index !== -1) {
-                    wasteRecords[index] = {
-                        ...wasteRecords[index],
-                        date, brand, jenis, jumlah, produksi, pemakaian, keterangan,
-                        updatedAt: new Date().toISOString()
-                    };
-                }
-            } else {
-                wasteRecords.push({
-                    id: `waste-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                    date, brand, jenis, jumlah, produksi, pemakaian, keterangan,
-                    inspector: currentUser.displayName,
-                    inspectorId: currentUser.id,
-                    createdAt: new Date().toISOString()
-                });
-            }
-            saveWasteRecordsToStorage();
-            closeWasteModal();
-            renderWasteSection();
-            showToast(editId ? 'Data Waste Produksi berhasil diperbarui.' : 'Data Waste Produksi berhasil disimpan.', 'success');
+            const button=document.getElementById('wasteSubmitButton');
+            if(button.disabled) return;
+            button.disabled=true;
+            try {
+                await wasteRequest(editId?'PATCH':'POST',{id:editId || ('waste-'+crypto.randomUUID()),date,brand,jenis,produksi,pemakaian,jumlah,keterangan});
+                closeWasteModal();
+                await loadWasteRecords();
+                showToast('Data Waste tersimpan di Supabase.','success');
+            } catch(error) {showToast(error.message,'error');}
+            finally {button.disabled=false;}
         }
 
         function editWasteRecord(id) {
@@ -4348,13 +4380,10 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             if (item) openWasteModal(item);
         }
 
-        function deleteWasteRecord(id) {
-            if (!ensureAdmin('menghapus data Waste')) return;
-            if (!confirm('Yakin ingin menghapus data Waste Produksi ini secara permanen?')) return;
-            wasteRecords = wasteRecords.filter(item => item.id !== id);
-            saveWasteRecordsToStorage();
-            renderWasteSection();
-            showToast('Data Waste Produksi berhasil dihapus.', 'info');
+        async function deleteWasteRecord(id) {
+            if(!ensureAdmin('menghapus data Waste') || !confirm('Hapus data Waste ini?')) return;
+            try { await wasteRequest('DELETE',{id}); await loadWasteRecords(); showToast('Data Waste dihapus.','info'); }
+            catch(error) {showToast(error.message,'error');}
         }
 
         function exportWasteToExcel() {
@@ -6159,8 +6188,14 @@ window.QCSktOriginalPreview = (() => {
             throw new Error('Pengaturan ini tersedia melalui akun pada web aktif. File ini menampilkan data contoh.');
         };
         // Keep all preview data in memory, separate from the original storage keys.
-        window.loadWasteRecords = function() {wasteRecords=clone(demoWaste);};
-        window.saveWasteRecordsToStorage = function() {demoWaste=clone(wasteRecords);};
+        window.loadWasteRecords = async function() {wasteRecords=clone(demoWaste);renderWasteSection();wasteSyncStatus("Preview lokal — data contoh, belum terhubung ke Supabase");};
+        window.wasteRequest = async function(method='GET',payload={}) {
+            if(method==='GET') return {records:clone(demoWaste)};
+            if(method==='DELETE') demoWaste=demoWaste.filter(r=>r.id!==payload.id);
+            else if(method==='PATCH') demoWaste=demoWaste.map(r=>r.id===payload.id?{...r,...payload}:r);
+            else if(method==='POST') demoWaste.push({...payload,inspector:user.displayName,inspectorId:user.id});
+            return {ok:true};
+        };
         window.loadTobaccoBrands = function() {tobaccoBrands=[...demoTobaccoBrands];};
         window.saveTobaccoBrands = function() {demoTobaccoBrands=[...tobaccoBrands];};
         window.logoutDashboard = function() {showToast('Ini preview lokal dengan data contoh. Tutup halaman untuk keluar.','info');};
