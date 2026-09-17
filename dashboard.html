@@ -1314,8 +1314,8 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             <div>
                 <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
                     <div>
-                        <h3 class="text-sm font-bold text-white">Total Waste per Jenis</h3>
-                        <p class="text-[11px] text-purple-300">Klik kartu untuk fokus/kontrol satu jenis waste pada grafik</p>
+                        <h3 class="text-sm font-bold text-white">Ringkasan Pemakaian & Yield per Material</h3>
+                        <p class="text-[11px] text-purple-300">Sesuai filter periode dan brand · Klik kartu untuk fokus grafik per material</p>
                     </div>
                 </div>
                 <div id="wasteSummaryCards" class="mobile-kpi-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
@@ -4085,7 +4085,15 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             cards.innerHTML = WASTE_TYPE_KEYS.map(key => {
                 const config = WASTE_TYPE_CONFIG[key];
                 const total = getWasteTypeTotal(summaryData, key);
-                const entryCount = summaryData.filter(item => item.jenis === key).length;
+                const items = summaryData.filter(item => item.jenis === key);
+                const entryCount = items.length;
+                const values = wasteMatrixValues(items);
+                const complete = entryCount > 0 && values[0] !== null;
+                const qty = v => v === null ? '—' : v.toLocaleString('id-ID');
+                const pct = v => v === null ? '—' : v.toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
+                const pemakaian = entryCount ? values[1] : 0;
+                const produksi = entryCount ? values[0] : 0;
+                const note = !entryCount ? 'Belum ada data pada periode ini.' : !complete ? 'Lengkapi produksi dan pemakaian pada data lama untuk menghitung total yield.' : values[1] === 0 ? 'Yield belum dihitung karena pemakaian 0.' : 'Yield = total produksi ÷ total pemakaian × 100%';
                 const activeClass = jenisFilter === key ? 'ring-2 ring-purple-400 bg-purple-800/40' : 'hover:border-purple-500';
                 return `
                     <button type="button" onclick="setWasteJenisFilter('${key}')" class="text-left rounded-2xl border border-purple-800/50 ${activeClass} bg-purple-900/30 p-4 transition-all">
@@ -4094,7 +4102,16 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                             <span class="text-[10px] font-semibold text-slate-400">${entryCount} entri</span>
                         </div>
                         <h4 class="mt-3 text-sm font-black text-white">${config.label}</h4>
-                        <div class="mt-2"><span class="block text-[9px] uppercase tracking-wide text-slate-400">Total Waste</span><span class="text-2xl font-black" style="color:${config.color}">${total.toLocaleString('id-ID')}</span><span class="ml-1 text-[10px] text-slate-400">pcs</span></div>
+                        <div class="mt-3 space-y-2 text-xs">
+                            <div class="flex justify-between gap-2"><span class="text-purple-200">Total Pemakaian</span><span class="font-bold text-white">${qty(pemakaian)}${pemakaian === null ? '' : ' pcs'}</span></div>
+                            <div class="flex justify-between gap-2"><span class="text-purple-200">Total Produksi</span><span class="font-bold text-white">${qty(produksi)}${produksi === null ? '' : ' pcs'}</span></div>
+                            <div class="flex justify-between gap-2"><span class="text-purple-200">Total Waste</span><span class="font-bold" style="color:${config.color}">${total.toLocaleString('id-ID')} pcs</span></div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-purple-700/60 grid grid-cols-2 gap-3">
+                            <div><span class="block text-[10px] text-purple-200">Waste (%)</span><span class="block mt-1 text-xl font-black" style="color:${config.color}">${pct(values[2])}</span></div>
+                            <div><span class="block text-[10px] text-purple-200">Total Yield (%)</span><span class="block mt-1 text-xl font-black text-emerald-300">${pct(values[3])}</span></div>
+                        </div>
+                        <p class="mt-3 text-[10px] leading-relaxed text-purple-300">${note}</p>
                     </button>
                 `;
             }).join('');
@@ -4358,7 +4375,11 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
 
             const rekap = WASTE_TYPE_KEYS.map(key => ({
                 'Jenis Waste': WASTE_TYPE_CONFIG[key].label,
-                'Total Waste (pcs)': getWasteTypeTotal(filtered, key)
+                'Total Pemakaian (pcs)': wasteMatrixValues(filtered.filter(i => i.jenis === key))[1],
+                'Total Produksi (pcs)': wasteMatrixValues(filtered.filter(i => i.jenis === key))[0],
+                'Total Waste (pcs)': getWasteTypeTotal(filtered, key),
+                'Waste (%)': wasteMatrixValues(filtered.filter(i => i.jenis === key))[2],
+                'Total Yield (%)': wasteMatrixValues(filtered.filter(i => i.jenis === key))[3]
             }));
             XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rekap), 'Rekap per Jenis');
 
