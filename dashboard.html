@@ -1289,7 +1289,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="trash-2" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
                         <h2 class="text-base font-bold text-white">Waste Produksi Station</h2>
-                        <p class="text-xs text-purple-300">Pencatatan waste harian: Ambri, Etiket, Plastik OPP, dan MOP</p>
+                        <p class="text-xs text-purple-300">Produksi, pemakaian, waste dan yield harian per material</p>
                     </div>
                 </div>
                 <div class="station-actions flex items-center gap-2">
@@ -1338,7 +1338,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 <div class="flex justify-between items-center mb-3">
                     <div>
                         <h3 class="text-sm font-bold text-white">Riwayat Waste Produksi</h3>
-                        <p class="text-[11px] text-purple-300">Hari, tanggal produksi, brand, jenis, dan jumlah waste sesuai filter di atas</p>
+                        <p class="text-[11px] text-purple-300">Rekap per tanggal dan brand · Produksi dan pemakaian dalam pcs · Geser tabel untuk melihat seluruh material</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="wasteLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
@@ -1349,17 +1349,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 </div>
                 <div id="wasteTableWrap" class="hidden overflow-x-auto custom-scroll">
                     <table class="w-full min-w-[880px] text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
-                                <th class="p-3">Hari</th>
-                                <th class="p-3">Tanggal Produksi</th>
-                                <th class="p-3">Brand</th>
-                                <th class="p-3">Jenis Waste</th>
-                                <th class="p-3 text-right">Jumlah (pcs)</th>
-                                <th class="p-3">Inspector</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
+                        <thead id="wasteMatrixHead"></thead>
                         <tbody id="wasteTableBody"><tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data Waste Produksi.</td></tr></tbody>
                     </table>
                 </div>
@@ -1758,7 +1748,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             <div class="flex justify-between items-start gap-4 border-b border-purple-800/60 pb-3">
                 <div>
                     <h3 id="wasteModalTitle" class="text-base font-bold text-white">Form Input Waste Produksi</h3>
-                    <p class="text-xs text-purple-300">Catat jumlah waste per jenis untuk brand dan tanggal produksi tertentu</p>
+                    <p class="text-xs text-purple-300">Isi produksi dan pemakaian dalam satuan pcs material yang sama; waste dan yield dihitung otomatis.</p>
                 </div>
                 <button type="button" onclick="closeWasteModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -1774,7 +1764,10 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                         <option value="OPP">Plastik OPP</option>
                         <option value="MOP">MOP</option>
                     </select></div>
-                    <div><label class="block text-purple-300 mb-1">Jumlah Waste (pcs)</label><input type="number" id="wasteInputJumlah" min="0" step="1" inputmode="numeric" placeholder="Contoh: 120" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
+                    <div><label class="block text-purple-300 mb-1">Produksi (pcs)</label><input type="number" id="wasteInputProduksi" min="0" step="1" required oninput="updateWasteCalculation()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
+                    <div><label class="block text-purple-300 mb-1">Pemakaian (pcs)</label><input type="number" id="wasteInputPemakaian" min="0" step="1" required oninput="updateWasteCalculation()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
+                    <div><label class="block text-purple-300 mb-1">Jumlah Waste (pcs) — otomatis</label><input id="wasteInputJumlah" readonly class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><p id="wasteCalculatedRates" class="text-purple-300 mt-2"></p></div>
+                    <div><label class="block text-purple-300 mb-1">Keterangan</label><input id="wasteInputKet" maxlength="500" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="wasteInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
                 </div>
                 <div class="rounded-xl border border-purple-500/25 bg-purple-950/30 px-3 py-2 text-[11px] text-purple-200">
@@ -4181,6 +4174,39 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             });
         }
 
+
+        function updateWasteCalculation() {
+            const p = document.getElementById('wasteInputProduksi').value;
+            const u = document.getElementById('wasteInputPemakaian').value;
+            const valid = p !== '' && u !== '' && Number(u) >= Number(p) && Number(p) >= 0;
+            document.getElementById('wasteInputJumlah').value = valid ? Number(u)-Number(p) : '';
+            document.getElementById('wasteCalculatedRates').textContent = valid && Number(u)>0 ? `Waste: ${((u-p)/u*100).toFixed(2)}% · Yield: ${(p/u*100).toFixed(2)}%` : 'Waste: — · Yield: —';
+        }
+        function getWasteMatrix(data) {
+            const groups = new Map();
+            data.forEach(item => { const key = JSON.stringify([item.date,item.brand]); if (!groups.has(key)) groups.set(key,{date:item.date,brand:item.brand,items:[]}); groups.get(key).items.push(item); });
+            return [...groups.values()].sort((a,b) => a.date.localeCompare(b.date) || a.brand.localeCompare(b.brand));
+        }
+        function wasteMatrixValues(items) {
+            if (!items.length) return [null,null,null,null,''];
+            const complete = items.every(i => Number.isFinite(i.produksi) && Number.isFinite(i.pemakaian));
+            const note = items.map(i=>i.keterangan || '').filter(Boolean).join('; ');
+            if (!complete) return [null,null,null,null,`${note ? note+'; ' : ''}Data lama: waste ${items.reduce((s,i)=>s+Number(i.jumlah||0),0)} pcs; lengkapi produksi/pemakaian`];
+            const p=items.reduce((s,i)=>s+i.produksi,0),u=items.reduce((s,i)=>s+i.pemakaian,0);
+            return [p,u,u>0?(u-p)/u*100:null,u>0?p/u*100:null,note];
+        }
+        function renderWasteMatrix(data) {
+            const selected = document.getElementById('wasteFilterJenis').value;
+            const keys = selected==='ALL' ? WASTE_TYPE_KEYS : [selected];
+            const th = text => `<th class="p-3 border border-purple-800">${text}</th>`;
+            document.getElementById('wasteMatrixHead').innerHTML = `<tr class="bg-purple-950"><th rowspan="2" class="p-3">Tanggal</th><th rowspan="2" class="p-3">Product</th>${keys.map(k=>`<th colspan="5" class="p-3 border border-purple-800">${escapeHtml(WASTE_TYPE_CONFIG[k].label)}</th>`).join('')}<th rowspan="2" class="p-3">Aksi</th></tr><tr class="bg-purple-950">${keys.map(()=>['Produksi','Pemakaian','Waste (%)','Yield (%)','KET'].map(th).join('')).join('')}</tr>`;
+            const rows=getWasteMatrix(data);
+            const num=(v,percent=false)=>v===null?'—':v.toLocaleString('id-ID',{minimumFractionDigits:percent?2:0,maximumFractionDigits:percent?2:0})+(percent?'%':'');
+            const cells = items => keys.map(k => {const v=wasteMatrixValues(items.filter(i=>i.jenis===k));return v.map((x,i)=>`<td class="p-3 border border-purple-900 ${i===2?'text-rose-300':i===3?'text-emerald-300':''} ${i<4?'text-right whitespace-nowrap':'min-w-[160px]'}">${i===4?escapeHtml(x):num(x,i>=2)}</td>`).join('');}).join('');
+            const td=x=>`<td class="p-3 whitespace-nowrap border border-purple-900">${escapeHtml(x)}</td>`;
+            document.getElementById('wasteTableBody').innerHTML=rows.map(row=>`<tr>${td(row.date)}${td(row.brand)}${cells(row.items)}<td class="p-3">${row.items.map(i=> {const canEdit=currentRole==='ADMIN'||(currentRole==='INSPECTOR'&&i.inspectorId===currentUser?.id);const id=escapeHtml(JSON.stringify(i.id));return `<div class="flex gap-2 whitespace-nowrap">${canEdit?`<button class="text-purple-300" onclick='editWasteRecord(${id})'>Edit ${escapeHtml(WASTE_TYPE_CONFIG[i.jenis]?.label||i.jenis)}</button>`:''}${currentRole==='ADMIN'?`<button class="text-rose-300" onclick='deleteWasteRecord(${id})'>Hapus</button>`:''}</div>`;}).join('')}</td></tr>`).join('')+(rows.length?`<tr class="bg-purple-950 font-bold">${td('TOTAL')}${td('')}${cells(data)}<td></td></tr>`:`<tr><td colspan="${3+keys.length*5}" class="p-8 text-center">Belum ada data sesuai filter.</td></tr>`);
+        }
+
         function renderWasteSection() {
             if (currentRole === 'DASHBOARD_VIEWER') { guestUnavailableWaste(); return; }
             const tbody = document.getElementById('wasteTableBody');
@@ -4191,35 +4217,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             renderWasteSummaryCards(summaryData);
             renderWasteTrendChart(summaryData, range);
 
-            if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data Waste Produksi yang sesuai filter.</td></tr>`;
-                lucide.createIcons();
-                document.getElementById('wasteLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
-                return;
-            }
-
-            const sorted = filtered.slice().sort((a, b) => {
-                if (a.date !== b.date) return b.date.localeCompare(a.date);
-                return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
-            });
-
-            tbody.innerHTML = sorted.map(item => {
-                const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
-                const config = WASTE_TYPE_CONFIG[item.jenis] || { label: item.jenis, color: '#94a3b8' };
-                const actions = `<div class="flex justify-center gap-1">
-                    ${canEdit ? `<button onclick="editWasteRecord('${item.id}')" class="text-purple-300 hover:text-white p-1" title="Edit Data Waste"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
-                    ${currentRole === 'ADMIN' ? `<button onclick="deleteWasteRecord('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus Data Waste"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
-                </div>`;
-                return `<tr class="border-b border-purple-900/60 hover:bg-purple-900/20">
-                    <td class="p-2.5 whitespace-nowrap text-purple-200">${escapeHtml(getWasteDayName(item.date))}</td>
-                    <td class="p-2.5 whitespace-nowrap text-purple-200">${formatGilingDate(item.date, { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                    <td class="p-2.5 whitespace-nowrap text-purple-200">${escapeHtml(item.brand)}</td>
-                    <td class="p-2.5 whitespace-nowrap"><span class="rounded-lg px-2 py-1 text-[11px] font-bold" style="background:${config.color}22;color:${config.color}">${escapeHtml(config.label)}</span></td>
-                    <td class="p-2.5 whitespace-nowrap text-right font-bold text-white">${Number(item.jumlah).toLocaleString('id-ID')} pcs</td>
-                    <td class="p-2.5 whitespace-nowrap text-purple-200">${escapeHtml(item.inspector)}</td>
-                    <td class="p-2.5 text-center">${actions}</td>
-                </tr>`;
-            }).join('');
+            renderWasteMatrix(filtered);
             lucide.createIcons();
             document.getElementById('wasteLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
         }
@@ -4247,6 +4245,10 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 const brandSelect = document.getElementById('wasteInputBrand');
                 if (brandSelect && brandSelect.options.length) brandSelect.selectedIndex = 0;
             }
+            document.getElementById('wasteInputProduksi').value = editItem?.produksi ?? '';
+            document.getElementById('wasteInputPemakaian').value = editItem?.pemakaian ?? '';
+            document.getElementById('wasteInputKet').value = editItem?.keterangan ?? '';
+            updateWasteCalculation();
             updateWasteDayLabel();
             document.getElementById('modalWaste').classList.remove('hidden');
             lucide.createIcons();
@@ -4263,6 +4265,18 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
             const date = document.getElementById('wasteInputDate').value;
             const brand = document.getElementById('wasteInputBrand').value;
             const jenis = document.getElementById('wasteInputJenis').value;
+            const produksiRaw = document.getElementById('wasteInputProduksi').value;
+            const pemakaianRaw = document.getElementById('wasteInputPemakaian').value;
+            const produksi = Number(produksiRaw), pemakaian = Number(pemakaianRaw);
+            const keterangan = document.getElementById('wasteInputKet').value.trim();
+            if (produksiRaw === '' || pemakaianRaw === '' || !Number.isSafeInteger(produksi) || !Number.isSafeInteger(pemakaian) || produksi < 0 || pemakaian < produksi) {
+                showToast('Isi angka bulat ≥ 0. Pemakaian harus ≥ produksi.', 'error'); return;
+            }
+            if (editId) {
+                const original = wasteRecords.find(r => r.id === editId);
+                if (!original || !(currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && original.inspectorId === currentUser.id))) return;
+            }
+            updateWasteCalculation();
             const jumlahRaw = document.getElementById('wasteInputJumlah').value;
             const jumlah = Number(jumlahRaw);
 
@@ -4292,14 +4306,14 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 if (index !== -1) {
                     wasteRecords[index] = {
                         ...wasteRecords[index],
-                        date, brand, jenis, jumlah,
+                        date, brand, jenis, jumlah, produksi, pemakaian, keterangan,
                         updatedAt: new Date().toISOString()
                     };
                 }
             } else {
                 wasteRecords.push({
                     id: `waste-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                    date, brand, jenis, jumlah,
+                    date, brand, jenis, jumlah, produksi, pemakaian, keterangan,
                     inspector: currentUser.displayName,
                     inspectorId: currentUser.id,
                     createdAt: new Date().toISOString()
@@ -4333,16 +4347,14 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 showToast('Tidak ada data Waste Produksi untuk diekspor pada filter aktif.', 'error');
                 return;
             }
-            const rows = filtered.slice().sort((a, b) => a.date.localeCompare(b.date)).map(item => ({
-                'Hari': getWasteDayName(item.date),
-                'Tanggal Produksi': item.date,
-                'Brand': item.brand,
-                'Jenis Waste': WASTE_TYPE_CONFIG[item.jenis]?.label || item.jenis,
-                'Jumlah Waste (pcs)': Number(item.jumlah),
-                'Inspector': item.inspector
-            }));
+            const matrix = getWasteMatrix(filtered);
+            const header1 = ['Tanggal', 'Product'], header2 = ['', ''];
+            WASTE_TYPE_KEYS.forEach(k => { header1.push(WASTE_TYPE_CONFIG[k].label, '', '', '', ''); header2.push('Produksi', 'Pemakaian', 'Waste (%)', 'Yield (%)', 'KET'); });
+            const rows = matrix.map(row => [row.date, row.brand, ...WASTE_TYPE_KEYS.flatMap(k => wasteMatrixValues(row.items.filter(i => i.jenis === k)))]);
+            const sheet = XLSX.utils.aoa_to_sheet([header1, header2, ...rows]);
+            sheet['!merges'] = WASTE_TYPE_KEYS.map((k,i) => ({s:{r:0,c:2+i*5},e:{r:0,c:5+i*5}}));
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Waste Produksi');
+            XLSX.utils.book_append_sheet(workbook, sheet, 'Waste Produksi');
 
             const rekap = WASTE_TYPE_KEYS.map(key => ({
                 'Jenis Waste': WASTE_TYPE_CONFIG[key].label,
