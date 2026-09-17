@@ -1308,7 +1308,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                     <div id="wasteMonthStartWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Mulai</label><input type="date" id="wasteMonthStart" onchange="handleWasteRangeChange('monthly', 'start')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div id="wasteMonthEndWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Selesai</label><input type="date" id="wasteMonthEnd" onchange="handleWasteRangeChange('monthly', 'end')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div><label class="block text-purple-300 mb-1">Brand</label><select id="wasteFilterBrand" onchange="renderWasteSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Brand</option></select></div>
-                    <div><label class="block text-purple-300 mb-1">Jenis Waste</label><select id="wasteFilterJenis" onchange="renderWasteSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jenis</option><option value="AMBRI">Ambri</option><option value="ETIKET">Etiket</option><option value="OPP">Plastik OPP</option><option value="MOP">MOP</option></select></div>
+                    <div><label class="block text-purple-300 mb-1">Jenis Waste</label><select id="wasteFilterJenis" onchange="renderWasteSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jenis</option><option value="AMBRI" selected>Ambri</option><option value="ETIKET">Etiket</option><option value="OPP">Plastik OPP</option><option value="MOP">MOP</option></select></div>
                 </div>
             </div>
 
@@ -1329,6 +1329,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                         <p id="wasteTrendCaption" class="text-[11px] text-purple-300">Jumlah waste (pcs) per hari</p>
                     </div>
                 </div>
+                <div id="wasteChartMaterialTabs" class="flex flex-wrap gap-2 mb-3" aria-label="Pilih material grafik"></div>
                 <div class="relative" style="height:280px">
                     <canvas id="wasteTrendChartCanvas"></canvas>
                     <div id="wasteTrendEmpty" class="hidden absolute inset-0 items-center justify-center text-xs text-slate-400">Belum ada data Waste pada periode ini.</div>
@@ -1339,7 +1340,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 <div class="flex justify-between items-center mb-3">
                     <div>
                         <h3 class="text-sm font-bold text-white">Riwayat Waste Produksi</h3>
-                        <p class="text-[11px] text-purple-300">Rekap per tanggal dan brand · Produksi dan pemakaian dalam pcs · Geser tabel untuk melihat seluruh material</p>
+                        <p class="text-[11px] text-purple-300">Pilih material untuk menampilkan tabelnya · Filter material grafik dan tabel saling mengikuti</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="wasteLastUpdated" class="text-[11px] text-purple-300/70 font-mono">Update: Baru saja</span>
@@ -1348,6 +1349,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                         </button>
                     </div>
                 </div>
+                <div id="wasteTableMaterialTabs" class="flex flex-wrap gap-2 mb-3" aria-label="Pilih material tabel"></div>
                 <div id="wasteTableWrap" class="hidden overflow-x-auto custom-scroll">
                     <table class="w-full min-w-[880px] text-xs text-left border-collapse">
                         <thead id="wasteMatrixHead"></thead>
@@ -4117,8 +4119,18 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
         function setWasteJenisFilter(key) {
             const select = document.getElementById('wasteFilterJenis');
             if (!select) return;
-            select.value = select.value === key ? 'ALL' : key;
+            select.value = key;
             renderWasteSection();
+        }
+
+        function renderWasteMaterialTabs() {
+            const selected=document.getElementById('wasteFilterJenis').value;
+            const html=[...WASTE_TYPE_KEYS,'ALL'].map(key=>{
+                const label=key==='ALL'?'Semua Material':WASTE_TYPE_CONFIG[key].label;
+                const active=selected===key;
+                return `<button type="button" aria-pressed="${active}" onclick="setWasteJenisFilter('${key}')" class="px-4 py-2 rounded-xl text-xs font-bold border ${active?'bg-purple-600 text-white border-purple-400':'bg-purple-950 text-purple-200 border-purple-700 hover:bg-purple-800'}">${label}</button>`;
+            }).join('');
+            ['wasteChartMaterialTabs','wasteTableMaterialTabs'].forEach(id=>{document.getElementById(id).innerHTML=html;});
         }
 
         function renderWasteSummaryCards(summaryData) {
@@ -4196,7 +4208,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 };
             });
 
-            const hasData = data.length > 0;
+            const hasData = data.some(item => activeKeys.includes(item.jenis));
             if (emptyState) {
                 emptyState.classList.toggle('hidden', hasData);
                 emptyState.classList.toggle('flex', !hasData);
@@ -4204,7 +4216,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
 
             const periodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
             if (title) title.innerText = jenisFilter === 'ALL' ? `Trend Waste Produksi ${periodName}` : `Trend Waste ${WASTE_TYPE_CONFIG[jenisFilter].label} ${periodName}`;
-            if (caption) caption.innerText = `Jumlah waste (pcs) per hari · ${formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })}${range.mode === 'daily' ? '' : ' – ' + formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })} · klik legenda untuk kontrol tampil/sembunyi tiap jenis`;
+            if (caption) caption.innerText = `Jumlah waste (pcs) per hari · ${formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })}${range.mode === 'daily' ? '' : ' – ' + formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })} · pilih material di atas untuk melihat tren dengan skala tersendiri`;
 
             const context = canvas.getContext('2d');
             if (wasteTrendChart) wasteTrendChart.destroy();
@@ -4271,6 +4283,7 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
 
             const tbody = document.getElementById('wasteTableBody');
             if (!tbody) return;
+            renderWasteMaterialTabs();
             const summaryData = getFilteredWasteData({ ignoreJenis: true });
             const filtered = getFilteredWasteData();
             const range = getWasteFilterRange();
@@ -4393,16 +4406,18 @@ body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
                 showToast('Tidak ada data Waste Produksi untuk diekspor pada filter aktif.', 'error');
                 return;
             }
+            const selected=document.getElementById('wasteFilterJenis').value;
+            const exportKeys=selected==='ALL'?WASTE_TYPE_KEYS:[selected];
             const matrix = getWasteMatrix(filtered);
             const header1 = ['Tanggal', 'Product'], header2 = ['', ''];
-            WASTE_TYPE_KEYS.forEach(k => { header1.push(WASTE_TYPE_CONFIG[k].label, '', '', '', ''); header2.push('Produksi', 'Pemakaian', 'Waste (%)', 'Yield (%)', 'KET'); });
-            const rows = matrix.map(row => [row.date, row.brand, ...WASTE_TYPE_KEYS.flatMap(k => wasteMatrixValues(row.items.filter(i => i.jenis === k)))]);
+            exportKeys.forEach(k => { header1.push(WASTE_TYPE_CONFIG[k].label, '', '', '', ''); header2.push('Produksi', 'Pemakaian', 'Waste (%)', 'Yield (%)', 'KET'); });
+            const rows = matrix.map(row => [row.date, row.brand, ...exportKeys.flatMap(k => wasteMatrixValues(row.items.filter(i => i.jenis === k)))]);
             const sheet = XLSX.utils.aoa_to_sheet([header1, header2, ...rows]);
-            sheet['!merges'] = WASTE_TYPE_KEYS.map((k,i) => ({s:{r:0,c:2+i*5},e:{r:0,c:5+i*5}}));
+            sheet['!merges'] = exportKeys.map((k,i) => ({s:{r:0,c:2+i*5},e:{r:0,c:5+i*5}}));
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, sheet, 'Waste Produksi');
 
-            const rekap = WASTE_TYPE_KEYS.map(key => ({
+            const rekap = exportKeys.map(key => ({
                 'Jenis Waste': WASTE_TYPE_CONFIG[key].label,
                 'Total Pemakaian (pcs)': wasteMatrixValues(filtered.filter(i => i.jenis === key))[1],
                 'Total Produksi (pcs)': wasteMatrixValues(filtered.filter(i => i.jenis === key))[0],
