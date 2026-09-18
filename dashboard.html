@@ -448,189 +448,72 @@ body.dashboard-viewer #customBackupPanel,
 body.dashboard-viewer #monthlyBackupReminder,
 body.dashboard-viewer #kelompokMatrixPanel { display: none !important; }
 </style>
-<style id="hover-animated-enhancements">
 
-/* === HOVER TOOLTIP + ANIMATED BACKGROUND (2026-09-18) === */
+<style id="ui-hover-animation-v2">
+/* ===== V2: visible animated dashboard background + cursor tooltip ===== */
+html, body { min-height: 100%; }
 body {
-    position: relative;
-    isolation: isolate;
-    background: linear-gradient(135deg, #eee6f4 0%, #dbcbe7 48%, #e8deef 100%) fixed !important;
-    background-size: 180% 180% !important;
-    animation: dashboardGradientShift 18s ease-in-out infinite;
+  position: relative;
+  background: linear-gradient(-45deg,#eee6f4,#d8c4e7,#efe7f5,#cdb5df) !important;
+  background-size: 400% 400% !important;
+  animation: atiBgFlow 14s ease infinite !important;
 }
-
-body::before,
-body::after {
-    content: "";
-    position: fixed;
-    width: 38vw;
-    height: 38vw;
-    min-width: 320px;
-    min-height: 320px;
-    border-radius: 9999px;
-    filter: blur(70px);
-    opacity: .22;
-    pointer-events: none;
-    z-index: -2;
-    will-change: transform;
-}
-
 body::before {
-    top: -12vw;
-    left: -10vw;
-    background: radial-gradient(circle at 35% 35%, rgba(138,109,165,.78), rgba(203,185,220,.22) 50%, transparent 72%);
-    animation: dashboardOrbOne 20s ease-in-out infinite alternate;
+  content:"";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(138,109,165,.32), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgba(170,145,194,.28), transparent 30%),
+    radial-gradient(circle at 70% 82%, rgba(108,81,136,.24), transparent 34%);
+  animation: atiGlowMove 16s ease-in-out infinite alternate;
 }
-
-body::after {
-    right: -12vw;
-    bottom: -16vw;
-    background: radial-gradient(circle at 55% 45%, rgba(108,81,136,.65), rgba(226,216,236,.20) 52%, transparent 74%);
-    animation: dashboardOrbTwo 24s ease-in-out infinite alternate;
+body > * { position: relative; z-index: 1; }
+#cursorTooltip {
+  position: fixed;
+  z-index: 99999;
+  display: none;
+  max-width: 260px;
+  padding: 8px 11px;
+  border: 1px solid rgba(203,185,220,.75);
+  border-radius: 10px;
+  background: rgba(20,13,34,.97);
+  color: #fff;
+  box-shadow: 0 12px 34px rgba(20,13,34,.35);
+  backdrop-filter: blur(10px);
+  font: 700 11px/1.35 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing: .01em;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px) scale(.98);
+  transition: opacity .12s ease, transform .12s ease;
 }
-
-.app-main::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-    opacity: .16;
-    background-image:
-        linear-gradient(rgba(78,56,103,.13) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(78,56,103,.13) 1px, transparent 1px);
-    background-size: 42px 42px;
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), transparent 72%);
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), transparent 72%);
-    animation: dashboardGridFloat 28s linear infinite;
+#cursorTooltip.show { display:block; opacity:1; transform:translateY(0) scale(1); }
+/* extra hover feedback on icon/buttons */
+button:has(svg), button:has(i[data-lucide]), .app-navigation button {
+  transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease !important;
 }
-
-@keyframes dashboardGradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+@media (hover:hover) and (pointer:fine) {
+  button:has(svg):hover, button:has(i[data-lucide]):hover, .app-navigation button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(20,13,34,.18);
+  }
 }
-@keyframes dashboardOrbOne {
-    0% { transform: translate3d(0,0,0) scale(1); }
-    100% { transform: translate3d(12vw,10vh,0) scale(1.16); }
+@keyframes atiBgFlow {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
-@keyframes dashboardOrbTwo {
-    0% { transform: translate3d(0,0,0) scale(1.05); }
-    100% { transform: translate3d(-14vw,-9vh,0) scale(.90); }
+@keyframes atiGlowMove {
+  0%{transform:translate3d(-2%,0,0) scale(1)}
+  100%{transform:translate3d(3%,2%,0) scale(1.08)}
 }
-@keyframes dashboardGridFloat {
-    from { transform: translate3d(0,0,0); }
-    to { transform: translate3d(42px,42px,0); }
-}
-
-/* Tooltip untuk tombol navigasi/icon. Tooltip memakai atribut data-tooltip. */
-.app-navigation button[data-tooltip],
-#skt-sidebar-toggle[data-tooltip],
-#skt-sidebar-close[data-tooltip] {
-    position: relative;
-}
-
-.app-navigation button[data-tooltip]::after,
-#skt-sidebar-toggle[data-tooltip]::after,
-#skt-sidebar-close[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    top: calc(100% + 10px);
-    transform: translate(-50%, -4px) scale(.96);
-    min-width: max-content;
-    max-width: 220px;
-    padding: 7px 10px;
-    border: 1px solid rgba(170,145,194,.55);
-    border-radius: 9px;
-    background: rgba(20,13,34,.96);
-    color: #f7f3fa;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: .01em;
-    text-align: center;
-    box-shadow: 0 12px 30px rgba(20,13,34,.28);
-    backdrop-filter: blur(10px);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 120;
-    transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
-}
-
-.app-navigation button[data-tooltip]::before,
-#skt-sidebar-toggle[data-tooltip]::before,
-#skt-sidebar-close[data-tooltip]::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: calc(100% + 5px);
-    width: 9px;
-    height: 9px;
-    background: rgba(20,13,34,.96);
-    border-left: 1px solid rgba(170,145,194,.42);
-    border-top: 1px solid rgba(170,145,194,.42);
-    transform: translateX(-50%) rotate(45deg);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 121;
-    transition: opacity .16s ease, visibility .16s ease;
-}
-
-.app-navigation button[data-tooltip]:hover::after,
-.app-navigation button[data-tooltip]:focus-visible::after,
-#skt-sidebar-toggle[data-tooltip]:hover::after,
-#skt-sidebar-toggle[data-tooltip]:focus-visible::after,
-#skt-sidebar-close[data-tooltip]:hover::after,
-#skt-sidebar-close[data-tooltip]:focus-visible::after {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, 0) scale(1);
-}
-
-.app-navigation button[data-tooltip]:hover::before,
-.app-navigation button[data-tooltip]:focus-visible::before,
-#skt-sidebar-toggle[data-tooltip]:hover::before,
-#skt-sidebar-toggle[data-tooltip]:focus-visible::before,
-#skt-sidebar-close[data-tooltip]:hover::before,
-#skt-sidebar-close[data-tooltip]:focus-visible::before {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Pada sidebar desktop, tooltip muncul di kanan supaya tidak terpotong. */
-@media (min-width:1024px) {
-    #skt-desktop-sidebar .app-navigation button[data-tooltip]::after {
-        left: calc(100% + 10px);
-        top: 50%;
-        transform: translate(4px, -50%) scale(.96);
-    }
-    #skt-desktop-sidebar .app-navigation button[data-tooltip]::before {
-        left: calc(100% + 5px);
-        top: 50%;
-        transform: translate(-50%, -50%) rotate(45deg);
-    }
-    #skt-desktop-sidebar .app-navigation button[data-tooltip]:hover::after,
-    #skt-desktop-sidebar .app-navigation button[data-tooltip]:focus-visible::after {
-        transform: translate(0, -50%) scale(1);
-    }
-}
-
-/* Mobile: tooltip hover dimatikan supaya tidak mengganggu tap. */
-@media (max-width: 640px) {
-    .app-navigation button[data-tooltip]::before,
-    .app-navigation button[data-tooltip]::after,
-    #skt-sidebar-toggle[data-tooltip]::before,
-    #skt-sidebar-toggle[data-tooltip]::after,
-    #skt-sidebar-close[data-tooltip]::before,
-    #skt-sidebar-close[data-tooltip]::after { display:none !important; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    body, body::before, body::after, .app-main::before { animation: none !important; }
-}
+@media (max-width:640px), (hover:none) { #cursorTooltip{display:none!important;} }
+@media (prefers-reduced-motion:reduce){ body,body::before{animation:none!important;} }
 </style>
+
 </head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
@@ -668,12 +551,12 @@ body::after {
 
                 <!-- Navigation Tabs -->
                 <nav aria-label="Navigasi utama" class="app-navigation flex items-center gap-1 bg-purple-900/60 p-1 rounded-xl border border-purple-700/50">
-                    <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all" data-tooltip="Buka ringkasan dashboard" aria-label="Buka ringkasan dashboard"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
-                    <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all" data-tooltip="Buka station Giling Gunting" aria-label="Buka station Giling Gunting"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
-                    <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all" data-tooltip="Buka station Packaging" aria-label="Buka station Packaging"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
-                    <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all" data-tooltip="Buka data Waste Produksi" aria-label="Buka data Waste Produksi"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
-                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all" data-tooltip="Buka data Tembakau" aria-label="Buka data Tembakau"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
-                    <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all" data-tooltip="Buka Pengaturan" aria-label="Buka Pengaturan"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
+                    <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
+                    <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
+                    <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
+                    <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
+                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
+                    <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
                 </nav>
             </div>
         </div>
@@ -6421,8 +6304,6 @@ window.QCSktOriginalPreview = (() => {
     nav.before(home);
     const toggle = document.createElement('button');
     toggle.id = 'skt-sidebar-toggle';
-    toggle.setAttribute('data-tooltip','Tampilkan / sembunyikan menu station');
-    toggle.setAttribute('aria-label','Tampilkan / sembunyikan menu station');
     toggle.type = 'button';
     toggle.hidden = true;
     toggle.setAttribute('aria-controls','skt-desktop-sidebar');
@@ -6433,7 +6314,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.id = 'skt-desktop-sidebar';
     sidebar.hidden = true;
     sidebar.setAttribute('aria-label','Menu station SKT');
-    sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Station SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu station" title="Sembunyikan menu station" data-tooltip="Tutup menu station"><span aria-hidden="true">‹</span></button></div>';
+    sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Station SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu station" title="Sembunyikan menu station"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
@@ -6483,5 +6364,60 @@ if (location.protocol === 'file:') {
 
 </script>
 <!-- SKT_SIDEBAR_APP_END -->
+
+<script id="ui-hover-tooltip-v2">
+(function(){
+  function prettyFromElement(el){
+    const explicit = el.getAttribute('data-tooltip') || el.getAttribute('aria-label') || el.getAttribute('title');
+    if(explicit) return explicit;
+    const txt=(el.innerText||'').replace(/\s+/g,' ').trim();
+    if(txt) return txt;
+    const icon=el.querySelector('[data-lucide]');
+    if(icon){
+      const n=(icon.getAttribute('data-lucide')||'').replace(/-/g,' ');
+      return n ? n.replace(/\b\w/g,c=>c.toUpperCase()) : '';
+    }
+    return '';
+  }
+  function init(){
+    if(document.getElementById('cursorTooltip')) return;
+    const tip=document.createElement('div');
+    tip.id='cursorTooltip';
+    document.body.appendChild(tip);
+    let active=null;
+    const eligible='button, [role="button"], a[aria-label], [data-tooltip], [title]';
+    document.addEventListener('mouseover',e=>{
+      if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+      const el=e.target.closest(eligible);
+      if(!el) return;
+      const text=prettyFromElement(el);
+      if(!text) return;
+      active=el;
+      tip.textContent=text;
+      tip.style.display='block';
+      requestAnimationFrame(()=>tip.classList.add('show'));
+    });
+    document.addEventListener('mousemove',e=>{
+      if(!active) return;
+      const pad=14;
+      let x=e.clientX+16, y=e.clientY+18;
+      const w=tip.offsetWidth||180, h=tip.offsetHeight||36;
+      if(x+w+pad>innerWidth) x=e.clientX-w-16;
+      if(y+h+pad>innerHeight) y=e.clientY-h-16;
+      tip.style.left=Math.max(pad,x)+'px';
+      tip.style.top=Math.max(pad,y)+'px';
+    });
+    document.addEventListener('mouseout',e=>{
+      if(!active) return;
+      if(active.contains(e.relatedTarget)) return;
+      active=null;
+      tip.classList.remove('show');
+      setTimeout(()=>{ if(!active) tip.style.display='none'; },130);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+
 </body>
 </html>
