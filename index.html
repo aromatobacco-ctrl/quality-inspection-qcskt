@@ -3,32 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Quality Inspection Dashboard SKT</title>
+  <title>Login - Production Monitoring Dashboard SKT</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-api.js"></script>
   <style>
-    body { background: linear-gradient(135deg, #eee6f4 0%, #dbcbe7 48%, #e8deef 100%) fixed; }
-  </style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:radial-gradient(ellipse at 10% 10%,#e0d0ef,transparent 55%),radial-gradient(ellipse at 95% 95%,#d8c3e5,transparent 60%),#f4eff8;color:#271a36;padding:32px;display:flex;align-items:center;justify-content:center}
+.login-shell{display:grid;grid-template-columns:1.08fr 1fr;width:min(1040px,100%);border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 30px 90px #37204d26;border:1px solid #ffffffb3}
+.story-panel{position:relative;overflow:hidden;padding:48px;display:flex;flex-direction:column;justify-content:space-between;gap:72px;background:linear-gradient(145deg,#21132e,#432655);color:#fff}
+.story-panel:after{content:'';position:absolute;width:360px;height:360px;border:1px solid #ffffff15;border-radius:50%;right:-160px;bottom:-150px;box-shadow:0 0 0 45px #ffffff05,0 0 0 90px #ffffff04;pointer-events:none}
+.company{display:flex;gap:12px;align-items:center;font-size:11px;letter-spacing:1.2px;font-weight:700;line-height:1.7}.company-mark{display:grid;place-items:center;border:1px solid #cdb3df66;border-radius:14px;width:48px;height:48px;font-size:19px;color:#ead39e;flex:none}.eyebrow{font-size:11px;letter-spacing:2px;color:#c4a9d6;margin-bottom:18px}.story-panel h1{font-size:42px;font-weight:650;line-height:1.12;letter-spacing:-1.5px;margin:0 0 22px}.story-copy{font-size:14px;line-height:1.8;color:#d0bfdc;max-width:330px}.scope{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}.scope span{padding:7px 12px;border:1px solid #ffffff26;border-radius:99px;font-size:11px;color:#e0d1eb}.story-footer{font-size:11px;letter-spacing:.8px;color:#b9a2ca;z-index:1}
+.login-card{padding:56px 48px;background:#fff;color:#271a36;align-self:center}.welcome-tag{font-size:11px;letter-spacing:1.6px;color:#967aa9;font-weight:700;margin-bottom:12px}.login-card h2{font-size:30px;line-height:1.2;font-weight:700;letter-spacing:-.8px;margin:0 0 12px}.login-intro{font-size:13px;color:#8a7b96;line-height:1.7;margin:0 0 30px}.login-card label{display:block;font-size:12px;color:#564361;font-weight:600;margin-bottom:8px}.login-card input{display:block;width:100%;height:50px;background:#faf8fc;border:1px solid #e5ddec;border-radius:11px;padding:12px 14px;font-size:14px;color:#271a36;outline:none}.login-card input:focus{border-color:#9974b4;box-shadow:0 0 0 3px #9974b420}.login-card input::placeholder{color:#ae9fba}.login-card form>div{margin-bottom:20px}.password-field{position:relative}.password-field input{padding-right:52px}.password-toggle{position:absolute;right:5px;top:4px;width:42px;height:42px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:#8b6ca1;cursor:pointer}.password-toggle:hover{background:#eee6f4}.password-toggle svg{width:20px;height:20px}.password-toggle[aria-pressed="true"] .eye-slash{display:none}button:focus-visible{outline:3px solid #b997d0;outline-offset:3px}#submitBtn,#setupBtn{width:100%;min-height:49px;border:0;border-radius:11px;background:linear-gradient(110deg,#694482,#8c62a2);color:white;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px #69448222;transition:transform .2s,filter .2s}#submitBtn:hover,#setupBtn:hover{filter:brightness(1.08);transform:translateY(-1px)}button:disabled{opacity:.6;cursor:wait}#showSetupBtn{display:block;margin:26px auto 0;width:auto;background:none;border:0;font-size:11px;color:#9987a5;text-decoration:none;cursor:pointer}#showSetupBtn:hover{color:#694482}#setupForm{border-top:1px solid #eee7f2;padding-top:20px;margin-top:20px}#setupForm input{margin-bottom:12px}#setupForm p{color:#8a7b96;font-size:12px;margin-bottom:12px}#errorMsg{font-size:12px;color:#b13652;background:#fff1f4;border-radius:8px;padding:10px;margin-bottom:15px}.hidden{display:none!important}.login-note{text-align:center;font-size:10px;color:#a192ac;line-height:1.6;margin:28px 0 0}
+@media(max-width:720px){body{padding:18px}.login-shell{max-width:460px;grid-template-columns:1fr;border-radius:22px}.story-panel{padding:27px;gap:26px}.company{font-size:9px}.company-mark{width:38px;height:38px;font-size:15px}.story-panel h1{font-size:29px;margin-bottom:0}.eyebrow{margin-bottom:10px;font-size:9px}.story-copy,.story-footer,.scope{display:none}.login-card{padding:30px 27px}.login-card h2{font-size:25px}.login-intro{margin-bottom:24px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body class="min-h-screen flex items-center justify-center font-sans p-4">
-  <div class="w-full max-w-sm bg-purple-950 text-slate-100 rounded-2xl shadow-2xl p-8 border border-purple-800/60">
-    <h1 class="text-lg font-bold text-purple-200 mb-1 text-center">Quality Inspection Dashboard</h1>
-    <p class="text-xs text-slate-400 mb-6 text-center">Sigaret Kretek Tangan</p>
+  <main class="login-shell">
+<section class="story-panel" aria-label="Production Monitoring Dashboard">
+<div class="company"><span class="company-mark" aria-hidden="true">ATI</span><span>PT AROMA TOBACCO<br>INTERNASIONAL</span></div>
+<div><p class="eyebrow">SIGARET KRETEK TANGAN</p><h1>Production<br>Monitoring<br>Dashboard<span style="color:#c6a3db">.</span></h1><p class="story-copy">Pantau kualitas, material, dan aktivitas produksi dalam satu tempat.</p><div class="scope"><span>Quality</span><span>Produksi</span><span>System</span></div></div>
+<div class="story-footer">SATU AKSES · MONITORING TERINTEGRASI</div></section>
+<section class="login-card">
+    <p class="welcome-tag">WORKSPACE SKT</p><h2>Selamat datang kembali.</h2><p class="login-intro">Masuk dengan akunmu untuk melanjutkan<br>monitoring produksi hari ini.</p>
 
     <form id="loginForm" class="space-y-4">
       <div>
-        <label class="block text-xs text-slate-300 mb-1">Username</label>
-        <input id="username" type="text" required autocomplete="username"
+        <label for="username" class="block text-xs text-slate-300 mb-1">Username</label>
+        <input id="username" placeholder="Masukkan username" autocapitalize="none" spellcheck="false" type="text" required autocomplete="username"
           class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
       </div>
       <div>
-        <label class="block text-xs text-slate-300 mb-1">Password</label>
-        <input id="password" type="password" required autocomplete="current-password"
-          class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+        <label for="password" class="block text-xs text-slate-300 mb-1">Password</label>
+        <div class="password-field"><input id="password" placeholder="Masukkan password" type="password" required autocomplete="current-password"
+          class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"><button type="button" class="password-toggle" data-password-target="password" aria-controls="password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18"/></svg></button></div>
       </div>
-      <p id="errorMsg" class="text-xs text-rose-400 hidden"></p>
+      <p id="errorMsg" role="alert" aria-live="polite" class="text-xs text-rose-400 hidden"></p>
       <button type="submit" id="submitBtn"
         class="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-xl py-2 text-sm">
         Masuk
@@ -45,14 +55,15 @@
         class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm">
       <input id="setupUsername" type="text" required placeholder="Username Admin"
         class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm">
-      <input id="setupPassword" type="password" required minlength="8" placeholder="Password minimal 8 karakter"
-        class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm">
+      <div class="password-field"><input id="setupPassword" type="password" required minlength="8" placeholder="Password minimal 8 karakter"
+        class="w-full bg-slate-900 border border-purple-700 rounded-lg px-3 py-2 text-sm"><button type="button" class="password-toggle" data-password-target="setupPassword" aria-controls="setupPassword" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18"/></svg></button></div>
       <button type="submit" id="setupBtn"
         class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl py-2 text-sm">
         Buat Admin Pertama
       </button>
     </form>
-  </div>
+  <p class="login-note">Production Monitoring Dashboard · SKT Aroma</p>
+</section></main>
 
   <script>
     const loginForm = document.getElementById('loginForm');
@@ -124,5 +135,17 @@
       }
     });
   </script>
-</body>
+<script>
+document.querySelectorAll('[data-password-target]').forEach(button => {
+  button.addEventListener('click', () => {
+    const input = document.getElementById(button.dataset.passwordTarget);
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    button.setAttribute('aria-pressed', String(visible));
+    const label = visible ? 'Sembunyikan password' : 'Tampilkan password';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+  });
+});
+</script></body>
 </html>
