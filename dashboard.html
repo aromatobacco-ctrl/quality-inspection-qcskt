@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Monitoring Dashboard - Sigaret Kretek Tangan | PT Aroma Tobacco Internasional</title>
+    <title>Quality Inspection Dashboard - Sigaret Kretek Tangan | PT Aroma Tobacco Internasional</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -360,24 +360,6 @@
 
 <!-- SKT_SIDEBAR_STYLE_START -->
 <style id="skt-sidebar-styles">
-
-/* Grouped production navigation; compact bottom navigation on phones. */
-.production-menu-group { display:contents; }
-.production-menu-label { display:none; }
-@media (min-width:1024px) {
-    #skt-desktop-sidebar .production-menu-group {
-        display:flex; flex-direction:column; gap:6px;
-        margin-top:8px; padding-top:12px; border-top:1px solid #38264d;
-    }
-    #skt-desktop-sidebar .production-menu-label {
-        display:block; margin:0; padding:0 12px 4px;
-        color:#bba6ce; font:700 11px/1.5 ui-sans-serif,system-ui,sans-serif;
-        letter-spacing:1.2px; text-transform:uppercase;
-    }
-    #skt-desktop-sidebar .production-menu-group:not(:has(button:not(.hidden))),
-    body.dashboard-viewer #skt-desktop-sidebar .production-menu-group[aria-labelledby="menu-group-system"] { display:none; }
-}
-
 /* Desktop station navigation only. Original station content keeps its styles. */
 #skt-sidebar-toggle,
 #skt-desktop-sidebar { display:none; }
@@ -551,7 +533,7 @@ button:has(svg), button:has(i[data-lucide]), .app-navigation button {
                 </div>
                 <div class="app-brand-copy">
                     <span class="text-[11px] font-bold tracking-wider uppercase text-purple-300">PT Aroma Tobacco Internasional</span>
-                    <h1 class="app-brand-title text-base sm:text-lg font-black text-white leading-tight">Production Monitoring Dashboard <span class="text-purple-400 font-medium text-xs sm:text-sm">| SKT</span></h1>
+                    <h1 class="app-brand-title text-base sm:text-lg font-black text-white leading-tight">Quality Inspection Dashboard <span class="text-purple-400 font-medium text-xs sm:text-sm">| SKT</span></h1>
                 </div>
             </div>
 
@@ -570,21 +552,12 @@ button:has(svg), button:has(i[data-lucide]), .app-navigation button {
                 <!-- Navigation Tabs -->
                 <nav aria-label="Navigasi utama" class="app-navigation flex items-center gap-1 bg-purple-900/60 p-1 rounded-xl border border-purple-700/50">
                     <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-quality">
-                    <h3 class="production-menu-label" id="menu-group-quality">Quality</h3>
                     <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
                     <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
-                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
-                    </div>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-produksi">
-                    <h3 class="production-menu-label" id="menu-group-produksi">Produksi</h3>
                     <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
-                    </div>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-system">
-                    <h3 class="production-menu-label" id="menu-group-system">System</h3>
+                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
                     <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
-                    </div>
-                    </nav>
+                </nav>
             </div>
         </div>
     </header>
@@ -655,7 +628,7 @@ button:has(svg), button:has(i[data-lucide]), .app-navigation button {
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
-                        <h2 class="text-base font-bold text-white">Ringkasan Produksi</h2>
+                        <h2 class="text-base font-bold text-white">Ringkasan Quality Inspection</h2>
                         <p class="text-xs text-purple-300">Dashboard harian, mingguan, atau bulanan seluruh station dalam satu halaman</p>
                     </div>
                 </div>
@@ -2360,7 +2333,7 @@ button:has(svg), button:has(i[data-lucide]), .app-navigation button {
             const hint = document.querySelector('#tabDashboard > p:last-child');
             if (hint) {
                 if (!hint.dataset.originalCopy) hint.dataset.originalCopy = hint.textContent;
-                hint.textContent = viewer ? 'Pilih kartu atau menu produksi untuk melihat grafik dan ringkasan. Akses hanya lihat.' : hint.dataset.originalCopy;
+                hint.textContent = viewer ? 'Pilih kartu atau menu station untuk melihat grafik dan ringkasan. Akses hanya lihat.' : hint.dataset.originalCopy;
             }
         }
 
@@ -6340,8 +6313,8 @@ window.QCSktOriginalPreview = (() => {
     const sidebar = document.createElement('aside');
     sidebar.id = 'skt-desktop-sidebar';
     sidebar.hidden = true;
-    sidebar.setAttribute('aria-label','Menu produksi SKT');
-    sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
+    sidebar.setAttribute('aria-label','Menu station SKT');
+    sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Station SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu station" title="Sembunyikan menu station"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
@@ -6352,7 +6325,7 @@ window.QCSktOriginalPreview = (() => {
     function sync() {
         toggle.hidden = !desktop.matches;
         toggle.setAttribute('aria-expanded',String(desktop.matches && expanded));
-        const label = expanded ? 'Sembunyikan menu produksi' : 'Tampilkan menu produksi';
+        const label = expanded ? 'Sembunyikan menu station' : 'Tampilkan menu station';
         toggle.setAttribute('aria-label',label);
         toggle.title = label;
         if (desktop.matches) {
