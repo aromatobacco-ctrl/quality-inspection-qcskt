@@ -532,6 +532,27 @@ button:has(svg), button:has(i[data-lucide]), .app-navigation button {
 @media (prefers-reduced-motion:reduce){ body,body::before{animation:none!important;} }
 </style>
 
+
+<style id="production-accordion-styles">
+.production-submenu{display:contents}
+.app-navigation .production-group-toggle{display:none!important}
+@media(min-width:1024px){
+body.skt-sidebar-open{padding-left:260px!important}
+body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;background:linear-gradient(165deg,#241a38,#1b132a)}
+#skt-desktop-sidebar .production-menu-group{display:flex;gap:0;margin-top:10px;padding:6px;border:1px solid #61467e66;border-radius:18px;background:linear-gradient(140deg,#3c29513d,#281b3b55)}
+#skt-desktop-sidebar .app-navigation .production-group-toggle{display:flex!important;min-height:58px;gap:10px!important;color:#e3d4ee;background:transparent;border:0;cursor:pointer;font-weight:750;padding:10px!important}
+.group-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border:1px solid #72578d66;border-radius:10px;background:#4d35634d}
+#skt-desktop-sidebar .production-group-toggle .group-chevron{margin-left:auto;width:18px!important;height:18px!important;transition:transform .2s}
+#skt-desktop-sidebar .production-group-toggle[aria-expanded="false"] .group-chevron{transform:rotate(180deg)}
+#skt-desktop-sidebar .production-submenu{position:relative;display:flex;flex-direction:column;gap:5px;margin:5px 3px 10px 19px;padding-left:15px;border-left:2px solid #80609d}
+#skt-desktop-sidebar .production-submenu button{position:relative;white-space:normal;min-height:44px;font-size:12px!important;padding:10px 8px!important;gap:8px!important}
+#skt-desktop-sidebar .production-submenu button:before{content:'';position:absolute;left:-21px;top:19px;width:8px;height:8px;border-radius:50%;background:#b895d6;border:2px solid #2c1e3b}
+#skt-desktop-sidebar .production-menu-group.is-collapsed .production-submenu{display:none}
+#skt-desktop-sidebar .production-menu-group:not(:has(.production-submenu button:not(.hidden))){display:none}
+#skt-desktop-sidebar #tabBtnDashboard{min-height:52px;border:1px solid #b59acd55}
+}
+@media(prefers-reduced-motion:reduce){.group-chevron{transition:none!important}}
+</style>
 </head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
@@ -570,20 +591,17 @@ button:has(svg), button:has(i[data-lucide]), .app-navigation button {
                 <!-- Navigation Tabs -->
                 <nav aria-label="Navigasi utama" class="app-navigation flex items-center gap-1 bg-purple-900/60 p-1 rounded-xl border border-purple-700/50">
                     <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-quality">
-                    <h3 class="production-menu-label" id="menu-group-quality">Quality</h3>
+                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-quality"><button type="button" class="production-group-toggle" id="menu-group-quality" aria-expanded="true" aria-controls="submenu-quality"><span class="group-icon"><i data-lucide="shield-check"></i></span><span>Quality</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-quality">
                     <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
                     <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
                     <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
-                    </div>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-produksi">
-                    <h3 class="production-menu-label" id="menu-group-produksi">Produksi</h3>
+                    </div></div>
+                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-produksi"><button type="button" class="production-group-toggle" id="menu-group-produksi" aria-expanded="true" aria-controls="submenu-produksi"><span class="group-icon"><i data-lucide="factory"></i></span><span>Produksi</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-produksi">
                     <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
-                    </div>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-system">
-                    <h3 class="production-menu-label" id="menu-group-system">System</h3>
+                    </div></div>
+                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-system"><button type="button" class="production-group-toggle" id="menu-group-system" aria-expanded="true" aria-controls="submenu-system"><span class="group-icon"><i data-lucide="settings-2"></i></span><span>System</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-system">
                     <button onclick="switchTab('settings')" id="tabBtnSettings" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="settings" class="w-4 h-4"></i> Pengaturan</button>
-                    </div>
+                    </div></div>
                     </nav>
             </div>
         </div>
@@ -6446,5 +6464,15 @@ if (location.protocol === 'file:') {
 })();
 </script>
 
-</body>
+<script id="production-accordion-logic">
+(() => {
+ document.querySelectorAll('.production-group-toggle').forEach(button => {
+  button.addEventListener('click', () => {
+   const expanded = button.getAttribute('aria-expanded') !== 'true';
+   button.setAttribute('aria-expanded', String(expanded));
+   button.closest('.production-menu-group').classList.toggle('is-collapsed', !expanded);
+  });
+ });
+})();
+</script></body>
 </html>
