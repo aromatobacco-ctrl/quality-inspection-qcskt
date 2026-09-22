@@ -553,7 +553,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
 }
 @media(prefers-reduced-motion:reduce){.group-chevron{transition:none!important}}
 </style>
-</head>
+<style>#sidebarVersion{margin-top:auto;padding:18px 8px 8px;flex-shrink:0}#sidebarVersion p{font-size:10px;line-height:1.9}#sidebarVersion p>span.mx-1\.5{display:block;font-size:0;height:0}</style></head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
     <!-- FLOATING TOAST NOTIFICATION -->
@@ -1395,7 +1395,14 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
 
         <!-- ==================== TAB: WASTE PRODUKSI STATION ==================== -->
         <section id="tabWaste" class="space-y-5 hidden">
-            <div class="bg-purple-950 rounded-xl p-3 text-xs flex flex-wrap items-center gap-3"><span id="wasteSyncStatus">Menghubungkan Waste ke Supabase…</span><button onclick="loadWasteRecords()" class="text-purple-200 underline">Muat Ulang</button><button onclick="downloadWasteLocalBackup()" class="text-purple-200 underline">Cadangkan Data Browser</button></div>
+<div id="wasteImportPanel" class="hidden bg-purple-950 border border-purple-600 rounded-2xl p-4 space-y-3">
+<div class="flex justify-between gap-3"><h3 class="font-bold text-white">Import Excel Waste Produksi</h3><button id="wasteImportClose" type="button" onclick="closeWasteImport()">Tutup</button></div>
+<p class="text-xs text-purple-200">Pilih file .xlsx/.xls dan sheet. Mendukung format kelompok material seperti tabel Ambri &amp; Etiket, atau kolom Tanggal, Brand, Jenis, Produksi, Pemakaian, Keterangan. Tanggal gabungan dibaca otomatis. Waste dihitung dari pemakaian dikurangi produksi.</p>
+<div class="flex flex-wrap gap-3"><label class="text-sm">File Excel<input id="wasteExcelFile" type="file" accept=".xlsx,.xls" onchange="readWasteExcel(this)" class="block max-w-full mt-1"></label><label class="text-sm">Sheet<select id="wasteExcelSheet" onchange="previewWasteExcel()" class="block bg-purple-900 p-2 rounded-lg mt-1"></select></label></div>
+<p id="wasteImportStatus" role="status" class="text-sm text-purple-200">Belum ada file dipilih.</p><pre id="wasteImportErrors" class="text-xs text-rose-300 whitespace-pre-wrap max-h-48 overflow-auto"></pre>
+<p class="text-xs text-purple-300">Preview maksimal 100 entri. Seluruh entri valid akan disimpan. Tanggal + brand + material yang sama dilewati jika angkanya sama; perbedaan angka perlu diperiksa dahulu. Data lama tidak ditimpa.</p>
+<div class="overflow-x-auto max-h-80"><table class="w-full text-xs text-left"><thead><tr><th>Baris</th><th>Tanggal</th><th>Brand</th><th>Material</th><th>Produksi</th><th>Pemakaian</th><th>Waste (pcs)</th><th>Waste (%)</th></tr></thead><tbody id="wasteImportPreview"></tbody></table></div>
+<button id="wasteImportSave" type="button" onclick="saveWasteExcel()" disabled class="bg-purple-600 disabled:opacity-40 px-4 py-3 rounded-xl font-bold text-sm">Simpan Data Baru</button></div>            <div class="bg-purple-950 rounded-xl p-3 text-xs flex flex-wrap items-center gap-3"><span id="wasteSyncStatus">Menghubungkan Waste ke Supabase…</span><button onclick="loadWasteRecords()" class="text-purple-200 underline">Muat Ulang</button><button onclick="downloadWasteLocalBackup()" class="text-purple-200 underline">Cadangkan Data Browser</button></div>
             <div class="station-hero bg-gradient-to-r from-purple-950 via-purple-900 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="trash-2" class="w-5 h-5 text-purple-300"></i></span>
@@ -1405,7 +1412,8 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                     </div>
                 </div>
                 <div class="station-actions flex items-center gap-2">
-                    <button onclick="exportWasteToExcel()" class="bg-purple-900 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i> Download Waste</button>
+                    <button onclick="openWasteImport()" class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-4 py-2 rounded-xl">Import Excel</button>
+<button onclick="exportWasteToExcel()" class="bg-purple-900 hover:bg-purple-800 text-purple-100 text-xs font-bold px-3.5 py-2 rounded-xl border border-purple-600/60 flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i> Download Waste</button>
                     <button onclick="openWasteModal()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Waste</button>
                 </div>
             </div>
@@ -1540,17 +1548,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
         </section>
 
         <!-- APP_VERSION: v5 | LAST_UPDATE: 07 September 2026 -->
-        <footer class="pt-2 pb-1 text-center">
-            <div class="border-t border-purple-800/50 pt-4">
-                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">
-                    Developed @MT2026
-                    <span class="mx-1.5 text-purple-700">•</span>
-                    Last Version: <span class="font-black text-purple-300">v5</span>
-                    <span class="mx-1.5 text-purple-700">•</span>
-                    Updated 07 September 2026
-                </p>
-            </div>
-        </footer>
+        
     </main>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -6361,6 +6359,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v5</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 07 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
@@ -6374,7 +6373,7 @@ window.QCSktOriginalPreview = (() => {
         toggle.setAttribute('aria-label',label);
         toggle.title = label;
         if (desktop.matches) {
-            if (nav.parentNode !== sidebar) sidebar.appendChild(nav);
+            if (nav.parentNode !== sidebar) sidebar.insertBefore(nav, document.getElementById('sidebarVersion'));
             sidebar.hidden = !expanded;
         } else {
             home.parentNode.insertBefore(nav,home.nextSibling);
@@ -6474,5 +6473,89 @@ if (location.protocol === 'file:') {
   });
  });
 })();
+</script><script id="waste-excel-import">
+// Waste Excel import: parses locally; writes only after preview confirmation.
+const WasteExcel = (() => {
+ const norm=v=>String(v??'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+ const material=v=>{const n=norm(v);return n.includes('AMBRI')?'AMBRI':n.includes('ETIKET')||n.includes('ETTIKET')?'ETIKET':n.includes('OPP')?'OPP':n.includes('MOP')?'MOP':null;};
+ function number(v){if(typeof v==='number')return v;let t=String(v??'').trim();if(!t)return null;if(/^\d{1,3}(\.\d{3})+(,0+)?$/.test(t))t=t.replace(/\./g,'');else if(/^\d{1,3}(,\d{3})+$/.test(t))t=t.replace(/,/g,'');return Number(t.replace(',','.'));}
+ function date(v,date1904){
+  let y,m,d;
+  if(typeof v==='number'){const a=XLSX.SSF.parse_date_code(v,{date1904});if(!a)throw Error('Tanggal Excel tidak valid');({y,m,d}=a);}
+  else {let a=String(v??'').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:\s.*)?$/);if(a)[,y,m,d]=a;else {a=String(v??'').trim().match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);if(!a)throw Error('Tanggal harus DD-MM-YYYY atau YYYY-MM-DD');[,d,m,y]=a;}}
+  y=+y;m=+m;d=+d;const check=new Date(Date.UTC(y,m-1,d));if(y<1900||y>2100||check.getUTCFullYear()!==y||check.getUTCMonth()!==m-1||check.getUTCDate()!==d)throw Error('Tanggal tidak valid');return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+ }
+ function parse(ws, date1904=false){
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null,range:0});
+  for(const merge of ws['!merges']||[])if(merge.s.c===merge.e.c)for(let r=merge.s.r+1;r<=merge.e.r;r++){rows[r]??=[];rows[r][merge.s.c]=rows[merge.s.r]?.[merge.s.c];}
+  let header=-1,dc=-1,bc=-1,groups=[];
+  for(let r=0;r<Math.min(rows.length,30);r++){
+   const row=rows[r]||[];dc=row.findIndex(v=>['TANGGAL','DATE'].includes(norm(v)));bc=row.findIndex(v=>['PRODUCT','BRAND','PRODUK'].includes(norm(v)));if(dc<0||bc<0)continue;
+   const jc=row.findIndex(v=>['JENIS','JENISWASTE','MATERIAL'].includes(norm(v))),pc=row.findIndex(v=>norm(v)==='PRODUKSI'),uc=row.findIndex(v=>norm(v)==='PEMAKAIAN');
+   if(jc>=0&&pc>=0&&uc>=0){groups=[{jc,pc,uc,kc:row.findIndex(v=>['KET','KETERANGAN'].includes(norm(v)))}];header=r;break;}
+   const sub=rows[r+1]||[];const starts=row.map((v,c)=>({jenis:material(v),c})).filter(x=>x.jenis);
+   groups=starts.map((x,i)=>{const end=starts[i+1]?.c??Math.max(row.length,sub.length);let pc=-1,uc=-1,kc=-1;for(let c=x.c;c<end;c++){const n=norm(sub[c]);if(n==='PRODUKSI')pc=c;if(n==='PEMAKAIAN')uc=c;if(['KET','KETERANGAN'].includes(n)||['KET','KETERANGAN'].includes(norm(row[c])))kc=c;}return {...x,pc,uc,kc};});
+   if(groups.length&&groups.every(g=>g.pc>=0&&g.uc>=0)){header=r+1;break;}groups=[];
+  }
+  if(header<0||!groups.length)throw Error('Header tidak dikenali. Gunakan Tanggal, Product/Brand dan kelompok AMBRI/ETIKET/OPP/MOP dengan Produksi serta Pemakaian, atau format tabel sederhana.');
+  const records=[],errors=[];let empty=0;
+  for(let r=header+1;r<rows.length;r++){
+   const row=rows[r]||[];if(row.every(v=>v===null||v===''))continue;
+   if(/^(TOTAL|JUMLAH|SUBTOTAL)/.test(norm(row[bc])))continue;
+   for(const g of groups){
+    const rawP=row[g.pc],rawU=row[g.uc];if((rawP==null||rawP==='')&&(rawU==null||rawU==='')){empty++;continue;}
+    try{
+     const brand=String(row[bc]??'').trim().toUpperCase();if(!brand)throw Error('Brand kosong');
+     const jenis=g.jenis||material(row[g.jc]);if(!jenis)throw Error('Jenis material tidak dikenali');
+     const produksi=number(rawP),pemakaian=number(rawU);
+     if(produksi===null||pemakaian===null||!Number.isSafeInteger(produksi)||!Number.isSafeInteger(pemakaian)||produksi<0||pemakaian<produksi)throw Error('Produksi dan pemakaian wajib angka bulat ≥ 0; pemakaian tidak boleh lebih kecil dari produksi');
+     records.push({date:date(row[dc],date1904),brand,jenis,produksi,pemakaian,jumlah:pemakaian-produksi,keterangan:String(row[g.kc]??'').trim(),sourceRow:r+1});
+    }catch(e){errors.push(`Baris ${r+1}${g.jenis?' '+g.jenis:''}: ${e.message}`);}
+   }
+  }
+  return {records,errors,empty};
+ }
+ const key=r=>[r.date,norm(r.brand),r.jenis].join('|');
+ function classify(records,existing){const seen=new Map();existing.forEach(r=>seen.set(key(r),r));let duplicate=0;const fresh=[],conflicts=[];for(const r of records){const old=seen.get(key(r));if(old){if(Number(old.produksi)===r.produksi&&Number(old.pemakaian)===r.pemakaian)duplicate++;else conflicts.push(`Baris ${r.sourceRow}: ${r.date} / ${r.brand} / ${r.jenis} sudah ada dengan angka berbeda.`);}else{fresh.push(r);seen.set(key(r),r);}}return {fresh,duplicate,conflicts};}
+ return {parse,classify,key};
+})();
+let wasteImportBook=null,wasteImportRows=[],wasteImportBusy=false;
+function openWasteImport(){if(!ensureNotGuest('mengimpor Waste'))return;document.getElementById('wasteImportPanel').classList.remove('hidden');document.getElementById('wasteExcelFile').focus();}
+function closeWasteImport(){if(!wasteImportBusy)document.getElementById('wasteImportPanel').classList.add('hidden');}
+async function readWasteExcel(input){
+ if(wasteImportBusy)return;
+ wasteImportRows=[];document.getElementById('wasteImportSave').disabled=true;
+ const file=input.files[0];if(!file)return;
+ try{if(file.size>20*1024*1024)throw Error('Maksimum file 20 MB.');wasteImportBook=XLSX.read(await file.arrayBuffer(),{type:'array'});const select=document.getElementById('wasteExcelSheet');select.replaceChildren(...wasteImportBook.SheetNames.map(n=>new Option(n,n)));const preferred=wasteImportBook.SheetNames.find(n=>/ambri|etiket/i.test(n));if(preferred)select.value=preferred;await previewWasteExcel();}catch(e){document.getElementById('wasteImportStatus').textContent=e.message;}
+}
+async function previewWasteExcel(){
+ if(!wasteImportBook||wasteImportBusy)return;
+ wasteImportRows=[];document.getElementById('wasteImportSave').disabled=true;document.getElementById('wasteImportPreview').replaceChildren();
+ try{
+  const data=await wasteRequest('GET');wasteRecords=data.records||[];
+  const parsed=WasteExcel.parse(wasteImportBook.Sheets[document.getElementById('wasteExcelSheet').value],!!wasteImportBook.Workbook?.WBProps?.date1904);
+  // Match brand spelling to master data while ignoring spaces and hyphens.
+  parsed.records.forEach(r=>{const match=(masterData.brands||[]).find(b=>String(b).replace(/[^a-z0-9]/gi,'').toUpperCase()===r.brand.replace(/[^a-z0-9]/gi,'').toUpperCase());if(match)r.brand=match;});
+  const result=WasteExcel.classify(parsed.records,wasteRecords);const errors=[...parsed.errors,...result.conflicts];wasteImportRows=errors.length?[]:result.fresh;
+  document.getElementById('wasteImportStatus').textContent=`${parsed.records.length} entri terbaca · ${result.fresh.length} baru · ${result.duplicate} duplikat dilewati · ${errors.length} masalah. ${parsed.empty} sel pasangan kosong dilewati.`;
+  document.getElementById('wasteImportErrors').textContent=errors.slice(0,80).join('\n')+(errors.length>80?'\nMasalah lainnya: '+(errors.length-80):'');
+  const body=document.getElementById('wasteImportPreview');result.fresh.slice(0,100).forEach(r=>{const tr=document.createElement('tr');[r.sourceRow,r.date,r.brand,r.jenis,r.produksi,r.pemakaian,r.jumlah,(r.pemakaian?r.jumlah/r.pemakaian*100:0).toFixed(2)+'%'].forEach(v=>{const td=document.createElement('td');td.textContent=v;td.style.padding='8px';tr.append(td);});body.append(tr);});
+  document.getElementById('wasteImportSave').disabled=!wasteImportRows.length;
+ }catch(e){document.getElementById('wasteImportStatus').textContent='Preview gagal: '+e.message;}
+}
+async function saveWasteExcel(){
+ if(wasteImportBusy||!wasteImportRows.length||!ensureNotGuest('mengimpor Waste'))return;
+ wasteImportBusy=true;const btn=document.getElementById('wasteImportSave');btn.disabled=true;['wasteExcelFile','wasteExcelSheet','wasteImportClose'].forEach(id=>document.getElementById(id).disabled=true);let done=0;
+ try{
+  const data=await wasteRequest('GET');const check=WasteExcel.classify(wasteImportRows,data.records||[]);if(check.conflicts.length)throw Error('Ada perubahan data sejak preview. Pilih sheet kembali untuk memeriksa ulang.');
+  for(const r of check.fresh){
+   const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(WasteExcel.key(r)));const id='waste-xlsx-'+Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const {sourceRow,...payload}=r;await wasteRequest('POST',{...payload,id});done++;document.getElementById('wasteImportStatus').textContent=`Menyimpan ${done} / ${check.fresh.length}…`;
+  }
+  wasteImportRows=[];await loadWasteRecords();document.getElementById('wasteImportStatus').textContent=`Selesai: ${done} entri disimpan, ${check.duplicate} duplikat dilewati. Sesuaikan filter periode untuk melihat data impor.`;showToast('Import Excel selesai.','success');
+ }catch(e){document.getElementById('wasteImportStatus').textContent=`Proses berhenti setelah ${done} entri tersimpan: ${e.message}. Pilih sheet kembali untuk cek ulang sebelum melanjutkan.`;wasteImportRows=[];}
+ finally{wasteImportBusy=false;['wasteExcelFile','wasteExcelSheet','wasteImportClose'].forEach(id=>document.getElementById(id).disabled=false);}
+}
+
 </script></body>
 </html>
