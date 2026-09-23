@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Monitoring Dashboard - Sigaret Kretek Tangan | PT Aroma Tobacco Internasional</title>
+    <title>Dashboard Quality - Sigaret Kretek Tangan | PT Aroma Tobacco Internasional</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -375,7 +375,8 @@
         letter-spacing:1.2px; text-transform:uppercase;
     }
     #skt-desktop-sidebar .production-menu-group:not(:has(button:not(.hidden))),
-    body.dashboard-viewer #skt-desktop-sidebar .production-menu-group[aria-labelledby="menu-group-system"] { display:none; }
+    body.dashboard-viewer #skt-desktop-sidebar .production-menu-group[aria-labelledby="menu-group-system"],
+    body.dashboard-viewer #skt-desktop-sidebar .production-menu-group[aria-labelledby="menu-group-produksi"] { display:none; }
 }
 
 /* Desktop station navigation only. Original station content keeps its styles. */
@@ -572,7 +573,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                 </div>
                 <div class="app-brand-copy">
                     <span class="text-[11px] font-bold tracking-wider uppercase text-purple-300">PT Aroma Tobacco Internasional</span>
-                    <h1 class="app-brand-title text-base sm:text-lg font-black text-white leading-tight">Production Monitoring Dashboard <span class="text-purple-400 font-medium text-xs sm:text-sm">| SKT</span></h1>
+                    <h1 class="app-brand-title text-base sm:text-lg font-black text-white leading-tight">Dashboard Quality <span class="text-purple-400 font-medium text-xs sm:text-sm">| SKT</span></h1>
                 </div>
             </div>
 
@@ -615,7 +616,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
             <div id="guestReadOnlyNotice" class="hidden bg-purple-950/90 border border-purple-500/50 rounded-2xl px-4 py-3 shadow-md">
                 <div class="flex items-center gap-3">
                     <span class="w-9 h-9 shrink-0 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="eye" class="w-4 h-4 text-purple-200"></i></span>
-                    <div><h3 class="text-sm font-bold text-white">Guest Internal — hanya lihat</h3><p class="text-[11px] text-purple-300">Anda hanya dapat melihat ringkasan hasil pada Dashboard. Input, edit, hapus, download, riwayat detail, dan pengaturan dinonaktifkan.</p></div>
+                    <div><h3 class="text-sm font-bold text-white">Guest Internal — hanya lihat</h3><p class="text-[11px] text-purple-300">Anda dapat melihat Dashboard Quality, data Quality, dan data Produksi. Input, edit, hapus, dan pengaturan dinonaktifkan.</p></div>
                 </div>
             </div>
             <div id="monthlyBackupReminder" class="hidden bg-gradient-to-r from-purple-800/80 via-purple-700/70 to-purple-900/80 border border-purple-400/60 rounded-2xl p-4 shadow-lg">
@@ -673,7 +674,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5 text-purple-300"></i></span>
                     <div>
-                        <h2 class="text-base font-bold text-white">Ringkasan Produksi</h2>
+                        <h2 class="text-base font-bold text-white">Ringkasan Quality</h2>
                         <p class="text-xs text-purple-300">Dashboard harian, mingguan, atau bulanan seluruh station dalam satu halaman</p>
                     </div>
                 </div>
@@ -2102,12 +2103,12 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                 renderHistoryTable();
                 renderMoistureSection();
                 renderPackSection();
-                await loadWasteRecords();
+                if (currentRole !== 'DASHBOARD_VIEWER') await loadWasteRecords();
                 if (currentRole === 'ADMIN') renderMasterSettings();
                 refreshInspectorFilter();
                 lucide.createIcons();
                 window.setInterval(() => {
-                    loadWasteRecords();
+                    if (currentRole !== 'DASHBOARD_VIEWER') loadWasteRecords();
                     if (currentRole === 'DASHBOARD_VIEWER') { guestSummaryCache.clear(); guestWeightTrendCache.clear(); renderOverview(); renderDashboard(); renderPackSection(); renderMoistureSection(); return; }
                     loadInspections(true);
                     loadMoistureRecords(true);
@@ -2331,18 +2332,18 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
             }
 
             ['Giling', 'Pack', 'Waste', 'Moisture', 'Settings'].forEach(tabName => {
-                document.getElementById(`tabBtn${tabName}`).classList.toggle('hidden', guestMode);
+                document.getElementById(`tabBtn${tabName}`).classList.toggle('hidden', role === 'DASHBOARD_VIEWER' && tabName === 'Waste');
             });
             document.getElementById('guestReadOnlyNotice').classList.toggle('hidden', !guestMode);
             document.getElementById('customBackupPanel').classList.toggle('hidden', guestMode || role === 'DASHBOARD_VIEWER');
             document.getElementById('tabBtnSettings').classList.toggle('hidden', role !== 'ADMIN');
             document.querySelectorAll('[data-overview-drilldown]').forEach(button => {
-                button.disabled = guestMode;
-                button.classList.toggle('cursor-default', guestMode);
-                button.classList.toggle('hover:border-purple-400', !guestMode);
-                button.setAttribute('aria-disabled', String(guestMode));
+                button.disabled = false;
+                button.classList.toggle('cursor-default', false);
+                button.classList.toggle('hover:border-purple-400', true);
+                button.setAttribute('aria-disabled', 'false');
                 const arrow = button.querySelector('[data-lucide="arrow-up-right"]');
-                if (arrow) arrow.classList.toggle('hidden', guestMode);
+                if (arrow) arrow.classList.toggle('hidden', false);
             });
             renderHistoryTable();
         }
@@ -2352,6 +2353,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
         function configureDashboardViewer() {
             const viewer = currentRole === 'DASHBOARD_VIEWER';
             document.body.classList.toggle('dashboard-viewer', viewer);
+            document.getElementById('tabBtnWaste')?.classList.toggle('hidden', viewer);
             // These filters require individual-record dimensions, absent from the shared daily summary.
             ['filterKelompok','filterSampling','filterInspector','weightTrendGroupFilter','packFilterTime','packFilterBuilding','packSearch','mcSearch'].forEach(id=>{
                 const input=document.getElementById(id);if(input){input.disabled=viewer;input.title=viewer?'Ringkasan harian mencakup semua kelompok, sampling, jam, dan inspector.':'';}
@@ -2525,8 +2527,8 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
 
         function switchTab(tabId) {
             if (tabId === 'settings' && !ensureAdmin()) return;
-            if (currentRole === 'GUEST' && tabId !== 'dashboard') {
-                showToast('Guest Internal hanya dapat melihat ringkasan pada Dashboard.', 'error');
+            if (currentRole === 'DASHBOARD_VIEWER' && !['dashboard','giling','pack','moisture'].includes(tabId)) {
+                showToast('Guest Eksternal hanya dapat membuka Dashboard Quality dan data Quality.', 'error');
                 return;
             }
             document.getElementById('tabDashboard').classList.add('hidden');
@@ -2539,7 +2541,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
             ['Dashboard', 'Giling', 'Pack', 'Waste', 'Moisture', 'Settings'].forEach(t => {
                 const btn = document.getElementById(`tabBtn${t}`);
                 btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all";
-                if ((t === 'Settings' && currentRole !== 'ADMIN') || (currentRole === 'GUEST' && t !== 'Dashboard')) btn.classList.add('hidden');
+                if ((t === 'Settings' && currentRole !== 'ADMIN') || (currentRole === 'DASHBOARD_VIEWER' && t === 'Waste')) btn.classList.add('hidden');
             });
 
             if (tabId === 'dashboard') {
@@ -4399,7 +4401,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
             renderWasteSummaryCards(summaryData);
             renderWasteTrendChart(summaryData, range);
 
-            if (!['GUEST','DASHBOARD_VIEWER'].includes(currentRole)) renderWasteMatrix(filtered);
+            if (currentRole !== 'DASHBOARD_VIEWER') renderWasteMatrix(filtered);
             else tbody.innerHTML='';
             lucide.createIcons();
             document.getElementById('wasteLastUpdated').innerText = 'Update: ' + new Date().toLocaleTimeString('id-ID');
@@ -4490,7 +4492,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
             try {
                 await wasteRequest(editId?'PATCH':'POST',{id:editId || ('waste-'+crypto.randomUUID()),date,brand,jenis,produksi,pemakaian,jumlah,keterangan});
                 closeWasteModal();
-                await loadWasteRecords();
+                if (currentRole !== 'DASHBOARD_VIEWER') await loadWasteRecords();
                 showToast('Data Waste tersimpan di Supabase.','success');
             } catch(error) {showToast(error.message,'error');}
             finally {button.disabled=false;}
