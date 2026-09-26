@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="icon" type="image/png" href="aroma-logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Quality - Sigaret Kretek Tangan | PT Aroma Tobacco Internasional</title>
@@ -16,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="supabase-api.js"></script>
+    <script src="presence.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -581,6 +583,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
             <div class="app-controls flex items-center flex-wrap gap-2 sm:gap-3">
                 <!-- Authenticated User & Role -->
                 <div class="app-user-area flex items-center bg-purple-900/90 border border-purple-700/60 rounded-xl p-1 text-xs">
+                    <span id="myPresence" class="px-2 text-amber-300" aria-live="polite">Menghubungkan…</span>
                     <span id="currentUserName" class="px-2 py-0.5 text-purple-200 font-semibold hidden md:inline">Pengguna</span>
                     <span id="btnRoleViewer" class="hidden px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white">Guest Eksternal</span>
                     <button id="btnRoleGuest" disabled class="hidden px-2.5 py-1 rounded-lg font-bold transition-all text-purple-300">Guest Internal</button>
@@ -1541,6 +1544,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                         <button onclick="openUserModal()" class="text-xs bg-purple-700 hover:bg-purple-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">+ Tambah Akun</button>
                     </div>
                     <p class="text-[11px] text-slate-400 mb-3">Admin dapat membuat username dan password sementara untuk QC.</p>
+                    <div id="presenceTotals" class="text-xs text-purple-200 mb-3" aria-live="polite">Status pengguna sedang dimuat…</div>
                     <div id="masterUserList" class="space-y-1.5 max-h-52 overflow-y-auto custom-scroll pr-1 text-xs">
                         <div class="text-slate-400">Memuat akun...</div>
                     </div>
@@ -2047,6 +2051,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                 document.getElementById('packInputInspector').value = currentUser.displayName;
                 document.getElementById('wasteInputInspector').value = currentUser.displayName;
                 setRole(currentRole);
+                window.qcPresence.start(currentUser, currentRole === 'ADMIN' ? () => renderUserList() : null);
                 if (currentRole !== 'DASHBOARD_VIEWER') {
                 await Promise.all([
                     loadMasterData(),
@@ -2113,7 +2118,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                     loadInspections(true);
                     loadMoistureRecords(true);
                     loadPackRecords(true);
-                    if (currentRole === 'ADMIN') loadBackupStatus();
+                    if (currentRole === 'ADMIN') { loadBackupStatus(); loadUsers().catch(() => {}); }
                 }, 20000);
             } catch (error) {
                 showToast(error.message || 'Dashboard gagal memuat data bersama.', 'error');
@@ -2521,6 +2526,7 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
         }
 
         async function logoutDashboard() {
+            await window.qcPresence.stop();
             await apiFetch('/api/auth/logout', { method: 'POST' });
             window.location.replace('index.html');
         }
@@ -5712,11 +5718,14 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
                 list.innerHTML = '<div class="text-slate-400">Belum ada akun pengguna.</div>';
                 return;
             }
+            const online = managedUsers.filter(user => window.qcPresence.isOnline(user.id)).length;
+            const totals = document.getElementById('presenceTotals');
+            if (totals) totals.textContent = `Online: ${online} · Offline: ${managedUsers.length - online} · Total: ${managedUsers.length}`;
             list.innerHTML = managedUsers.map(user => `
                 <div class="flex justify-between items-center gap-3 bg-purple-950/60 p-2.5 rounded-xl border border-purple-800/40">
                     <div class="min-w-0">
                         <div class="font-bold text-purple-200 truncate">${escapeHtml(user.displayName)}</div>
-                        <div class="text-[10px] text-slate-400">${escapeHtml(user.username)} · ${user.role === 'ADMIN' ? 'Admin' : user.role === 'DASHBOARD_VIEWER' ? 'Guest Eksternal' : user.role === 'GUEST' ? 'Guest Internal' : 'QC Inspector'}</div>
+                        <div class="text-[10px] text-slate-400">${window.qcPresence.isOnline(user.id) ? '🟢 Online' : '⚪ Offline'} · ${escapeHtml(user.username)} · ${user.role === 'ADMIN' ? 'Admin' : user.role === 'DASHBOARD_VIEWER' ? 'Guest Eksternal' : user.role === 'GUEST' ? 'Guest Internal' : 'QC Inspector'}</div>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
                         <button onclick="openUserModal('${user.id}')" class="text-[10px] px-2 py-1 rounded-lg bg-amber-900/50 text-amber-300 hover:bg-amber-800/70">Edit</button>
