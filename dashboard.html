@@ -1538,11 +1538,11 @@ body::before { opacity: .45; }
                     <div class="space-y-3 text-xs">
                         <div>
                             <label class="block text-purple-300 mb-1">Target Hijau (Memenuhi Standar, %)</label>
-                            <input type="number" id="settingTargetGreen" value="95" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                            <input type="number" id="settingTargetGreen" value="81" readonly title="Ambang warna Quality tetap 81%" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
                         </div>
                         <div>
                             <label class="block text-purple-300 mb-1">Batas Kuning (Peringatan / Toleransi, %)</label>
-                            <input type="number" id="settingTargetYellow" value="90" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
+                            <input type="number" id="settingTargetYellow" value="70" readonly title="Ambang warna Quality tetap 70%" min="1" max="100" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-purple-400">
                         </div>
                         <div>
                             <label class="block text-purple-300 mb-1">Default Jumlah Batang Sampel</label>
@@ -1567,7 +1567,7 @@ body::before { opacity: .45; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v6 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v8 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
 
@@ -2485,7 +2485,7 @@ body::before { opacity: .45; }
                 guestBrandOptions('filterBrand',rows);guestBrandOptions('weightTrendBrandFilter',rows);
                 const filtered=guestRowsForBrand(rows,'filterBrand'),stats=guestStats(filtered);
                 guestText('kpiTotalSample',stats.totalSample.toLocaleString('id-ID'));
-                [['Overall','overall'],['Visual','visual'],['Physical','physical']].forEach(([id,key])=>{const pct=stats[key+'InSpecPct'];guestText('kpi'+id+'In',guestPct(pct));guestText('kpi'+id+'Out','Out: '+guestPct(pct===null?null:100-pct));applyKpiColor('kpi'+id+'Badge',pct||0);});
+                [['Overall','overall'],['Visual','visual'],['Physical','physical']].forEach(([id,key])=>{const pct=stats[key+'InSpecPct'];guestText('kpi'+id+'In',guestPct(pct));colorQualityPercent('kpi'+id+'In',pct);guestText('kpi'+id+'Out','Out: '+guestPct(pct===null?null:100-pct));applyKpiColor('kpi'+id+'Badge',pct||0);});
                 weights(filtered,'kpi');
                 const n=metricCount(rows,'records'),target=72*range.days;
                 guestText('completenessBadge',`${n}/${target} Masuk`);guestText('completenessPercent',(target?Math.min(100,n/target*100):0).toFixed(0)+'%');document.getElementById('completenessBar').style.width=(target?Math.min(100,n/target*100):0)+'%';
@@ -2493,7 +2493,7 @@ body::before { opacity: .45; }
                 guestText('kpiPeriodStatusLabel','Jumlah Sampling');guestText('kpiKelompokDone',n);guestText('kpiPeriodStatusSuffix','/ '+target+' Sampling');guestText('kpiKelompokPending',Math.max(0,target-n)+' Belum Lengkap');
                 // Reuse the exact existing parameter bar and category donut renderers.
                 renderCharts({...stats,visualInSpecPct:stats.visualInSpecPct||0,physicalInSpecPct:stats.physicalInSpecPct||0});
-                guestText('labelVisualInSpec',guestPct(stats.visualInSpecPct));guestText('labelPhysicalInSpec',guestPct(stats.physicalInSpecPct));
+                guestText('labelVisualInSpec',guestPct(stats.visualInSpecPct));guestText('labelPhysicalInSpec',guestPct(stats.physicalInSpecPct));colorQualityPercent('labelVisualInSpec',stats.visualInSpecPct);colorQualityPercent('labelPhysicalInSpec',stats.physicalInSpecPct);
                 renderParameterTable(stats);
                 const days=[...new Set(filtered.map(r=>r.date))].sort();
                 guestLine('gilingPeriodTrendChart',days,[{label:'Overall In-Spec (%)',data:days.map(d=>guestStats(filtered.filter(r=>r.date===d)).overallInSpecPct)}]);
@@ -3574,6 +3574,8 @@ body::before { opacity: .45; }
 
             document.getElementById('overviewGilingCount').innerText = gilingData.length;
             document.getElementById('overviewGilingScore').innerText = gilingData.length ? `${gilingAggregate.overallInSpecPct.toFixed(1)}%` : '—';
+            colorQualityPercent('overviewGilingScore', gilingData.length ? gilingAggregate.overallInSpecPct : null);
+            colorQualityPercent('overviewPackScore', packAverage);
             document.getElementById('overviewGilingOut').innerText = gilingData.length ? `Out: ${gilingAggregate.overallOutSpecPct.toFixed(1)}%` : 'Out: —';
             const weightGroupAR = getWeightGroupStats(gilingData, 'GRUP AR');
             const weightGroupAS = getWeightGroupStats(gilingData, 'GRUP AS');
@@ -3720,8 +3722,8 @@ body::before { opacity: .45; }
         };
 
         function renderOverviewCharts(gilingData, gilingAggregate, packData, range) {
-            const target = Number(masterData.targetYellow) || 90;
-            document.getElementById('overviewParameterTarget').innerText = `Target ≥ ${target}%`;
+            const target = 81;
+            document.getElementById('overviewParameterTarget').innerText = `Hijau ≥ 81% · Kuning ≥ 70%`;
 
             const parameters = [
                 ['GTG', 'gtg'], ['KRPS', 'krps'], ['KMLS', 'kmls'], ['RING', 'ring'], ['BST', 'bst'],
@@ -3743,7 +3745,7 @@ body::before { opacity: .45; }
                 data: {
                     labels: parameters.map(item => item.label),
                     datasets: [
-                        { label: 'In-Spec (%)', data: parameters.map(item => item.inSpec), backgroundColor: '#9b3ff3', borderRadius: 5, borderSkipped: false },
+                        { label: 'In-Spec (%)', data: parameters.map(item => item.inSpec), backgroundColor: parameters.map(item => getQualityScoreTone(item.inSpec).color || '#64748b'), borderRadius: 5, borderSkipped: false },
                         { label: 'Out-Spec (%)', data: parameters.map(item => item.outSpec), backgroundColor: '#f43f5e', borderRadius: 5, borderSkipped: false }
                     ]
                 },
@@ -3793,7 +3795,7 @@ body::before { opacity: .45; }
                     labels: trendLabels,
                     datasets: [{
                         label: 'Overall In-Spec (%)', data: trendValues, borderColor: '#c084fc', backgroundColor: 'rgba(155,63,243,0.18)',
-                        pointBackgroundColor: '#e9d5ff', pointBorderColor: '#4e3867', pointBorderWidth: 2, pointRadius: 5,
+                        pointBackgroundColor: trendValues.map(value => getQualityScoreTone(value).color || '#64748b'), pointBorderColor: '#4e3867', pointBorderWidth: 2, pointRadius: 5,
                         borderWidth: 3, tension: 0.3, fill: true, spanGaps: false
                     }]
                 },
@@ -3823,7 +3825,7 @@ body::before { opacity: .45; }
                 type: 'bar',
                 data: {
                     labels: PACK_STATION_KEYS.map(stationKey => PACK_STATION_CONFIG[stationKey].label),
-                    datasets: [{ label: 'In-Spec (%)', data: stationValues, backgroundColor: ['#9b3ff3', '#818cf8', '#22d3ee', '#34d399'], borderRadius: 8, maxBarThickness: 82 }]
+                    datasets: [{ label: 'In-Spec (%)', data: stationValues, backgroundColor: stationValues.map(value => getQualityScoreTone(value).color || '#64748b'), borderRadius: 8, maxBarThickness: 82 }]
                 },
                 plugins: [overviewTargetLinePlugin],
                 options: {
@@ -3910,11 +3912,18 @@ body::before { opacity: .45; }
             renderPackSection();
         }
 
-        function getPackScoreTone(value) {
+        function getQualityScoreTone(value) {
             if (value === null) return { text: 'text-slate-400', bar: 'bg-slate-700', border: 'border-purple-800/60' };
-            if (value >= masterData.targetGreen) return { text: 'text-emerald-300', bar: 'bg-emerald-400', border: 'border-emerald-500/40' };
-            if (value >= masterData.targetYellow) return { text: 'text-amber-300', bar: 'bg-amber-400', border: 'border-amber-500/40' };
-            return { text: 'text-rose-300', bar: 'bg-rose-500', border: 'border-rose-500/40' };
+            if (value >= 81) return { text: 'text-emerald-300', bar: 'bg-emerald-400', border: 'border-emerald-500/40', color: '#34d399' };
+            if (value >= 70) return { text: 'text-amber-300', bar: 'bg-amber-400', border: 'border-amber-500/40', color: '#fbbf24' };
+            return { text: 'text-rose-300', bar: 'bg-rose-500', border: 'border-rose-500/40', color: '#f43f5e' };
+        }
+        const getPackScoreTone = getQualityScoreTone;
+        function colorQualityPercent(id, value) {
+            const element = document.getElementById(id);
+            if (!element) return;
+            element.classList.remove('text-white', 'text-emerald-300', 'text-amber-300', 'text-rose-300');
+            element.classList.add(getQualityScoreTone(value).text);
         }
 
         function renderPackSummaries(summaryData) {
@@ -4746,10 +4755,13 @@ body::before { opacity: .45; }
             // KPI Cards
             document.getElementById('kpiTotalSample').innerText = agg.totalSample.toLocaleString('id-ID');
             document.getElementById('kpiOverallIn').innerText = agg.overallInSpecPct.toFixed(1) + '%';
+            colorQualityPercent('kpiOverallIn', agg.overallInSpecPct);
             document.getElementById('kpiOverallOut').innerText = 'Out: ' + agg.overallOutSpecPct.toFixed(1) + '%';
             document.getElementById('kpiVisualIn').innerText = agg.visualInSpecPct.toFixed(1) + '%';
+            colorQualityPercent('kpiVisualIn', agg.visualInSpecPct);
             document.getElementById('kpiVisualOut').innerText = 'Out: ' + agg.visualOutSpecPct.toFixed(1) + '%';
             document.getElementById('kpiPhysicalIn').innerText = agg.physicalInSpecPct.toFixed(1) + '%';
+            colorQualityPercent('kpiPhysicalIn', agg.physicalInSpecPct);
             document.getElementById('kpiPhysicalOut').innerText = 'Out: ' + agg.physicalOutSpecPct.toFixed(1) + '%';
             const weightGroupAR = getWeightGroupStats(data, 'GRUP AR');
             const weightGroupAS = getWeightGroupStats(data, 'GRUP AS');
@@ -4809,9 +4821,9 @@ body::before { opacity: .45; }
 
         function applyKpiColor(elementId, pctValue) {
             const el = document.getElementById(elementId);
-            if (pctValue >= masterData.targetGreen) {
+            if (pctValue >= 81) {
                 el.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]";
-            } else if (pctValue >= masterData.targetYellow) {
+            } else if (pctValue >= 70) {
                 el.className = "w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]";
             } else {
                 el.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
@@ -4892,7 +4904,7 @@ body::before { opacity: .45; }
                         data: values,
                         borderColor: '#a855f7',
                         backgroundColor: 'rgba(168, 85, 247, 0.16)',
-                        pointBackgroundColor: '#c4b5fd',
+                        pointBackgroundColor: values.map(value => getQualityScoreTone(value).color || '#64748b'),
                         pointBorderColor: '#6d28d9',
                         pointRadius: range.mode === 'monthly' ? 2.5 : 4,
                         pointHoverRadius: 6,
@@ -5203,7 +5215,7 @@ body::before { opacity: .45; }
                         {
                             label: 'In-Spec (%)',
                             data: inSpecPcts,
-                            backgroundColor: '#9b3ff3',
+                            backgroundColor: inSpecPcts.map(value => getQualityScoreTone(value).color || '#64748b'),
                             borderRadius: 6
                         },
                         {
@@ -5237,7 +5249,7 @@ body::before { opacity: .45; }
                     labels: ['Visual In-Spec', 'Physical In-Spec'],
                     datasets: [{
                         data: [agg.visualInSpecPct.toFixed(1), agg.physicalInSpecPct.toFixed(1)],
-                        backgroundColor: ['#9b3ff3', '#818cf8'],
+                        backgroundColor: [agg.visualInSpecPct, agg.physicalInSpecPct].map(value => getQualityScoreTone(value).color),
                         borderColor: '#140d22',
                         borderWidth: 2
                     }]
@@ -5252,6 +5264,8 @@ body::before { opacity: .45; }
 
             document.getElementById('labelVisualInSpec').innerText = agg.visualInSpecPct.toFixed(1) + '%';
             document.getElementById('labelPhysicalInSpec').innerText = agg.physicalInSpecPct.toFixed(1) + '%';
+            colorQualityPercent('labelVisualInSpec', agg.visualInSpecPct);
+            colorQualityPercent('labelPhysicalInSpec', agg.physicalInSpecPct);
         }
 
         function renderParameterTable(agg) {
@@ -5269,7 +5283,7 @@ body::before { opacity: .45; }
                 const outPct = 100 - inPct;
 
                 rowTotal += `<td class="p-2.5 text-center font-bold text-purple-200">${denominator > 0 ? count : '—'}</td>`;
-                rowIn += `<td class="p-2.5 text-center font-semibold text-emerald-300">${denominator > 0 ? `${inPct.toFixed(1)}%` : '—'}</td>`;
+                rowIn += `<td class="p-2.5 text-center font-semibold ${denominator > 0 ? getQualityScoreTone(inPct).text : 'text-slate-400'}">${denominator > 0 ? `${inPct.toFixed(1)}%` : '—'}</td>`;
                 rowOut += `<td class="p-2.5 text-center font-semibold text-rose-300">${denominator > 0 ? `${outPct.toFixed(1)}%` : '—'}</td>`;
             });
 
@@ -5328,12 +5342,12 @@ body::before { opacity: .45; }
                         <td class="p-3"><span class="px-2 py-0.5 rounded-md bg-purple-900 text-purple-200 border border-purple-700 font-semibold">${item.brand}</span></td>
                         <td class="p-3 text-slate-300">${item.inspector}</td>
                         <td class="p-3 text-center font-bold text-white">${item.sampleSize}</td>
-                        <td class="p-3 text-center font-semibold text-purple-200">${vPct}%</td>
-                        <td class="p-3 text-center font-semibold text-purple-300"${weightTooltip}>
+                        <td class="p-3 text-center font-semibold ${getQualityScoreTone(Number(vPct)).text}">${vPct}%</td>
+                        <td class="p-3 text-center font-semibold ${getQualityScoreTone(Number(pPct)).text}"${weightTooltip}>
                             ${pPct}%
                             ${weightAverage ? `<span class="block text-[10px] text-slate-400 mt-0.5">Avg berat: ${weightAverage} g</span>` : ''}
                         </td>
-                        <td class="p-3 text-center"><span class="font-bold px-2 py-0.5 rounded-lg ${oPct >= masterData.targetGreen ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-rose-950 text-rose-300 border border-rose-500/50'}">${oPct}%</span></td>
+                        <td class="p-3 text-center"><span class="font-bold px-2 py-0.5 rounded-lg ${oPct >= 81 ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : oPct >= 70 ? 'bg-amber-950 text-amber-300 border border-amber-500/50' : 'bg-rose-950 text-rose-300 border border-rose-500/50'}">${oPct}%</span></td>
                         <td class="p-3 text-center">${actionBtns}</td>
                     </tr>
                 `;
@@ -5673,8 +5687,8 @@ body::before { opacity: .45; }
             renderTobaccoBrandSettings();
             renderWasteMaterialMaster();
 
-            document.getElementById('settingTargetGreen').value = masterData.targetGreen;
-            document.getElementById('settingTargetYellow').value = masterData.targetYellow;
+            document.getElementById('settingTargetGreen').value = 81;
+            document.getElementById('settingTargetYellow').value = 70;
             document.getElementById('settingDefaultSample').value = masterData.defaultSampleSize;
             renderUserList();
         }
@@ -5777,8 +5791,8 @@ body::before { opacity: .45; }
 
         async function saveTargets() {
             if (!ensureAdmin('mengubah target dan pengaturan')) return;
-            masterData.targetGreen = parseFloat(document.getElementById('settingTargetGreen').value) || 95;
-            masterData.targetYellow = parseFloat(document.getElementById('settingTargetYellow').value) || 90;
+            masterData.targetGreen = 81;
+            masterData.targetYellow = 70;
             masterData.defaultSampleSize = parseInt(document.getElementById('settingDefaultSample').value) || 10;
             try {
                 await apiFetch('/api/master', {
@@ -6460,7 +6474,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v6</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v8</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
