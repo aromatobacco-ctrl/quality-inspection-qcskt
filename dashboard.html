@@ -1567,7 +1567,7 @@ body::before { opacity: .45; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v8 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v9 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
 
@@ -5249,7 +5249,7 @@ body::before { opacity: .45; }
                     labels: ['Visual In-Spec', 'Physical In-Spec'],
                     datasets: [{
                         data: [agg.visualInSpecPct.toFixed(1), agg.physicalInSpecPct.toFixed(1)],
-                        backgroundColor: [agg.visualInSpecPct, agg.physicalInSpecPct].map(value => getQualityScoreTone(value).color),
+                        backgroundColor: ['#a855f7', '#d8b4fe'],
                         borderColor: '#140d22',
                         borderWidth: 2
                     }]
@@ -6474,7 +6474,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v8</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v9</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
