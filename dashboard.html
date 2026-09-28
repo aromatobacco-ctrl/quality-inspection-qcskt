@@ -1607,7 +1607,7 @@ body::before { opacity: .45; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v11 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v12 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
 
@@ -4366,6 +4366,12 @@ body::before { opacity: .45; }
             const dates = getWasteRangeDates(range);
             const labels = dates.map(date => formatGilingDate(date));
             const activeKeys = jenisFilter === 'ALL' ? WASTE_TYPE_KEYS : [jenisFilter];
+            const peakByKey = Object.fromEntries(activeKeys.map(key => [key, Math.max(0, ...dates.map(date =>
+                data.filter(item => item.date === date && item.jenis === key).reduce((sum, item) => sum + (Number(item.jumlah) || 0), 0)))]));
+            const sortedKeys = [...activeKeys].sort((a, b) => peakByKey[b] - peakByKey[a]);
+            const dominantKey = sortedKeys[0];
+            const secondaryPeak = Math.max(0, ...sortedKeys.slice(1).map(key => peakByKey[key]));
+            const useDualAxis = jenisFilter === 'ALL' && secondaryPeak > 0 && peakByKey[dominantKey] >= secondaryPeak * 5;
 
             const datasets = activeKeys.map(key => {
                 const config = WASTE_TYPE_CONFIG[key];
@@ -4378,6 +4384,7 @@ body::before { opacity: .45; }
                 return {
                     label: config.label,
                     data: values,
+                    yAxisID: useDualAxis && key !== dominantKey ? 'ySecondary' : 'y',
                     borderColor: config.color,
                     backgroundColor: config.bg,
                     pointBackgroundColor: config.color,
@@ -4399,7 +4406,7 @@ body::before { opacity: .45; }
 
             const periodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
             if (title) title.innerText = jenisFilter === 'ALL' ? `Trend Waste Produksi ${periodName}` : `Trend Waste ${WASTE_TYPE_CONFIG[jenisFilter].label} ${periodName}`;
-            if (caption) caption.innerText = `Jumlah waste (pcs) per hari · ${formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })}${range.mode === 'daily' ? '' : ' – ' + formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })} · pilih material di atas untuk melihat tren dengan skala tersendiri`;
+            if (caption) caption.innerText = `Jumlah waste (pcs) per hari · ${formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })}${range.mode === 'daily' ? '' : ' – ' + formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}` + (useDualAxis ? ` · Kiri: ${WASTE_TYPE_CONFIG[dominantKey].label} · Kanan: material lain (skala berbeda)` : '');
 
             const context = canvas.getContext('2d');
             if (wasteTrendChart) wasteTrendChart.destroy();
@@ -4417,8 +4424,18 @@ body::before { opacity: .45; }
                         },
                         y: {
                             beginAtZero: true,
+                            position: 'left',
                             grid: { color: '#2f0c54' },
-                            ticks: { color: '#e2e8f0', callback: value => `${value} pcs` }
+                            title: { display: useDualAxis, text: `${WASTE_TYPE_CONFIG[dominantKey].label} (pcs)`, color: '#e2e8f0' },
+                            ticks: { color: '#e2e8f0', callback: value => `${Number(value).toLocaleString('id-ID')} pcs` }
+                        },
+                        ySecondary: {
+                            display: useDualAxis,
+                            beginAtZero: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: useDualAxis, text: 'Material lain (pcs)', color: '#c4b5fd' },
+                            ticks: { color: '#c4b5fd', callback: value => `${Number(value).toLocaleString('id-ID')} pcs` }
                         }
                     },
                     plugins: {
@@ -6514,7 +6531,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v11</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v12</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
