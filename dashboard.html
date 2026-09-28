@@ -556,7 +556,17 @@ body.skt-sidebar-ready #skt-desktop-sidebar{width:260px;padding:18px 12px;backgr
 }
 @media(prefers-reduced-motion:reduce){.group-chevron{transition:none!important}}
 </style>
-<style>#sidebarVersion{margin-top:auto;padding:18px 8px 8px;flex-shrink:0}#sidebarVersion p{font-size:10px;line-height:1.9}#sidebarVersion p>span.mx-1\.5{display:block;font-size:0;height:0}</style></head>
+<style>#sidebarVersion{margin-top:auto;padding:18px 8px 8px;flex-shrink:0}#sidebarVersion p{font-size:10px;line-height:1.9}#sidebarVersion p>span.mx-1\.5{display:block;font-size:0;height:0}</style><style id="aroma-photo-background">
+/* Foto produksi tetap tampak di seluruh halaman, dengan lapisan terang untuk kontras. */
+body {
+  background: linear-gradient(rgba(238,230,244,.84),rgba(219,203,231,.86)), url('aroma-produksi.webp') center center / cover fixed !important;
+  background-size: cover !important;
+  animation: none !important;
+}
+body::before { opacity: .45; }
+@media (max-width:720px) { body { background-attachment: scroll !important; } }
+</style>
+</head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
     <!-- FLOATING TOAST NOTIFICATION -->
