@@ -606,9 +606,9 @@ body::before { opacity: .45; }
                 <nav aria-label="Navigasi utama" class="app-navigation flex items-center gap-1 bg-purple-900/60 p-1 rounded-xl border border-purple-700/50">
                     <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
                     <div class="production-menu-group" role="group" aria-labelledby="menu-group-quality"><button type="button" class="production-group-toggle" id="menu-group-quality" aria-expanded="true" aria-controls="submenu-quality"><span class="group-icon"><i data-lucide="shield-check"></i></span><span>Quality</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-quality">
+                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
                     <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
                     <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
-                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
                     </div></div>
                     <div class="production-menu-group" role="group" aria-labelledby="menu-group-produksi"><button type="button" class="production-group-toggle" id="menu-group-produksi" aria-expanded="true" aria-controls="submenu-produksi"><span class="group-icon"><i data-lucide="factory"></i></span><span>Produksi</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-produksi">
                     <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
@@ -1527,6 +1527,11 @@ body::before { opacity: .45; }
                     </div>
                 </div>
 
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-sm font-bold text-white">Master Material Waste</h3><button onclick="addWasteMaterial()" class="text-xs bg-purple-700 px-2.5 py-1 rounded-lg text-white font-bold">+ Tambah</button></div>
+                    <p class="text-[11px] text-slate-400 mb-3">Pengaturan material tersimpan di browser ini.</p>
+                    <div id="masterWasteMaterialList" class="space-y-1.5 max-h-52 overflow-y-auto custom-scroll pr-1 text-xs"></div>
+                </div>
                 <!-- Master Target & Parameter -->
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4">
                     <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-purple-400"></i> Target Standar In-Spec</h3>
@@ -1562,7 +1567,7 @@ body::before { opacity: .45; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v5 | LAST_UPDATE: 07 September 2026 -->
+        <!-- APP_VERSION: v6 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
 
@@ -1975,13 +1980,14 @@ body::before { opacity: .45; }
         let packRecords = [];
         let wasteRecords = [];
         const WASTE_STORAGE_KEY = 'qc_skt_waste_records_v1';
-        const WASTE_TYPE_CONFIG = Object.freeze({
+        const WASTE_TYPE_CONFIG = {
             AMBRI: { label: 'Ambri', color: '#f87171', bg: 'rgba(248,113,113,0.18)' },
             ETIKET: { label: 'Etiket', color: '#fbbf24', bg: 'rgba(251,191,36,0.18)' },
             OPP: { label: 'Plastik OPP', color: '#34d399', bg: 'rgba(52,211,153,0.18)' },
             MOP: { label: 'MOP', color: '#60a5fa', bg: 'rgba(96,165,250,0.18)' }
-        });
-        const WASTE_TYPE_KEYS = Object.keys(WASTE_TYPE_CONFIG);
+        };
+        let WASTE_TYPE_KEYS = Object.keys(WASTE_TYPE_CONFIG);
+        const WASTE_MATERIAL_KEY = 'qc_skt_waste_material_master_v1';
         let backupStatus = { month: null, completedAt: null, completedBy: null };
         let currentTobaccoView = 'receiving';
 
@@ -2061,6 +2067,7 @@ body::before { opacity: .45; }
                 document.getElementById('packInputInspector').value = currentUser.displayName;
                 document.getElementById('wasteInputInspector').value = currentUser.displayName;
                 setRole(currentRole);
+                loadWasteMaterialMaster();
                 window.qcPresence.start(currentUser, currentRole === 'ADMIN' ? () => renderUserList() : null);
                 if (currentRole !== 'DASHBOARD_VIEWER') {
                 await Promise.all([
@@ -5582,6 +5589,78 @@ body::before { opacity: .45; }
             }
         }
 
+        function loadWasteMaterialMaster() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(WASTE_MATERIAL_KEY) || '[]');
+                if (Array.isArray(saved)) saved.forEach(item => {
+                    if (!item || !/^[A-Z0-9_]{2,30}$/.test(item.code) || typeof item.label !== 'string') return;
+                    const label = item.label.trim().slice(0,60);
+                    if (!label) return;
+                    const color = /^#[0-9a-f]{6}$/i.test(item.color) ? item.color : '#a78bfa';
+                    WASTE_TYPE_CONFIG[item.code] = {label, color, bg:color + '33'};
+                });
+            } catch (_) {}
+            WASTE_TYPE_KEYS = Object.keys(WASTE_TYPE_CONFIG);
+            refreshWasteMaterialOptions();
+        }
+        function refreshWasteMaterialOptions() {
+            const filter = document.getElementById('wasteFilterJenis');
+            const input = document.getElementById('wasteInputJenis');
+            if (!filter || !input) return;
+            const selected = filter.value, chosen = input.value;
+            const options = WASTE_TYPE_KEYS.map(code => `<option value="${code}">${escapeHtml(WASTE_TYPE_CONFIG[code].label)}</option>`).join('');
+            filter.innerHTML = '<option value="ALL">Semua Jenis</option>' + options;
+            input.innerHTML = options;
+            filter.value = WASTE_TYPE_CONFIG[selected] ? selected : 'ALL';
+            if (WASTE_TYPE_CONFIG[chosen]) input.value = chosen;
+        }
+        function saveWasteMaterialMaster() {
+            localStorage.setItem(WASTE_MATERIAL_KEY, JSON.stringify(WASTE_TYPE_KEYS.map(code => ({code, label:WASTE_TYPE_CONFIG[code].label, color:WASTE_TYPE_CONFIG[code].color}))));
+            refreshWasteMaterialOptions();
+            renderWasteMaterialMaster();
+            renderWasteSection();
+        }
+        function renderWasteMaterialMaster() {
+            const list = document.getElementById('masterWasteMaterialList');
+            if (!list) return;
+            list.innerHTML = WASTE_TYPE_KEYS.map(code => `<div class="flex items-center justify-between gap-2 bg-purple-950/60 p-2 rounded-xl border border-purple-800/40">
+                <span class="truncate text-purple-200">${escapeHtml(WASTE_TYPE_CONFIG[code].label)} <small class="text-slate-400">(${code})</small></span>
+                <span class="flex gap-2 shrink-0"><button onclick="editWasteMaterial('${code}')" class="text-amber-300">Edit</button><button onclick="deleteWasteMaterial('${code}')" class="text-rose-400">Hapus</button></span>
+            </div>`).join('');
+        }
+        function addWasteMaterial() {
+            if (!ensureAdmin('menambah material Waste')) return;
+            const raw = prompt('Kode material baru (A-Z, angka, garis bawah; 2–30 karakter):');
+            if (raw === null) return;
+            const code = raw.trim().toUpperCase();
+            if (!/^[A-Z0-9_]{2,30}$/.test(code) || WASTE_TYPE_CONFIG[code]) { showToast('Kode tidak valid atau sudah digunakan.', 'error'); return; }
+            const rawName = prompt('Nama material:', code);
+            if (rawName === null) return;
+            const label = rawName.trim().slice(0,60);
+            if (!label) { showToast('Nama material wajib diisi.', 'error'); return; }
+            WASTE_TYPE_CONFIG[code] = {label, color:'#a78bfa', bg:'#a78bfa33'};
+            WASTE_TYPE_KEYS.push(code);
+            saveWasteMaterialMaster();
+            showToast('Material tersimpan di browser ini. Data baru perlu didukung database.', 'info');
+        }
+        function editWasteMaterial(code) {
+            if (!ensureAdmin('mengubah material Waste') || !WASTE_TYPE_CONFIG[code]) return;
+            const raw = prompt('Nama material:', WASTE_TYPE_CONFIG[code].label);
+            if (raw === null) return;
+            const label = raw.trim().slice(0,60);
+            if (!label) { showToast('Nama material wajib diisi.', 'error'); return; }
+            WASTE_TYPE_CONFIG[code].label = label;
+            saveWasteMaterialMaster();
+        }
+        function deleteWasteMaterial(code) {
+            if (!ensureAdmin('menghapus material Waste') || !WASTE_TYPE_CONFIG[code]) return;
+            if (['AMBRI','ETIKET','OPP','MOP'].includes(code)) { showToast('Material bawaan dapat diubah namanya, tetapi kodenya tidak dapat dihapus.', 'error'); return; }
+            if (wasteRecords.some(item => item.jenis === code)) { showToast('Material sudah dipakai dalam riwayat Waste.', 'error'); return; }
+            if (!confirm(`Hapus ${WASTE_TYPE_CONFIG[code].label} dari browser ini?`)) return;
+            delete WASTE_TYPE_CONFIG[code];
+            WASTE_TYPE_KEYS = WASTE_TYPE_KEYS.filter(item => item !== code);
+            saveWasteMaterialMaster();
+        }
         function renderMasterSettings() {
             const list = document.getElementById('masterBrandList');
             list.innerHTML = masterData.brands.map(b => `
@@ -5592,6 +5671,7 @@ body::before { opacity: .45; }
             `).join('');
 
             renderTobaccoBrandSettings();
+            renderWasteMaterialMaster();
 
             document.getElementById('settingTargetGreen').value = masterData.targetGreen;
             document.getElementById('settingTargetYellow').value = masterData.targetYellow;
@@ -6380,7 +6460,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v5</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 07 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v6</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
