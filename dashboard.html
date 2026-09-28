@@ -606,6 +606,19 @@ body::before { opacity: .45; }
   .station-actions { grid-template-columns: minmax(0, 1fr) !important; }
 }
 </style>
+<style id="quality-menu-split-v14">
+body.dashboard-viewer .quality-magelang { display: none !important; }
+.mobile-brak-heading { display: none; }
+@media (max-width: 1023px) {
+  .mobile-brak-heading { display: flex; align-items: center; justify-content: center; flex: 0 0 88px; min-width: 88px; color: #e9d5ff; font-size: 10px; font-weight: 800; line-height: 1.2; text-align: center; scroll-snap-align: start; }
+  .quality-jambean .production-submenu button::after { content: 'Jambean'; }
+  .quality-magelang .production-submenu button::after { content: 'Magelang'; }
+  .quality-jambean .production-submenu button::after,
+  .quality-magelang .production-submenu button::after { display: block; font-size: 9px; font-weight: 600; line-height: 1; color: #d8b4fe; }
+  .app-navigation .production-submenu button { min-width: 92px !important; flex-basis: 92px !important; }
+  body.dashboard-viewer .quality-jambean .production-submenu button::after { content: 'Semua Brak'; }
+}
+</style>
 </head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
@@ -645,10 +658,15 @@ body::before { opacity: .45; }
                 <!-- Navigation Tabs -->
                 <nav aria-label="Navigasi utama" class="app-navigation flex items-center gap-1 bg-purple-900/60 p-1 rounded-xl border border-purple-700/50">
                     <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</button>
-                    <div class="production-menu-group" role="group" aria-labelledby="menu-group-quality"><button type="button" class="production-group-toggle" id="menu-group-quality" aria-expanded="true" aria-controls="submenu-quality"><span class="group-icon"><i data-lucide="shield-check"></i></span><span>Quality</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-quality">
-                    <button onclick="switchTab('moisture')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
-                    <button onclick="switchTab('giling')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
-                    <button onclick="switchTab('pack')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
+                    <div class="production-menu-group quality-jambean" role="group" aria-labelledby="menu-group-quality-jambean"><button type="button" class="production-group-toggle" id="menu-group-quality-jambean" aria-expanded="true" aria-controls="submenu-quality-jambean"><span class="group-icon"><i data-lucide="shield-check"></i></span><span>Quality – Brak Jambean</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><span class="mobile-brak-heading">Quality<br>Brak Jambean</span><div class="production-submenu" id="submenu-quality-jambean">
+                    <button onclick="openQualityStation('moisture','JAMBEAN')" id="tabBtnMoisture" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
+                    <button onclick="openQualityStation('giling','JAMBEAN')" id="tabBtnGiling" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
+                    <button onclick="openQualityStation('pack','JAMBEAN')" id="tabBtnPack" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
+                    </div></div>
+                    <div class="production-menu-group quality-magelang" role="group" aria-labelledby="menu-group-quality-magelang"><button type="button" class="production-group-toggle" id="menu-group-quality-magelang" aria-expanded="true" aria-controls="submenu-quality-magelang"><span class="group-icon"><i data-lucide="shield-check"></i></span><span>Quality – Brak Magelang</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><span class="mobile-brak-heading">Quality<br>Brak Magelang</span><div class="production-submenu" id="submenu-quality-magelang">
+                    <button onclick="openQualityStation('moisture','MAGELANG')" id="tabBtnMoistureMagelang" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="droplets" class="w-4 h-4"></i> Tembakau</button>
+                    <button onclick="openQualityStation('giling','MAGELANG')" id="tabBtnGilingMagelang" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="cigarette" class="w-4 h-4"></i> Giling Gunting</button>
+                    <button onclick="openQualityStation('pack','MAGELANG')" id="tabBtnPackMagelang" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="package-check" class="w-4 h-4"></i> Packaging</button>
                     </div></div>
                     <div class="production-menu-group" role="group" aria-labelledby="menu-group-produksi"><button type="button" class="production-group-toggle" id="menu-group-produksi" aria-expanded="true" aria-controls="submenu-produksi"><span class="group-icon"><i data-lucide="factory"></i></span><span>Produksi</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><div class="production-submenu" id="submenu-produksi">
                     <button onclick="switchTab('waste')" id="tabBtnWaste" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-200 hover:bg-purple-800/60 flex items-center gap-1.5 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i> Waste Produksi</button>
@@ -666,6 +684,14 @@ body::before { opacity: .45; }
 
         <!-- ==================== TAB 1: DASHBOARD TERPADU ==================== -->
         <section id="tabDashboard" class="space-y-5">
+            <div class="bg-purple-950/90 border border-purple-400/70 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg" aria-label="Filter hasil Dashboard berdasarkan Brak">
+                <div class="min-w-0"><h2 class="text-sm font-black text-white">Hasil Dashboard berdasarkan Brak</h2><p class="mt-1 text-[11px] text-purple-200">Kartu, grafik Giling Gunting, Packaging, dan Tembakau mengikuti pilihan ini.</p></div>
+                <div class="flex items-center gap-2 flex-wrap"><label for="brakFilterOverview" class="text-xs font-bold text-purple-100">Pilih Brak</label>
+                <select id="brakFilterOverview" onchange="setQualityBrak(this.value)" class="bg-purple-900 border border-purple-400 rounded-xl px-3 py-2 text-white min-w-[180px] text-sm font-bold">
+                    <option value="ALL">Semua Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option>
+                </select>
+                <span id="dashboardBrakActive" class="rounded-full bg-purple-700/70 px-3 py-1 text-xs font-black text-white" aria-live="polite">Semua Brak</span></div>
+            </div>
             <div id="guestReadOnlyNotice" class="hidden bg-purple-950/90 border border-purple-500/50 rounded-2xl px-4 py-3 shadow-md">
                 <div class="flex items-center gap-3">
                     <span class="w-9 h-9 shrink-0 rounded-xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center"><i data-lucide="eye" class="w-4 h-4 text-purple-200"></i></span>
@@ -858,6 +884,13 @@ body::before { opacity: .45; }
 
         <!-- ==================== TAB 2: GILING GUNTING STATION ==================== -->
         <section id="tabGiling" class="space-y-6 hidden">
+            <div class="bg-purple-950/85 border border-purple-600/60 rounded-2xl p-3 flex flex-wrap items-center gap-3 text-xs" aria-label="Filter Brak Quality">
+                <label for="brakFilterGiling" class="font-bold text-purple-100">Brak Quality</label>
+                <select id="brakFilterGiling" onchange="setQualityBrak(this.value)" class="bg-purple-900 border border-purple-600 rounded-xl px-3 py-2 text-white min-w-[180px]">
+                    <option value="ALL">Semua Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option>
+                </select>
+                <span class="text-purple-300">Hasil dan input Quality mengikuti Brak yang dipilih.</span>
+            </div>
             <div class="station-hero bg-gradient-to-r from-purple-950 via-purple-900/70 to-purple-950 border border-purple-700/60 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-200/10 border border-purple-300/30 flex items-center justify-center"><i data-lucide="cigarette" class="w-5 h-5 text-purple-300"></i></span>
@@ -1256,6 +1289,13 @@ body::before { opacity: .45; }
 
         <!-- ==================== TAB 3: TEMBAKAU ==================== -->
         <section id="tabMoisture" class="space-y-5 hidden">
+            <div class="bg-purple-950/85 border border-purple-600/60 rounded-2xl p-3 flex flex-wrap items-center gap-3 text-xs" aria-label="Filter Brak Quality">
+                <label for="brakFilterMoisture" class="font-bold text-purple-100">Brak Quality</label>
+                <select id="brakFilterMoisture" onchange="setQualityBrak(this.value)" class="bg-purple-900 border border-purple-600 rounded-xl px-3 py-2 text-white min-w-[180px]">
+                    <option value="ALL">Semua Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option>
+                </select>
+                <span class="text-purple-300">Hasil dan input Quality mengikuti Brak yang dipilih.</span>
+            </div>
             <div class="station-hero bg-gradient-to-r from-purple-950 via-purple-900/60 to-purple-950 border border-purple-500/40 rounded-2xl p-5 shadow-md flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-purple-300"></i></span>
@@ -1389,7 +1429,7 @@ body::before { opacity: .45; }
                     <div id="packMonthStartWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Mulai</label><input type="date" id="packMonthStart" onchange="handlePackRangeChange('monthly', 'start')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div id="packMonthEndWrap" class="hidden"><label class="block text-purple-300 mb-1">Tanggal Selesai</label><input type="date" id="packMonthEnd" onchange="handlePackRangeChange('monthly', 'end')" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packFilterTime" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Jam</option><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
-                    <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packFilterBuilding" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
+                    <div><label class="block text-purple-300 mb-1">Brak</label><select id="packFilterBuilding" onchange="setQualityBrak(this.value)" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jenis Station</label><select id="packFilterStation" onchange="renderPackSection()" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="ALL">Semua Station</option><option value="PACKING">Packing</option><option value="BANDROLL">Bandroll</option><option value="OPP">OPP</option><option value="MOP">MOP</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packSearch" oninput="renderPackSection()" placeholder="Cari nama inspector..." class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400"></div>
                 </div>
@@ -1540,30 +1580,16 @@ body::before { opacity: .45; }
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Master Brand -->
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="tag" class="w-4 h-4 text-purple-400"></i> Master Brand</h3>
-                            <button onclick="addBrandPrompt()" class="text-xs bg-purple-700 hover:bg-purple-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">+ Tambah</button>
-                        </div>
-                        <div id="masterBrandList" class="space-y-1.5 max-h-52 overflow-y-auto custom-scroll pr-1 text-xs">
-                            <!-- Dynamic -->
-                        </div>
+                <!-- Master Quality per Brak: tiga jenis data tampil bersama -->
+                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 md:col-span-2 lg:col-span-2">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div><h3 class="text-sm font-bold text-white">Master Data Quality berdasarkan Brak</h3><p class="text-[11px] text-slate-400">Kelompok, Brand, dan Brand Tembakau untuk Brak yang dipilih. Penetapan tersimpan di browser ini.</p></div>
+                        <select id="masterBrakScope" onchange="renderBrakMaster()" aria-label="Pilih Brak untuk master data" class="bg-purple-950 border border-purple-600 rounded-xl px-3 py-2 text-white text-xs font-bold"><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option></select>
                     </div>
-                </div>
-
-                <!-- Master Brand Tembakau -->
-                <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Master Brand Tembakau</h3>
-                            <button onclick="addTobaccoBrandPrompt()" class="text-xs bg-purple-700 hover:bg-purple-600 px-2.5 py-1 rounded-lg text-white font-bold transition-all">+ Tambah</button>
-                        </div>
-                        <p class="text-[11px] text-slate-400 mb-3">Khusus untuk dropdown Brand pada menu Tembakau.</p>
-                        <div id="masterTobaccoBrandList" class="space-y-1.5 max-h-52 overflow-y-auto custom-scroll pr-1 text-xs">
-                            <!-- Dynamic -->
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div><div class="flex items-center justify-between gap-2 mb-2"><h4 class="text-xs font-bold text-purple-100">Kelompok</h4><button type="button" onclick="selectAllBrakMaster('groups')" class="text-[11px] text-purple-300 underline">Pilih Semua</button></div><div id="brakMasterGroups" class="space-y-1 max-h-56 overflow-y-auto custom-scroll pr-1"></div></div>
+                        <div><div class="flex items-center justify-between gap-2 mb-2"><h4 class="text-xs font-bold text-purple-100">Brand</h4><div class="flex gap-2"><button type="button" onclick="selectAllBrakMaster('brands')" class="text-[11px] text-purple-300 underline">Pilih Semua</button><button type="button" onclick="addBrandPrompt()" class="text-[11px] text-purple-200 font-bold">+ Tambah</button></div></div><div id="brakMasterBrands" class="space-y-1 max-h-56 overflow-y-auto custom-scroll pr-1"></div></div>
+                        <div><div class="flex items-center justify-between gap-2 mb-2"><h4 class="text-xs font-bold text-purple-100">Brand Tembakau</h4><div class="flex gap-2"><button type="button" onclick="selectAllBrakMaster('tobacco')" class="text-[11px] text-purple-300 underline">Pilih Semua</button><button type="button" onclick="addTobaccoBrandPrompt()" class="text-[11px] text-purple-200 font-bold">+ Tambah</button></div></div><div id="brakMasterTobacco" class="space-y-1 max-h-56 overflow-y-auto custom-scroll pr-1"></div></div>
                     </div>
                 </div>
 
@@ -1607,7 +1633,7 @@ body::before { opacity: .45; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v12 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v19 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
 
@@ -1656,6 +1682,7 @@ body::before { opacity: .45; }
 
             <form id="inspectionForm" onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="editRecordId" value="">
+                <div><label class="block text-purple-300 font-medium mb-1">Brak</label><select id="inputBrak" onchange="refreshBrakMasterInputs()" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option></select></div>
 
                 <!-- Row 1: Header Inspeksi -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1808,6 +1835,7 @@ body::before { opacity: .45; }
             <form id="moistureForm" onsubmit="handleMoistureSubmit(event)" novalidate class="space-y-4 text-xs">
                 <input type="hidden" id="mcEditRecordId" value="">
                 <input type="hidden" id="mcRecordType" value="receiving">
+                <div><label class="block text-purple-300 font-medium mb-1">Brak</label><select id="mcInputBrak" onchange="refreshBrakMasterInputs()" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option></select></div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Tanggal</label>
@@ -1890,7 +1918,7 @@ body::before { opacity: .45; }
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packInputDate" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
-                    <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packInputBuilding" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Gedung</option><option value="GEDUNG A">Gedung A</option><option value="GEDUNG B">Gedung B</option></select></div>
+                    <div><label class="block text-purple-300 mb-1">Brak</label><select id="packInputBuilding" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packInputTime" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jenis Station</label><select id="packInputStation" onchange="renderPackParameterInputs()" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="PACKING">Packing</option><option value="BANDROLL">Bandroll</option><option value="OPP">OPP</option><option value="MOP">MOP</option></select></div>
                 </div>
@@ -2004,6 +2032,103 @@ body::before { opacity: .45; }
     <script>
         let currentRole = 'INSPECTOR';
         let currentUser = null;
+        let currentBrakFilter = 'ALL';
+        const BRAK_MASTER_KEY = 'qc_skt_brak_master_v1';
+        const BRAK_MASTER_TYPES = ['groups','brands','tobacco'];
+        let brakMaster = { JAMBEAN: {}, MAGELANG: {} };
+        function loadBrakMaster() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(BRAK_MASTER_KEY) || '{}');
+                for (const brak of ['JAMBEAN','MAGELANG']) for (const type of BRAK_MASTER_TYPES) {
+                    const values = saved?.[brak]?.[type];
+                    brakMaster[brak][type] = Array.isArray(values) ? [...new Set(values.filter(v => typeof v === 'string'))] : null;
+                }
+            } catch (_) {}
+        }
+        function brakSource(type) {
+            if (type === 'groups') return masterRows.groups.filter(item => item.isActive).map(item => item.name);
+            if (type === 'tobacco') return tobaccoBrands;
+            return masterData.brands;
+        }
+        function allowedBrakValues(type, brak) {
+            const source = brakSource(type);
+            if (!QUALITY_BRAKS.includes(brak)) return source;
+            const assigned = brakMaster[brak][type];
+            return assigned === null || assigned === undefined ? source : source.filter(value => assigned.includes(value));
+        }
+        function saveBrakMaster() {
+            localStorage.setItem(BRAK_MASTER_KEY, JSON.stringify(brakMaster));
+            refreshBrakMasterInputs(); renderBrakMaster();
+        }
+        function toggleBrakMaster(type, value, checked) {
+            if (!ensureAdmin('mengatur master Brak') || !BRAK_MASTER_TYPES.includes(type)) return;
+            const brak = document.getElementById('masterBrakScope').value;
+            const assigned = new Set(allowedBrakValues(type, brak));
+            if (checked) assigned.add(value); else assigned.delete(value);
+            brakMaster[brak][type] = [...assigned];
+            saveBrakMaster();
+        }
+        function selectAllBrakMaster(type) {
+            if (!ensureAdmin('mengatur master Brak') || !BRAK_MASTER_TYPES.includes(type)) return;
+            brakMaster[document.getElementById('masterBrakScope').value][type] = null;
+            saveBrakMaster();
+        }
+        function renderBrakMaster() {
+            const select = document.getElementById('masterBrakScope');
+            if (!select) return;
+            const brak = select.value;
+            for (const [type, id] of [['groups','brakMasterGroups'],['brands','brakMasterBrands'],['tobacco','brakMasterTobacco']]) {
+                const allowed = new Set(allowedBrakValues(type, brak));
+                const list = document.getElementById(id);
+                list.innerHTML = brakSource(type).map((value, index) => {
+                    const safe = escapeHtml(value);
+                    const edit = type === 'tobacco' ? `<button type="button" onclick="editTobaccoBrandPrompt(${index})" class="text-amber-300">Edit</button><button type="button" onclick="deleteTobaccoBrand(${index})" class="text-rose-300">Hapus</button>` : '';
+                    return `<div class="flex items-center justify-between gap-2 rounded-lg bg-purple-950/50 px-2 py-1.5 text-xs text-purple-100"><label class="flex items-center gap-2 min-w-0"><input type="checkbox" ${allowed.has(value) ? 'checked' : ''} onchange="toggleBrakMaster('${type}',this.dataset.value,this.checked)" data-value="${safe}" class="accent-purple-500"><span class="truncate">${safe}</span></label><div class="flex gap-2 shrink-0">${edit}</div></div>`;
+                }).join('') || '<p class="text-xs text-slate-400">Belum ada data master. Hubungkan dashboard ke data utama.</p>';
+            }
+        }
+        function setSelectOptions(id, values) {
+            const element = document.getElementById(id);
+            if (!element) return;
+            const previous = element.value;
+            element.replaceChildren(...values.map(value => new Option(value,value)));
+            if (values.includes(previous)) element.value = previous;
+        }
+        function refreshBrakMasterInputs() {
+            const brak = currentBrakFilter;
+            const inputBrak = document.getElementById('inputBrak')?.value || brak;
+            const tobaccoBrak = document.getElementById('mcInputBrak')?.value || brak;
+            setSelectOptions('inputKelompok', allowedBrakValues('groups', inputBrak));
+            setSelectOptions('inputBrand', allowedBrakValues('brands', inputBrak));
+            setSelectOptions('mcInputBrand', allowedBrakValues('tobacco', tobaccoBrak));
+        }
+
+        const QUALITY_BRAKS = ['JAMBEAN', 'MAGELANG'];
+        function recordBrak(item, station) {
+            const raw = station === 'moisture' ? getTobaccoMeta(item).brak
+                : station === 'pack' ? (item.building || item.params?.building)
+                : item.params?.brak;
+            return QUALITY_BRAKS.includes(String(raw || '').toUpperCase()) ? String(raw).toUpperCase() : 'LEGACY';
+        }
+        function matchesQualityBrak(item, station) {
+            return currentBrakFilter === 'ALL' || recordBrak(item, station) === currentBrakFilter;
+        }
+        function preferredInputBrak() { return QUALITY_BRAKS.includes(currentBrakFilter) ? currentBrakFilter : ''; }
+        function setQualityBrak(value) {
+            currentBrakFilter = QUALITY_BRAKS.includes(value) ? value : 'ALL';
+            ['brakFilterOverview','brakFilterGiling','brakFilterMoisture','packFilterBuilding'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = currentBrakFilter;
+            });
+            const activeLabel = document.getElementById('dashboardBrakActive');
+            refreshBrakMasterInputs();
+            if (activeLabel) activeLabel.textContent = ({ ALL: 'Semua Brak', JAMBEAN: 'Brak Jambean', MAGELANG: 'Brak Magelang' })[currentBrakFilter];
+            if (!currentUser) return;
+            renderOverview(); renderDashboard(); renderMoistureSection(); renderPackSection();
+            const activeTab = ['moisture','giling','pack'].find(tab => !document.getElementById('tab' + ({moisture:'Moisture',giling:'Giling',pack:'Pack'}[tab])).classList.contains('hidden'));
+            syncQualityMenuSelection(activeTab);
+        }
+
         let managedUsers = [];
         let masterRows = { brands: [], groups: [], samplingTimes: [] };
         let masterData = {
@@ -2117,7 +2242,9 @@ body::before { opacity: .45; }
                     loadPackRecords(),
                     currentRole === 'ADMIN' ? Promise.all([loadUsers(), loadBackupStatus()]) : Promise.resolve()
                 ]);
+                loadBrakMaster();
                 initDropdowns();
+                refreshBrakMasterInputs();
                 }
                 const initialToday = getTodayString();
                 const initialMonth = initialToday.slice(0, 7);
@@ -2415,9 +2542,10 @@ body::before { opacity: .45; }
         function configureDashboardViewer() {
             const viewer = currentRole === 'DASHBOARD_VIEWER';
             document.body.classList.toggle('dashboard-viewer', viewer);
+            document.querySelector('#menu-group-quality-jambean > span:nth-child(2)').textContent = viewer ? 'Quality – Semua Brak' : 'Quality – Brak Jambean';
             document.getElementById('tabBtnWaste')?.classList.toggle('hidden', viewer);
             // These filters require individual-record dimensions, absent from the shared daily summary.
-            ['filterKelompok','filterSampling','filterInspector','weightTrendGroupFilter','packFilterTime','packFilterBuilding','packSearch','mcSearch'].forEach(id=>{
+            ['filterKelompok','filterSampling','filterInspector','weightTrendGroupFilter','packFilterTime','packFilterBuilding','packSearch','mcSearch','brakFilterOverview','brakFilterGiling','brakFilterMoisture'].forEach(id=>{
                 const input=document.getElementById(id);if(input){input.disabled=viewer;input.title=viewer?'Ringkasan harian mencakup semua kelompok, sampling, jam, dan inspector.':'';}
             });
             document.getElementById('btnRoleViewer').classList.toggle('hidden', !viewer);
@@ -2588,6 +2716,22 @@ body::before { opacity: .45; }
             window.location.replace('index.html');
         }
 
+        function openQualityStation(tabId, brak) {
+            setQualityBrak(currentRole === 'DASHBOARD_VIEWER' ? 'ALL' : brak);
+            switchTab(tabId);
+        }
+        function syncQualityMenuSelection(tabId) {
+            const names = {moisture:'Moisture', giling:'Giling', pack:'Pack'};
+            for (const [brak, suffix] of [['JAMBEAN',''],['MAGELANG','Magelang']]) {
+                for (const [tab, name] of Object.entries(names)) {
+                    const button = document.getElementById(`tabBtn${name}${suffix}`);
+                    if (!button) continue;
+                    const active = tabId === tab && (currentBrakFilter === brak || (currentRole === 'DASHBOARD_VIEWER' && brak === 'JAMBEAN'));
+                    button.className = `px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${active ? 'bg-purple-600 text-white' : 'text-purple-200 hover:bg-purple-800/60'}`;
+                }
+            }
+        }
+
         function switchTab(tabId) {
             if (tabId === 'settings' && !ensureAdmin()) return;
             if (currentRole === 'DASHBOARD_VIEWER' && !['dashboard','giling','pack','moisture'].includes(tabId)) {
@@ -2639,6 +2783,7 @@ body::before { opacity: .45; }
                 document.getElementById('tabBtnSettings').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 transition-all";
                 renderMasterSettings();
             }
+            syncQualityMenuSelection(tabId);
             lucide.createIcons();
             if (window.innerWidth <= 640) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2718,6 +2863,7 @@ body::before { opacity: .45; }
                 mcFilterBrand.innerHTML += `<option value="${b}">${b}</option>`;
                 mcInputBrand.innerHTML += `<option value="${b}">${b}</option>`;
             });
+            refreshBrakMasterInputs();
         }
 
         function refreshInspectorFilter() {
@@ -2856,6 +3002,7 @@ body::before { opacity: .45; }
                 document.getElementById('inputKelompok').value = editItem.kelompok;
                 document.getElementById('inputSampling').value = editItem.sampling;
                 document.getElementById('inputSampleSize').value = editItem.sampleSize;
+                document.getElementById('inputBrak').value = editItem.params?.brak || '';
 
                 document.getElementById('param_gtg').value = editItem.params.gtg;
                 document.getElementById('param_krps').value = editItem.params.krps;
@@ -2876,10 +3023,19 @@ body::before { opacity: .45; }
                 document.getElementById('inputDate').value = today >= activeRange.start && today <= activeRange.end ? today : activeRange.start;
                 document.getElementById('inputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('inputSampleSize').value = masterData.defaultSampleSize;
+                document.getElementById('inputBrak').value = preferredInputBrak();
                 ['gtg','krps','kmls','ring','bst','spt','krt','brt','dmt'].forEach(k => {
                     document.getElementById(`param_${k}`).value = '';
                 });
                 setWeightSampleInputs();
+            }
+            refreshBrakMasterInputs();
+            if (editItem) {
+                for (const [id,value] of [['inputKelompok',editItem.kelompok],['inputBrand',editItem.brand]]) {
+                    const select = document.getElementById(id);
+                    if (value && ![...select.options].some(option => option.value === value)) select.add(new Option(value + ' (data lama)',value));
+                    select.value = value;
+                }
             }
             updateParameterMax();
             lucide.createIcons();
@@ -2898,6 +3054,9 @@ body::before { opacity: .45; }
             const kelompok = document.getElementById('inputKelompok').value;
             const sampling = parseInt(document.getElementById('inputSampling').value);
             const brand = document.getElementById('inputBrand').value;
+            const brak = document.getElementById('inputBrak').value;
+            if (!QUALITY_BRAKS.includes(brak)) { showToast('Pilih Brak Jambean atau Brak Magelang.', 'error'); return; }
+            if (!document.getElementById('editRecordId').value && (!allowedBrakValues('groups',brak).includes(kelompok) || !allowedBrakValues('brands',brak).includes(brand))) { showToast('Kelompok atau Brand tidak tersedia untuk Brak ini.', 'error'); return; }
             const sampleSize = parseInt(document.getElementById('inputSampleSize').value);
             const group = masterRows.groups.find(item => item.name === kelompok);
 
@@ -2907,7 +3066,7 @@ body::before { opacity: .45; }
             }
 
             // Pencegahan duplikasi kombinasi: Tanggal + Kelompok + Sampling
-            const duplicate = inspections.find(item => item.date === date && item.kelompok === kelompok && item.sampling === sampling && item.id !== editId);
+            const duplicate = inspections.find(item => item.date === date && item.kelompok === kelompok && item.sampling === sampling && item.id !== editId && recordBrak(item, 'giling') === brak);
             if (duplicate) {
                 showToast(`Peringatan: Data ${kelompok} untuk Sampling ${sampling} pada tanggal ${date} sudah ada!`, 'error');
                 return;
@@ -2936,6 +3095,7 @@ body::before { opacity: .45; }
             const averageWeight = enteredAverageWeight ?? (existingItem ? getAverageWeight(existingItem) : null);
 
             const paramData = {
+                brak,
                 gtg: parseInt(document.getElementById('param_gtg').value) || 0,
                 krps: parseInt(document.getElementById('param_krps').value) || 0,
                 kmls: parseInt(document.getElementById('param_kmls').value) || 0,
@@ -2989,7 +3149,7 @@ body::before { opacity: .45; }
             const parts = stored.split('|');
             const prefix = String(parts[0] || '').toUpperCase();
             if (prefix === 'PEMAKAIAN') {
-                return { type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [], receivedBoxCount: null };
+                return { type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [], receivedBoxCount: null, brak: (parts.find(part => /^BRAK=/i.test(part)) || '').slice(5).toUpperCase() };
             }
             if (prefix === 'PENERIMAAN') {
                 const weights = parts.slice(1, 4).map(value => {
@@ -3000,9 +3160,9 @@ body::before { opacity: .45; }
                 while (weights.length < 3) weights.push(null);
                 const boxPart = parts.slice(4).find(part => /^BOX=/i.test(part.trim()));
                 const receivedBoxCount = boxPart ? parseReceivedBoxCount(boxPart.trim().slice(4)) : null;
-                return { type: 'receiving', stockType: '', weights, receivedBoxCount, legacyLot: '' };
+                return { type: 'receiving', stockType: '', weights, receivedBoxCount, legacyLot: '', brak: (parts.slice(4).find(part => /^BRAK=/i.test(part)) || '').slice(5).toUpperCase() };
             }
-            return { type: 'receiving', stockType: '', weights: [null, null, null], receivedBoxCount: null, legacyLot: stored };
+            return { type: 'receiving', stockType: '', weights: [null, null, null], receivedBoxCount: null, legacyLot: stored, brak: '' };
         }
 
         function formatTobaccoWeight(value) {
@@ -3077,7 +3237,7 @@ body::before { opacity: .45; }
             const query = document.getElementById('mcSearch').value.trim().toLowerCase();
             return moistureRecords.filter(item => {
                 const meta = getTobaccoMeta(item);
-                if (meta.type !== type) return false;
+                if (meta.type !== type || !matchesQualityBrak(item, 'moisture')) return false;
                 if (item.date < range.start || item.date > range.end) return false;
                 if (brand !== 'ALL' && item.brand !== brand) return false;
                 const searchable = `${item.seriesNumber} ${item.brand} ${item.inspector} ${meta.stockType} ${meta.legacyLot || ''}`.toLowerCase();
@@ -3197,6 +3357,7 @@ body::before { opacity: .45; }
             document.getElementById('mcInputDate').value = editItem ? editItem.date : getMoistureFilterRange().start;
             document.getElementById('mcInputInspector').value = editItem ? editItem.inspector : (currentUser ? currentUser.displayName : '');
             document.getElementById('mcInputBrand').value = editItem ? editItem.brand : (masterData.brands[0] || '');
+            document.getElementById('mcInputBrak').value = editItem ? meta.brak : preferredInputBrak();
             document.getElementById('mcInputValue').value = editItem ? Number(editItem.moistureContent).toFixed(2) : '';
             document.getElementById('mcInputSeries').value = editItem && meta.type === 'receiving' ? editItem.seriesNumber : '';
             document.getElementById('mcInputBoxCount').value = meta.receivedBoxCount ?? '';
@@ -3204,6 +3365,12 @@ body::before { opacity: .45; }
             document.getElementById('mcInputWeight2').value = Number.isFinite(meta.weights[1]) ? meta.weights[1] : '';
             document.getElementById('mcInputWeight3').value = Number.isFinite(meta.weights[2]) ? meta.weights[2] : '';
             document.getElementById('mcInputStockType').value = meta.stockType || 'STOCK PAGI';
+            refreshBrakMasterInputs();
+            if (editItem && editItem.brand) {
+                const select = document.getElementById('mcInputBrand');
+                if (![...select.options].some(option => option.value === editItem.brand)) select.add(new Option(editItem.brand + ' (data lama)', editItem.brand));
+                select.value = editItem.brand;
+            }
             if (editItem) document.getElementById('mcModalTitle').innerText = `Edit ${label}`;
             lucide.createIcons();
         }
@@ -3221,6 +3388,9 @@ body::before { opacity: .45; }
             const receiving = type === 'receiving';
             const date = document.getElementById('mcInputDate').value;
             const brand = document.getElementById('mcInputBrand').value;
+            const brak = document.getElementById('mcInputBrak').value;
+            if (!QUALITY_BRAKS.includes(brak)) { showToast('Pilih Brak Jambean atau Brak Magelang.', 'error'); return; }
+            if (!editId && !allowedBrakValues('tobacco',brak).includes(brand)) { showToast('Brand Tembakau tidak tersedia untuk Brak ini.', 'error'); return; }
             const moistureRaw = document.getElementById('mcInputValue').value.trim();
             const moistureContent = Number(moistureRaw);
             const stockType = document.getElementById('mcInputStockType').value;
@@ -3269,7 +3439,7 @@ body::before { opacity: .45; }
             }
             const payload = {
                 date,
-                lotBatch: receiving ? buildReceivingLotBatch(weights, receivedBoxCount, moistureRecords.find(item => item.id === editId)?.lotBatch) : `PEMAKAIAN|${stockType}`,
+                lotBatch: receiving ? buildReceivingLotBatch(weights, receivedBoxCount, moistureRecords.find(item => item.id === editId)?.lotBatch).replace(/\|BRAK=[^|]*/gi, '') + `|BRAK=${brak}` : `PEMAKAIAN|${stockType}|BRAK=${brak}`,
                 seriesNumber,
                 brand,
                 moistureContent
@@ -3278,7 +3448,7 @@ body::before { opacity: .45; }
             const duplicate = moistureRecords.find(item => {
                 if (item.id === editId || item.date !== payload.date || item.brand !== payload.brand) return false;
                 const itemMeta = getTobaccoMeta(item);
-                if (itemMeta.type !== type) return false;
+                if (itemMeta.type !== type || recordBrak(item, 'moisture') !== brak) return false;
                 if (receiving) return String(item.seriesNumber || '').toLowerCase() === payload.seriesNumber.toLowerCase();
                 return itemMeta.stockType === stockType;
             });
@@ -3596,9 +3766,9 @@ body::before { opacity: .45; }
             if (!dateInput) return;
             const range = getOverviewRange();
             const inRange = item => item.date >= range.start && item.date <= range.end;
-            const gilingData = inspections.filter(inRange);
-            const packData = packRecords.filter(inRange);
-            const tobaccoData = moistureRecords.filter(inRange);
+            const gilingData = inspections.filter(item => inRange(item) && matchesQualityBrak(item, 'giling'));
+            const packData = packRecords.filter(item => inRange(item) && matchesQualityBrak(item, 'pack'));
+            const tobaccoData = moistureRecords.filter(item => inRange(item) && matchesQualityBrak(item, 'moisture'));
             const receivingData = tobaccoData.filter(item => getTobaccoMeta(item).type === 'receiving');
             const usageData = tobaccoData.filter(item => getTobaccoMeta(item).type === 'usage');
 
@@ -3648,7 +3818,7 @@ body::before { opacity: .45; }
         function renderOverviewWeightTrendOnly() {
             if (!document.getElementById('overviewWeightTrendChart')) return;
             const range = getOverviewRange();
-            const gilingData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
+            const gilingData = inspections.filter(item => item.date >= range.start && item.date <= range.end && matchesQualityBrak(item, 'giling'));
             renderOverviewWeightTrend(gilingData, range);
         }
 
@@ -3931,7 +4101,7 @@ body::before { opacity: .45; }
         function getFilteredPackData(options = {}) {
             const range = getPackFilterRange();
             const time = document.getElementById('packFilterTime').value;
-            const building = document.getElementById('packFilterBuilding').value;
+            const building = currentBrakFilter;
             const station = document.getElementById('packFilterStation')?.value || 'ALL';
             const query = document.getElementById('packSearch').value.trim().toLowerCase();
             return packRecords.filter(item => {
@@ -3940,7 +4110,7 @@ body::before { opacity: .45; }
                 const stationLabel = PACK_STATION_CONFIG[stationKey].label;
                 if (item.date < range.start || item.date > range.end) return false;
                 if (time !== 'ALL' && item.samplingTime !== time) return false;
-                if (building !== 'ALL' && itemBuilding !== building) return false;
+                if (building !== 'ALL' && recordBrak(item, 'pack') !== building) return false;
                 if (!options.ignoreStation && station !== 'ALL' && stationKey !== station) return false;
                 if (query && !`${item.inspector} ${stationLabel}`.toLowerCase().includes(query)) return false;
                 return true;
@@ -4118,7 +4288,7 @@ body::before { opacity: .45; }
                 document.getElementById('packEditRecordId').value = '';
                 document.getElementById('packInputDate').value = getPackFilterRange().start;
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
-                document.getElementById('packInputBuilding').value = '';
+                document.getElementById('packInputBuilding').value = preferredInputBrak();
                 const filteredStation = document.getElementById('packFilterStation')?.value || 'ALL';
                 stationSelect.value = filteredStation === 'ALL' ? 'PACKING' : filteredStation;
                 const filteredTime = document.getElementById('packFilterTime')?.value || 'ALL';
@@ -4138,6 +4308,7 @@ body::before { opacity: .45; }
             if (!ensureNotGuest('menyimpan data Quality Packaging')) return;
             const editId = document.getElementById('packEditRecordId').value;
             const building = document.getElementById('packInputBuilding').value;
+            if (!QUALITY_BRAKS.includes(building) && !document.getElementById('packEditRecordId').value) { showToast('Pilih Brak Jambean atau Brak Magelang.', 'error'); return; }
             const stationKey = getPackStationKey(document.getElementById('packInputStation').value);
             const config = PACK_STATION_CONFIG[stationKey];
             const sampleSize = config.sampleSize;
@@ -4730,7 +4901,7 @@ body::before { opacity: .45; }
             const fInspector = document.getElementById('filterInspector').value;
 
             return inspections.filter(item => {
-                if (item.date < range.start || item.date > range.end) return false;
+                if (item.date < range.start || item.date > range.end || !matchesQualityBrak(item, 'giling')) return false;
                 if (fKelompok !== 'ALL' && item.kelompok !== fKelompok) return false;
                 if (fBrand !== 'ALL' && item.brand !== fBrand) return false;
                 if (fSampling !== 'ALL' && item.sampling.toString() !== fSampling) return false;
@@ -4807,7 +4978,7 @@ body::before { opacity: .45; }
             const data = getFilteredData();
             const agg = calculateAggregates(data);
             const range = getGilingFilterRange();
-            const periodData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
+            const periodData = inspections.filter(item => item.date >= range.start && item.date <= range.end && matchesQualityBrak(item, 'giling'));
 
             // KPI Cards
             document.getElementById('kpiTotalSample').innerText = agg.totalSample.toLocaleString('id-ID');
@@ -5035,7 +5206,7 @@ body::before { opacity: .45; }
         function renderWeightTrendOnly() {
             if (currentRole === 'DASHBOARD_VIEWER') { guestPaint('giling'); return; }
             const range = getGilingFilterRange();
-            const periodData = inspections.filter(item => item.date >= range.start && item.date <= range.end);
+            const periodData = inspections.filter(item => item.date >= range.start && item.date <= range.end && matchesQualityBrak(item, 'giling'));
             renderWeightTrend(periodData, range);
         }
 
@@ -5733,15 +5904,8 @@ body::before { opacity: .45; }
             saveWasteMaterialMaster();
         }
         function renderMasterSettings() {
-            const list = document.getElementById('masterBrandList');
-            list.innerHTML = masterData.brands.map(b => `
-                <div class="flex justify-between items-center bg-purple-950/60 p-2 rounded-xl border border-purple-800/40">
-                    <span class="font-bold text-purple-200">${b}</span>
-                    <button onclick="deleteBrand('${b}')" class="text-rose-400 hover:text-rose-300 text-xs">Hapus</button>
-                </div>
-            `).join('');
-
             renderTobaccoBrandSettings();
+            renderBrakMaster();
             renderWasteMaterialMaster();
 
             document.getElementById('settingTargetGreen').value = 81;
@@ -5776,11 +5940,16 @@ body::before { opacity: .45; }
                 showToast(`Brand ${newBrand} sudah tersedia.`, 'error');
                 return;
             }
+            const previousAssignments = Object.fromEntries(QUALITY_BRAKS.map(brak => [brak, allowedBrakValues('tobacco', brak)]));
             tobaccoBrands.push(newBrand);
             tobaccoBrands.sort((a, b) => a.localeCompare(b));
+            const brak = document.getElementById('masterBrakScope')?.value;
+            for (const name of QUALITY_BRAKS) brakMaster[name].tobacco = [...previousAssignments[name], ...(name === brak ? [newBrand] : [])];
+            localStorage.setItem(BRAK_MASTER_KEY, JSON.stringify(brakMaster));
             saveTobaccoBrands();
             populateBrandDropdowns();
             renderTobaccoBrandSettings();
+            renderBrakMaster();
             showToast(`Brand Tembakau ${newBrand} berhasil ditambahkan.`, 'success');
         }
 
@@ -5796,9 +5965,14 @@ body::before { opacity: .45; }
             }
             tobaccoBrands[index] = newBrand;
             tobaccoBrands.sort((a, b) => a.localeCompare(b));
+            for (const brak of QUALITY_BRAKS) {
+                const assigned = brakMaster[brak].tobacco;
+                if (Array.isArray(assigned)) brakMaster[brak].tobacco = assigned.map(value => value === oldBrand ? newBrand : value);
+            }
             saveTobaccoBrands();
             populateBrandDropdowns();
             renderTobaccoBrandSettings();
+            renderBrakMaster();
             showToast(`Brand Tembakau ${oldBrand} diubah menjadi ${newBrand}.`, 'success');
         }
 
@@ -5810,6 +5984,7 @@ body::before { opacity: .45; }
             saveTobaccoBrands();
             populateBrandDropdowns();
             renderTobaccoBrandSettings();
+            renderBrakMaster();
             showToast(`Brand Tembakau ${brand} berhasil dihapus dari pilihan.`, 'info');
         }
 
@@ -5818,8 +5993,13 @@ body::before { opacity: .45; }
             const newBrand = prompt('Masukkan kode/nama Brand baru (contoh: ARX):');
             if (newBrand && !masterData.brands.includes(newBrand.trim().toUpperCase())) {
                 try {
+                    const previousAssignments = Object.fromEntries(QUALITY_BRAKS.map(brak => [brak, allowedBrakValues('brands', brak)]));
                     await apiFetch('/api/master/brands', { method: 'POST', body: JSON.stringify({ code: newBrand }) });
                     await loadMasterData();
+                    const brak = document.getElementById('masterBrakScope')?.value;
+                    const brand = newBrand.trim().toUpperCase();
+                    for (const name of QUALITY_BRAKS) brakMaster[name].brands = [...previousAssignments[name], ...(name === brak ? [brand] : [])];
+                    localStorage.setItem(BRAK_MASTER_KEY, JSON.stringify(brakMaster));
                     populateBrandDropdowns();
                     renderMasterSettings();
                     showToast('Brand baru berhasil ditambahkan untuk semua pengguna!', 'success');
@@ -6531,7 +6711,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v12</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v19</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
