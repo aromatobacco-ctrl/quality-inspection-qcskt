@@ -568,6 +568,12 @@ body {
 body::before { opacity: .45; }
 @media (max-width:720px) { body { background-attachment: scroll !important; } }
 </style>
+<style id="dashboard-footer-style">
+  #dashboardFooter { width:100%; padding:20px clamp(20px,3vw,48px); background:rgba(246,241,249,.66); border-top:1px solid rgba(86,60,111,.18); color:#6b567c; }
+  #dashboardFooter .footer-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 24px; font-size:12px; line-height:1.5; }
+  #dashboardFooter strong { color:#503d63; font-weight:800; }
+  @media(max-width:640px) { #dashboardFooter { padding:16px 20px !important; } #dashboardFooter .footer-inner { font-size:11px; } }
+</style>
 <style id="responsive-phone-tablet-v11">
 /* Tablet: full-width header, one-row swipeable station navigation. */
 @media (min-width: 641px) and (max-width: 1023px) {
@@ -1635,9 +1641,13 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v21 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v22 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
+
+    <footer id="dashboardFooter" aria-label="Informasi dashboard">
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v22</strong> · 28 September 2026</span></div>
+    </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
     <div id="modalEditWeight" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
@@ -6720,7 +6730,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v21</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v22</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
