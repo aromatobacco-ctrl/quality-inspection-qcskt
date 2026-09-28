@@ -566,6 +566,46 @@ body {
 body::before { opacity: .45; }
 @media (max-width:720px) { body { background-attachment: scroll !important; } }
 </style>
+<style id="responsive-phone-tablet-v11">
+/* Tablet: full-width header, one-row swipeable station navigation. */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .app-header-inner { gap: 12px !important; }
+  .app-navigation { order: 3; flex: 0 0 100%; width: 100%; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+  .app-navigation > button, .app-navigation .production-submenu > button { flex: 0 0 auto; min-height: 44px; white-space: nowrap; scroll-snap-align: start; }
+  .app-main { padding: 18px 20px 28px !important; }
+  .mobile-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .mobile-filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .station-hero { flex-wrap: wrap; gap: 12px; }
+  .station-actions { flex-wrap: wrap; }
+  .app-main .overflow-x-auto, .app-main .custom-scroll { max-width: 100%; -webkit-overflow-scrolling: touch; }
+  #modalInput > div, #modalMoisture > div, #modalPack > div, #modalWaste > div, #userModal > div { max-height: 90dvh; overflow-y: auto; }
+}
+/* Phone: keep every station reachable without squeezing six labels together. */
+@media (max-width: 640px) {
+  .app-header { z-index: 40; }
+  .app-header-inner { width: 100%; }
+  #myPresence { font-size: 0; padding: 0 4px !important; }
+  #myPresence::before { content: '●'; font-size: 16px; }
+  .app-navigation { justify-content: flex-start !important; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .app-navigation::-webkit-scrollbar { display: none; }
+  .app-navigation > button, .app-navigation .production-submenu > button { flex: 0 0 72px !important; min-width: 72px !important; scroll-snap-align: start; }
+  .app-main { min-width: 0; padding-bottom: 22px !important; }
+  .app-main section, .app-main .grid, .app-main .flex { min-width: 0; }
+  .app-main .overflow-x-auto, .app-main .custom-scroll { max-width: 100%; -webkit-overflow-scrolling: touch; }
+  .mobile-filter-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+  .mobile-filter-grid input, .mobile-filter-grid select { width: 100%; min-width: 0; }
+  #modalWaste { align-items: flex-end !important; padding: 0 !important; }
+  #modalWaste > div { width: 100%; max-width: none; max-height: 96dvh; margin: 0; padding: 16px !important; border-radius: 20px 20px 0 0 !important; overflow-y: auto; }
+  #modalWaste .mobile-form-actions { bottom: -16px; }
+  #packParameterSummaryPanels > div { min-width: 0; }
+  #packParameterSummaryPanels .grid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+@media (max-width: 380px) {
+  .app-brand-title { max-width: 118px !important; }
+  .mobile-filter-grid, .mobile-kpi-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .station-actions { grid-template-columns: minmax(0, 1fr) !important; }
+}
+</style>
 </head>
 <body class="text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
 
@@ -1071,7 +1111,7 @@ body::before { opacity: .45; }
                 <div class="bg-purple-900/30 border border-purple-800/50 rounded-2xl p-4 shadow-md flex flex-col justify-between">
                     <div>
                         <h3 class="text-sm font-bold text-white mb-1">Distribusi Kategori Kualitas</h3>
-                        <p class="text-[11px] text-purple-300 mb-4">Perbandingan Visual vs Physical In-Spec</p>
+                        <p class="text-[11px] text-purple-300 mb-4">Ungu = Visual · Biru = Physical. Warna angka menunjukkan status In-Spec.</p>
                         <div class="relative h-[180px] flex items-center justify-center">
                             <canvas id="categoryChart"></canvas>
                         </div>
@@ -1082,7 +1122,7 @@ body::before { opacity: .45; }
                             <span id="labelVisualInSpec" class="font-bold text-white">0%</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-purple-300"></span> Physical (2 Parameter)</span>
+                            <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Physical (2 Parameter)</span>
                             <span id="labelPhysicalInSpec" class="font-bold text-white">0%</span>
                         </div>
                     </div>
@@ -1567,7 +1607,7 @@ body::before { opacity: .45; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v9 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v11 | LAST_UPDATE: 28 September 2026 -->
         
     </main>
 
@@ -5249,7 +5289,7 @@ body::before { opacity: .45; }
                     labels: ['Visual In-Spec', 'Physical In-Spec'],
                     datasets: [{
                         data: [agg.visualInSpecPct.toFixed(1), agg.physicalInSpecPct.toFixed(1)],
-                        backgroundColor: ['#a855f7', '#d8b4fe'],
+                        backgroundColor: ['#a855f7', '#22d3ee'],
                         borderColor: '#140d22',
                         borderWidth: 2
                     }]
@@ -6474,7 +6514,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v9</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v11</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 

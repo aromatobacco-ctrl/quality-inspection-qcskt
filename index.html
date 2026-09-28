@@ -23,6 +23,22 @@ body { background: linear-gradient(rgba(238,230,244,.82),rgba(219,203,231,.84)),
 .story-panel { background: linear-gradient(145deg,rgba(33,19,46,.92),rgba(67,34,81,.88)), url('aroma-produksi.webp') center center / cover !important; }
 @media (max-width:720px) { body { background-attachment: scroll !important; } }
 </style>
+<style id="responsive-login-v11">
+@media (min-width: 721px) and (max-width: 1023px) {
+  .login-shell { width: min(92vw, 850px); grid-template-columns: .9fr 1fr; }
+  .story-panel { padding: 34px; }
+  .story-panel h1 { font-size: clamp(28px, 4vw, 38px); }
+  .login-card { padding: 38px 32px; }
+}
+@media (max-width: 720px) {
+  body { min-height: 100dvh; padding: 14px !important; }
+  .login-shell { width: 100%; max-width: 480px; }
+  .story-panel { padding: 22px 24px; gap: 20px; }
+  .story-panel h1 { font-size: clamp(25px, 7vw, 31px); }
+  .login-card { padding: 28px 24px 34px; }
+  .login-card input, .login-card button { min-height: 46px; font-size: 16px; }
+}
+</style>
 </head>
 <body class="min-h-screen flex items-center justify-center font-sans p-4">
   <main class="login-shell">
