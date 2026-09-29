@@ -1641,12 +1641,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v22 | LAST_UPDATE: 28 September 2026 -->
+        <!-- APP_VERSION: v23 | LAST_UPDATE: 29 September 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v22</strong> · 28 September 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v23</strong> · 29 September 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -5026,8 +5026,14 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             applyKpiColor('kpiPhysicalBadge', agg.physicalInSpecPct);
 
             // Kelengkapan sampling mengikuti periode terpilih
-            const targetEntries = 72 * range.days;
-            const totalEntered = periodData.length;
+            const targetDays = range.mode === 'monthly' ? 20 : range.days;
+            const targetEntries = 72 * targetDays;
+            const totalEntered = range.mode === 'monthly'
+                ? periodData.filter(item => {
+                    const weekday = new Date(`${item.date}T00:00:00Z`).getUTCDay();
+                    return weekday !== 0 && weekday !== 6;
+                }).length
+                : periodData.length;
             const pct = Math.min(100, (totalEntered / targetEntries) * 100);
             const periodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
             const rangeLabel = range.mode === 'daily'
@@ -5035,7 +5041,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
             document.getElementById('gilingCompletenessTitle').innerText = range.mode === 'daily'
                 ? 'Status Kelengkapan Harian (24 Kelompok × 3 Sampling)'
-                : `Status Kelengkapan ${periodName} (24 Kelompok × 3 Sampling × ${range.days} Hari)`;
+                : `Status Kelengkapan ${periodName} (24 Kelompok × 3 Sampling × ${targetDays} Hari${range.mode === 'monthly' ? ' Kerja' : ''})`;
             document.getElementById('gilingCompletenessCaption').innerText = `Periode ${rangeLabel} · target ${targetEntries.toLocaleString('id-ID')} sampling (${(targetEntries * 10).toLocaleString('id-ID')} batang default).`;
             document.getElementById('completenessBadge').innerText = `${totalEntered}/${targetEntries} Masuk`;
             document.getElementById('completenessBar').style.width = `${pct}%`;
@@ -5048,11 +5054,16 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 document.getElementById('kpiKelompokDone').innerText = inspectedCount;
                 document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, 24 - inspectedCount)} Belum Selesai`;
             } else {
-                const daysWithData = new Set(periodData.map(item => item.date)).size;
+                const datesWithData = new Set(periodData.map(item => item.date));
+                const daysWithData = [...datesWithData].filter(date => {
+                    if (range.mode !== 'monthly') return true;
+                    const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+                    return weekday !== 0 && weekday !== 6;
+                }).length;
                 document.getElementById('kpiPeriodStatusLabel').innerText = 'Hari Terdata';
-                document.getElementById('kpiPeriodStatusSuffix').innerText = `/ ${range.days} Hari`;
+                document.getElementById('kpiPeriodStatusSuffix').innerText = `/ ${targetDays} Hari${range.mode === 'monthly' ? ' Kerja' : ''}`;
                 document.getElementById('kpiKelompokDone').innerText = daysWithData;
-                document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, range.days - daysWithData)} Hari Belum Ada Data`;
+                document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, targetDays - daysWithData)} Hari${range.mode === 'monthly' ? ' Kerja' : ''} Belum Ada Data`;
             }
 
             const matrixPanel = document.getElementById('kelompokMatrixPanel');
@@ -6730,7 +6741,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v22</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 28 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v23</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 29 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
