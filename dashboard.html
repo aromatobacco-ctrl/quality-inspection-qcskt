@@ -1641,12 +1641,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v23 | LAST_UPDATE: 29 September 2026 -->
+        <!-- APP_VERSION: v24 | LAST_UPDATE: 29 September 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v23</strong> · 29 September 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v24</strong> · 29 September 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -5026,7 +5026,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             applyKpiColor('kpiPhysicalBadge', agg.physicalInSpecPct);
 
             // Kelengkapan sampling mengikuti periode terpilih
-            const targetDays = range.mode === 'monthly' ? 20 : range.days;
+            const targetDays = range.mode === 'monthly' ? 22 : range.days;
             const targetEntries = 72 * targetDays;
             const totalEntered = range.mode === 'monthly'
                 ? periodData.filter(item => {
@@ -6741,7 +6741,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v23</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 29 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v24</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 29 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
