@@ -1090,7 +1090,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="grid" class="w-4 h-4 text-purple-400"></i>
-                        Status Sampling 24 Kelompok (Hari Terpilih)
+                        <span id="kelompokMatrixTitle">Status Sampling Kelompok (Hari Terpilih)</span>
                     </h3>
                     <div class="flex items-center gap-3 text-[11px]">
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-900 border border-slate-700"></span> 0 Sampling</span>
@@ -1641,12 +1641,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v24 | LAST_UPDATE: 29 September 2026 -->
+        <!-- APP_VERSION: v25 | LAST_UPDATE: 30 September 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v24</strong> · 29 September 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v25</strong> · 30 September 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -2068,9 +2068,20 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             const assigned = brakMaster[brak][type];
             return assigned === null || assigned === undefined ? source : source.filter(value => assigned.includes(value));
         }
+        function qualityGroupSlots() {
+            const braks = QUALITY_BRAKS.includes(currentBrakFilter) ? [currentBrakFilter] : QUALITY_BRAKS;
+            return braks.flatMap(brak => allowedBrakValues('groups', brak).map(name => ({brak,name})));
+        }
+        function sameGroup(left, right) {
+            return String(left || '').trim().toLowerCase().replace(/\b0+(\d+)/g, '$1') === String(right || '').trim().toLowerCase().replace(/\b0+(\d+)/g, '$1');
+        }
+        function isActiveGroupRecord(item) {
+            return qualityGroupSlots().some(slot => slot.brak === recordBrak(item, 'giling') && sameGroup(slot.name, item.kelompok));
+        }
         function saveBrakMaster() {
             localStorage.setItem(BRAK_MASTER_KEY, JSON.stringify(brakMaster));
             refreshBrakMasterInputs(); renderBrakMaster();
+            if (currentUser) { renderOverview(); renderDashboard(); }
         }
         function toggleBrakMaster(type, value, checked) {
             if (!ensureAdmin('mengatur master Brak') || !BRAK_MASTER_TYPES.includes(type)) return;
@@ -3798,8 +3809,9 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 : null;
             const receivingAverage = averageMc(receivingData);
             const usageAverage = averageMc(usageData);
-            const samplingTarget = 72 * range.days;
-            const samplingPercent = Math.min(100, (gilingData.length / samplingTarget) * 100);
+            const overviewGroupCount = qualityGroupSlots().length;
+            const samplingTarget = overviewGroupCount * 3 * (range.mode === 'monthly' ? 22 : range.days);
+            const samplingPercent = samplingTarget ? Math.min(100, (gilingData.filter(isActiveGroupRecord).length / samplingTarget) * 100) : 0;
 
             document.getElementById('overviewGilingCount').innerText = gilingData.length;
             document.getElementById('overviewGilingScore').innerText = gilingData.length ? `${gilingAggregate.overallInSpecPct.toFixed(1)}%` : '—';
@@ -3823,12 +3835,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             document.getElementById('overviewReceivingScore').innerText = receivingAverage === null ? '—' : `${receivingAverage.toFixed(2)}%`;
             document.getElementById('overviewUsageCount').innerText = usageData.length;
             document.getElementById('overviewUsageScore').innerText = usageAverage === null ? '—' : `${usageAverage.toFixed(2)}%`;
-            document.getElementById('overviewSamplingStatus').innerText = `${gilingData.length}/${samplingTarget}`;
+            document.getElementById('overviewSamplingStatus').innerText = `${gilingData.filter(isActiveGroupRecord).length}/${samplingTarget}`;
             const overviewPeriodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
             document.getElementById('overviewSamplingTitle').innerText = range.mode === 'daily' ? 'Status Sampling Giling Gunting' : `Status Sampling ${overviewPeriodName}`;
             document.getElementById('overviewSamplingCaption').innerText = range.mode !== 'daily'
-                ? `${range.start} s/d ${range.end} · target 72 sampling/hari`
-                : '24 kelompok × 3 sampling per hari';
+                ? `${range.start} s/d ${range.end} · target ${overviewGroupCount * 3} sampling/hari`
+                : `${overviewGroupCount} kelompok × 3 sampling per hari`;
             const samplingPercentEl = document.getElementById('overviewSamplingPercent');
             samplingPercentEl.innerText = `${samplingPercent.toFixed(0)}%`;
             samplingPercentEl.className = `text-xs font-black ${samplingPercent >= 100 ? 'text-emerald-400' : samplingPercent > 0 ? 'text-amber-300' : 'text-rose-400'}`;
@@ -5026,35 +5038,37 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             applyKpiColor('kpiPhysicalBadge', agg.physicalInSpecPct);
 
             // Kelengkapan sampling mengikuti periode terpilih
+            const completenessData = periodData.filter(isActiveGroupRecord);
             const targetDays = range.mode === 'monthly' ? 22 : range.days;
-            const targetEntries = 72 * targetDays;
+            const groupCount = qualityGroupSlots().length;
+            const targetEntries = groupCount * 3 * targetDays;
             const totalEntered = range.mode === 'monthly'
-                ? periodData.filter(item => {
+                ? completenessData.filter(item => {
                     const weekday = new Date(`${item.date}T00:00:00Z`).getUTCDay();
                     return weekday !== 0 && weekday !== 6;
                 }).length
-                : periodData.length;
-            const pct = Math.min(100, (totalEntered / targetEntries) * 100);
+                : completenessData.length;
+            const pct = targetEntries ? Math.min(100, (totalEntered / targetEntries) * 100) : 0;
             const periodName = range.mode === 'weekly' ? 'Mingguan' : range.mode === 'monthly' ? 'Bulanan' : 'Harian';
             const rangeLabel = range.mode === 'daily'
                 ? formatGilingDate(range.start, { day: '2-digit', month: 'long', year: 'numeric' })
                 : `${formatGilingDate(range.start)} – ${formatGilingDate(range.end, { day: '2-digit', month: 'short', year: 'numeric' })}`;
             document.getElementById('gilingCompletenessTitle').innerText = range.mode === 'daily'
-                ? 'Status Kelengkapan Harian (24 Kelompok × 3 Sampling)'
-                : `Status Kelengkapan ${periodName} (24 Kelompok × 3 Sampling × ${targetDays} Hari${range.mode === 'monthly' ? ' Kerja' : ''})`;
+                ? `Status Kelengkapan Harian (${groupCount} Kelompok × 3 Sampling)`
+                : `Status Kelengkapan ${periodName} (${groupCount} Kelompok × 3 Sampling × ${targetDays} Hari${range.mode === 'monthly' ? ' Kerja' : ''})`;
             document.getElementById('gilingCompletenessCaption').innerText = `Periode ${rangeLabel} · target ${targetEntries.toLocaleString('id-ID')} sampling (${(targetEntries * 10).toLocaleString('id-ID')} batang default).`;
             document.getElementById('completenessBadge').innerText = `${totalEntered}/${targetEntries} Masuk`;
             document.getElementById('completenessBar').style.width = `${pct}%`;
             document.getElementById('completenessPercent').innerText = `${pct.toFixed(0)}%`;
 
             if (range.mode === 'daily') {
-                const inspectedCount = new Set(periodData.map(item => item.kelompok)).size;
+                const inspectedCount = qualityGroupSlots().filter(slot => periodData.some(item => recordBrak(item,'giling') === slot.brak && sameGroup(item.kelompok, slot.name))).length;
                 document.getElementById('kpiPeriodStatusLabel').innerText = 'Kelompok Selesai';
-                document.getElementById('kpiPeriodStatusSuffix').innerText = '/ 24 Kelompok';
+                document.getElementById('kpiPeriodStatusSuffix').innerText = `/ ${groupCount} Kelompok`;
                 document.getElementById('kpiKelompokDone').innerText = inspectedCount;
-                document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, 24 - inspectedCount)} Belum Selesai`;
+                document.getElementById('kpiKelompokPending').innerText = `${Math.max(0, groupCount - inspectedCount)} Belum Selesai`;
             } else {
-                const datesWithData = new Set(periodData.map(item => item.date));
+                const datesWithData = new Set(completenessData.map(item => item.date));
                 const daysWithData = [...datesWithData].filter(date => {
                     if (range.mode !== 'monthly') return true;
                     const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
@@ -5092,10 +5106,11 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             const grid = document.getElementById('kelompokGrid');
             grid.innerHTML = '';
 
-            for (let i = 1; i <= 24; i++) {
-                const kName = `Kelompok ${i < 10 ? '0' + i : i}`;
-                const samplings = dayData.filter(d => d.kelompok === kName);
-                const count = samplings.length;
+            const slots = qualityGroupSlots();
+            document.getElementById('kelompokMatrixTitle').textContent = `Status Sampling ${slots.length} Kelompok (Hari Terpilih)`;
+            for (const slot of slots) {
+                const samplings = dayData.filter(d => recordBrak(d,'giling') === slot.brak && sameGroup(d.kelompok,slot.name));
+                const count = new Set(samplings.map(item => item.sampling)).size;
 
                 let badgeClass = "bg-slate-950/60 border-purple-900/60 text-slate-400";
                 let textStatus = "0/3 Sampling";
@@ -5113,7 +5128,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
 
                 grid.innerHTML += `
                     <div class="p-2 rounded-xl border text-center transition-all ${badgeClass}">
-                        <div class="text-[11px] font-bold">K-${i < 10 ? '0' + i : i}</div>
+                        <div class="text-[11px] font-bold">${escapeHtml(slot.name)}${currentBrakFilter === 'ALL' ? ' · ' + slot.brak : ''}</div>
                         <div class="text-[10px] opacity-90">${textStatus}</div>
                     </div>
                 `;
@@ -6741,7 +6756,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v24</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 29 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v25</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 30 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
