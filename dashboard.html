@@ -888,6 +888,13 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
 
             <p class="text-center text-[11px] text-purple-400 -mt-1">Klik salah satu kartu di atas untuk melihat grafik detail & input data station tersebut</p>
+            <div id="qualityReviewPanel" class="bg-purple-950/95 border border-purple-600/60 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div class="flex flex-wrap justify-between gap-3"><div><h3 class="text-sm font-bold text-white">Tren Overall In-Spec — Quality Performance Review</h3><p id="qualityReviewCaption" class="text-xs text-purple-300 mt-1"></p></div>
+                <div class="flex flex-wrap gap-2 text-xs"><select id="qualityReviewMode" onchange="renderQualityReview()" aria-label="Periode grafik review" class="bg-purple-900 border border-purple-600 rounded-lg p-2"><option value="weekly">Mingguan</option><option value="monthly">Bulanan</option></select><label>Dari <input id="qualityReviewStart" type="date" onchange="renderQualityReview()" class="bg-purple-900 border border-purple-600 rounded-lg p-2"></label><label>Sampai <input id="qualityReviewEnd" type="date" onchange="renderQualityReview()" class="bg-purple-900 border border-purple-600 rounded-lg p-2"></label></div></div>
+                <div class="relative h-72 sm:h-80"><canvas id="qualityReviewChart"></canvas></div>
+                <p id="qualityReviewEmpty" class="hidden text-xs text-purple-300">Belum ada data Quality pada rentang dan Brak ini.</p>
+                <p class="text-[11px] text-purple-300">Overall In-Spec dihitung dari total hasil In-Spec dibagi total kapasitas parameter yang terisi. Minggu dimulai Senin; titik tanpa data ditampilkan sebagai celah.</p>
+            </div>
         </section>
 
         <!-- ==================== TAB 2: GILING GUNTING STATION ==================== -->
@@ -1641,12 +1648,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v25 | LAST_UPDATE: 30 September 2026 -->
+        <!-- APP_VERSION: v26 | LAST_UPDATE: 30 September 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v25</strong> · 30 September 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v26</strong> · 30 September 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -3790,8 +3797,54 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             return { mode: 'daily', start: selected, end: selected, days: 1 };
         }
 
+        let qualityReviewChart = null;
+        function renderQualityReview() {
+            const mode = document.getElementById('qualityReviewMode').value;
+            const startInput = document.getElementById('qualityReviewStart');
+            const endInput = document.getElementById('qualityReviewEnd');
+            if (!startInput.value) {
+                const today = getTodayString();
+                const date = new Date(`${today}T00:00:00Z`);
+                date.setUTCDate(1); date.setUTCMonth(date.getUTCMonth() - 5);
+                startInput.value = date.toISOString().slice(0,10);
+            }
+            if (!endInput.value) endInput.value = getTodayString();
+            const start = startInput.value, end = endInput.value;
+            startInput.max = end; endInput.min = start;
+            if (start > end) return;
+            const keyFor = value => {
+                if (mode === 'monthly') return value.slice(0,7);
+                const date = new Date(`${value}T00:00:00Z`);
+                date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 6) % 7);
+                return date.toISOString().slice(0,10);
+            };
+            const keys = [];
+            for (let date = start; date <= end; date = addDaysToDateString(date,1)) {
+                const key = keyFor(date); if (keys[keys.length-1] !== key) keys.push(key);
+            }
+            const giling = inspections.filter(item => item.date >= start && item.date <= end && matchesQualityBrak(item,'giling'));
+            const pack = packRecords.filter(item => item.date >= start && item.date <= end && matchesQualityBrak(item,'pack'));
+            const series = rows => keys.map(key => rows.filter(item => keyFor(item.date) === key));
+            const gilingBuckets = series(giling), packBuckets = series(pack);
+            const gilingValues = gilingBuckets.map(rows => { const agg = calculateAggregates(rows); return agg.overallDenom ? agg.overallInSpecPct : null; });
+            const packValues = packBuckets.map(rows => getPackOverallStats(rows).inSpecPct);
+            const labels = keys.map(key => mode === 'monthly' ? new Date(`${key}-01T00:00:00Z`).toLocaleDateString('id-ID',{month:'short',year:'numeric',timeZone:'UTC'}) : 'Minggu ' + formatGilingDate(key));
+            const brakLabel = currentBrakFilter === 'ALL' ? 'Semua Brak' : `Brak ${currentBrakFilter === 'JAMBEAN' ? 'Jambean' : 'Magelang'}`;
+            document.getElementById('qualityReviewCaption').textContent = `${brakLabel} · ${mode === 'monthly' ? 'Akumulasi bulanan' : 'Akumulasi mingguan'} · ${start} sampai ${end}`;
+            document.getElementById('qualityReviewEmpty').classList.toggle('hidden',gilingValues.some(Number.isFinite) || packValues.some(Number.isFinite));
+            if (qualityReviewChart) qualityReviewChart.destroy();
+            qualityReviewChart = new Chart(document.getElementById('qualityReviewChart'), {
+                type:'line', data:{labels,datasets:[
+                    {label:'Giling Gunting',data:gilingValues,borderColor:'#c084fc',backgroundColor:'#c084fc',pointRadius:3,tension:.2,spanGaps:false},
+                    {label:'Packaging',data:packValues,borderColor:'#38bdf8',backgroundColor:'#38bdf8',pointRadius:3,tension:.2,spanGaps:false},
+                    {label:'Target In-Spec 81%',data:keys.map(()=>81),borderColor:'#34d399',borderDash:[6,4],pointRadius:0,borderWidth:1.5}
+                ]}, options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#ddd6fe'}},tooltip:{callbacks:{label:context=>`${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`,afterLabel:context=>context.datasetIndex < 2 ? `${(context.datasetIndex === 0 ? gilingBuckets : packBuckets)[context.dataIndex].length} catatan pemeriksaan` : ''}}},scales:{y:{min:0,max:100,title:{display:true,text:'Overall In-Spec (%)',color:'#ddd6fe'},ticks:{color:'#c4b5fd',callback:value=>value+'%'},grid:{color:'#a78bfa22'}},x:{ticks:{color:'#c4b5fd',maxTicksLimit:12},grid:{display:false}}}}
+            });
+        }
+
         function renderOverview() {
-            if (currentRole === 'DASHBOARD_VIEWER') { guestPaint('overview'); return; }
+            if (currentRole === 'DASHBOARD_VIEWER') { document.getElementById('qualityReviewPanel').classList.add('hidden'); guestPaint('overview'); return; }
+            renderQualityReview();
             const dateInput = document.getElementById('overviewDate');
             if (!dateInput) return;
             const range = getOverviewRange();
@@ -6756,7 +6809,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v25</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 30 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v26</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 30 September 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
