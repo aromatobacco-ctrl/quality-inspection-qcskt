@@ -39,6 +39,27 @@ body { background: linear-gradient(rgba(238,230,244,.82),rgba(219,203,231,.84)),
   .login-card input, .login-card button { min-height: 46px; font-size: 16px; }
 }
 </style>
+<style id="login-firm-v28">
+body{padding:32px!important}
+.login-shell{width:min(1360px,100%);grid-template-columns:1.08fr 1fr;min-height:650px;border-radius:30px;box-shadow:0 24px 64px #28153730}
+.story-panel{padding:60px;gap:90px;background:linear-gradient(145deg,rgba(26,15,36,.68),rgba(41,21,53,.78)),url('aroma-produksi.webp') center/cover!important}
+.company{font-size:14px;letter-spacing:.35px;font-weight:850;line-height:1.5;gap:16px}
+.company-mark{width:64px;height:64px;border-radius:16px}
+.eyebrow{font-size:12px;font-weight:850;letter-spacing:2.4px;color:#d8b2e7}
+.story-panel h1{font-size:clamp(42px,4.6vw,66px);font-weight:850;letter-spacing:-2px;line-height:1.04;margin:0}
+.login-card{padding:60px clamp(32px,4.5vw,72px);align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+.welcome-tag{font-size:12px;font-weight:850;letter-spacing:2px;margin-bottom:24px;color:#a16bb3}
+.login-card h2{font-size:clamp(30px,3vw,42px);font-weight:850;line-height:1.12;letter-spacing:-1.4px;margin-bottom:18px}
+.login-intro{font-size:15px;line-height:1.7;margin-bottom:36px}
+.login-card label{font-size:13px;font-weight:750;color:#352140}
+.login-card input{height:60px;border-radius:14px;border-color:#d9cce5;background:#f1f3fc;font-size:16px;padding:16px 18px}
+.password-field input{padding-right:58px}
+.password-toggle{top:8px;right:8px;width:44px;height:44px}
+#submitBtn,#setupBtn{min-height:60px;font-size:16px;font-weight:850;border-radius:14px;background:linear-gradient(110deg,#75428c,#9868ab)}
+.login-note{font-size:12px;margin-top:30px}
+@media(min-width:721px) and (max-width:1023px){body{padding:24px!important}.login-shell{min-height:590px}.story-panel{padding:32px}.company{font-size:11px}.company-mark{width:50px;height:50px}.story-panel h1{font-size:40px}.login-card{padding:36px 28px}.login-card h2{font-size:31px}}
+@media(max-width:720px){body{padding:14px!important}.login-shell{grid-template-columns:1fr;min-height:0;border-radius:24px}.story-panel{padding:26px;gap:30px}.company{font-size:11px}.company-mark{width:48px;height:48px}.story-panel h1{font-size:34px;letter-spacing:-1px}.eyebrow{font-size:10px}.login-card{padding:32px 26px}.welcome-tag{margin-bottom:16px}.login-card h2{font-size:30px}.login-intro{font-size:14px;margin-bottom:28px}.login-card input,#submitBtn,#setupBtn{min-height:54px;height:54px}}
+</style>
 </head>
 <body class="min-h-screen flex items-center justify-center font-sans p-4">
   <main class="login-shell">
@@ -47,7 +68,7 @@ body { background: linear-gradient(rgba(238,230,244,.82),rgba(219,203,231,.84)),
 <div><p class="eyebrow">SIGARET KRETEK TANGAN</p><h1>Production<br>Monitoring<br>Dashboard<span style="color:#c6a3db">.</span></h1></div>
 </section>
 <section class="login-card">
-    <p class="welcome-tag">WORKSPACE SKT</p><h2>Selamat datang kembali.</h2><p class="login-intro">Masuk dengan akunmu untuk melanjutkan<br>monitoring produksi hari ini.</p>
+    <p class="welcome-tag">WORKSPACE SKT</p><h2>Selamat datang kembali.</h2><p class="login-intro">Masuk dengan akunmu untuk melanjutkan monitoring produksi hari ini.</p>
 
     <form id="loginForm" class="space-y-4">
       <div>
