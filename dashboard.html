@@ -1648,12 +1648,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v28 | LAST_UPDATE: 30 September 2026 -->
+        <!-- APP_VERSION: v29 | LAST_UPDATE: 7 Oktober 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v28</strong> · 30 September 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v29</strong> · 7 Oktober 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -1938,6 +1938,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                     <div><label class="block text-purple-300 mb-1">Tanggal</label><input type="date" id="packInputDate" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"></div>
                     <div><label class="block text-purple-300 mb-1">Inspector</label><input type="text" id="packInputInspector" readonly required class="w-full bg-purple-950/70 border border-purple-700 rounded-xl px-3 py-2 text-purple-200 cursor-not-allowed"></div>
                     <div><label class="block text-purple-300 mb-1">Brak</label><select id="packInputBuilding" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Brak</option><option value="JAMBEAN">Brak Jambean</option><option value="MAGELANG">Brak Magelang</option></select></div>
+                    <div><label class="block text-purple-300 mb-1">Gedung</label><select id="packInputGedung" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="">Pilih Gedung</option><option value="A">Gedung A</option><option value="B">Gedung B</option><option value="LEGACY" hidden>Data lama — gedung belum ditentukan</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jam</label><select id="packInputTime" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="08:00">08.00</option><option value="10:00">10.00</option><option value="13:00">13.00</option></select></div>
                     <div><label class="block text-purple-300 mb-1">Jenis Station</label><select id="packInputStation" onchange="renderPackParameterInputs()" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white"><option value="PACKING">Packing</option><option value="BANDROLL">Bandroll</option><option value="OPP">OPP</option><option value="MOP">MOP</option></select></div>
                 </div>
@@ -3710,7 +3711,8 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 'Tanggal': item.date,
                 'Jam': item.samplingTime,
                 'Station': config.label,
-                'Gedung': recordBrak(item, 'pack'),
+                'Brak': recordBrak(item, 'pack'),
+                'Gedung': getPackGedung(item) === 'LEGACY' ? 'Belum ditentukan' : getPackGedung(item),
                 'Inspector': item.inspector,
                 'Jumlah Sampel': config.sampleSize,
                 'Total In-Spec (%)': score === null ? '' : Number(score.toFixed(2)),
@@ -4180,6 +4182,10 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             return { mode: 'daily', start: selected, end: selected, days: 1 };
         }
 
+        function getPackGedung(item) {
+            const raw = String(item.params?.gedung || item.params?.building || item.building || '').trim().toUpperCase();
+            return ['A','B'].includes(raw) ? raw : 'LEGACY';
+        }
         function getFilteredPackData(options = {}) {
             const range = getPackFilterRange();
             const time = document.getElementById('packFilterTime').value;
@@ -4291,7 +4297,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 const stationKey = getPackStationKey(item);
                 const config = PACK_STATION_CONFIG[stationKey];
                 const canEdit = currentRole === 'ADMIN' || (currentRole === 'INSPECTOR' && item.inspectorId === currentUser?.id);
-                const building = recordBrak(item, 'pack');
+                const building = `${recordBrak(item,'pack')} · ${getPackGedung(item) === 'LEGACY' ? 'Gedung belum ditentukan' : 'Gedung ' + getPackGedung(item)}`;
                 const score = getPackRecordScore(item);
                 const scoreTone = getPackScoreTone(score);
                 const parameterResults = getPackRecordEntries(item).map(entry => {
@@ -4362,6 +4368,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 document.getElementById('packInputTime').value = editItem.samplingTime;
                 document.getElementById('packInputInspector').value = editItem.inspector;
                 document.getElementById('packInputBuilding').value = recordBrak(editItem, 'pack');
+                document.getElementById('packInputGedung').value = getPackGedung(editItem);
                 stationSelect.value = stationKey;
                 renderPackParameterInputs(editItem);
             } else {
@@ -4371,6 +4378,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 document.getElementById('packInputDate').value = getPackFilterRange().start;
                 document.getElementById('packInputInspector').value = currentUser ? currentUser.displayName : '';
                 document.getElementById('packInputBuilding').value = preferredInputBrak();
+                document.getElementById('packInputGedung').value = '';
                 const filteredStation = document.getElementById('packFilterStation')?.value || 'ALL';
                 stationSelect.value = filteredStation === 'ALL' ? 'PACKING' : filteredStation;
                 const filteredTime = document.getElementById('packFilterTime')?.value || 'ALL';
@@ -4391,6 +4399,8 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             const editId = document.getElementById('packEditRecordId').value;
             const building = document.getElementById('packInputBuilding').value;
             if (!QUALITY_BRAKS.includes(building) && !document.getElementById('packEditRecordId').value) { showToast('Pilih Brak Jambean atau Brak Magelang.', 'error'); return; }
+            const gedung = document.getElementById('packInputGedung').value;
+            if (!['A','B'].includes(gedung) && !(editId && gedung === 'LEGACY')) { showToast('Pilih Gedung A atau Gedung B.', 'error'); return; }
             const stationKey = getPackStationKey(document.getElementById('packInputStation').value);
             const config = PACK_STATION_CONFIG[stationKey];
             const sampleSize = config.sampleSize;
@@ -4427,9 +4437,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                     sampleSize,
                     ...parameterValues,
                     building,
+                    gedung,
                     notes
                 }
             };
+            const duplicate = packRecords.find(item => item.id !== editId && item.date === payload.date && item.samplingTime === payload.samplingTime && recordBrak(item,'pack') === building && getPackGedung(item) === gedung && getPackStationKey(item) === stationKey);
+            if (duplicate) { showToast('Data pada Brak, Gedung, tanggal, jam, dan station ini sudah ada. Edit catatan tersebut untuk koreksi.', 'error'); return; }
             try {
                 await apiFetch(editId ? `/api/pack-quality/${editId}` : '/api/pack-quality', {
                     method: editId ? 'PATCH' : 'POST',
@@ -6807,7 +6820,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v28</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 30 September 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v29</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 7 Oktober 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
