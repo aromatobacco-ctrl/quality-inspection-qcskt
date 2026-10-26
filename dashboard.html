@@ -1,3 +1,9 @@
+<!-- PAKET GABUNGAN SKT, 23 Oktober 2026. Sumber situs aktif v29.
+Ringkasan revisi lengkap: DOKUMENTASI/RINGKASAN-REVISI.md dalam ZIP.
+Fitur: Brak Jambean/Magelang; master dinamis; 22 hari kerja; review harian;
+Packaging Brak + Gedung A/B; presence; login responsif; footer.
+SQL perbaikan terpisah di SUPABASE. Master lokal browser belum sinkron lintas perangkat.
+-->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -916,6 +922,10 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                     <button onclick="openModalInput()" class="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> Input Giling Gunting</button>
                 </div>
             </div>
+            <div class="bg-purple-950/85 border border-purple-700/70 rounded-2xl p-4 flex flex-wrap items-end justify-between gap-3">
+                <div><h3 class="text-sm font-bold text-white">Download Performa Bulanan per Kelompok</h3><p class="text-xs text-purple-300 mt-1">Data Visual dan Physical per kelompok untuk Brak yang dipilih. Hasil berupa tabel Excel.</p></div>
+                <div class="flex flex-wrap items-end gap-2"><label class="text-xs text-purple-200 font-semibold">Bulan <input id="monthlyGroupExportMonth" type="month" class="block mt-1 bg-purple-900 border border-purple-600 rounded-xl px-3 py-2 text-white"></label><button type="button" onclick="exportMonthlyGroupPerformance()" class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download Excel</button></div>
+            </div>
             <!-- Filter Bar -->
             <div class="bg-purple-900/30 border border-purple-800/60 rounded-2xl p-4 backdrop-blur-md shadow-md">
                 <div class="flex items-center justify-between mb-3">
@@ -1648,12 +1658,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v29 | LAST_UPDATE: 7 Oktober 2026 -->
+        <!-- APP_VERSION: v30 | LAST_UPDATE: 27 Oktober 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v29</strong> · 7 Oktober 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v30</strong> · 27 Oktober 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -2283,6 +2293,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 const [initialYear, initialMonthNumber] = initialMonth.split('-').map(Number);
                 const initialMonthEnd = `${initialMonth}-${String(new Date(initialYear, initialMonthNumber, 0).getDate()).padStart(2, '0')}`;
                 document.getElementById('filterDate').value = initialToday;
+                document.getElementById('monthlyGroupExportMonth').value = initialMonth;
                 document.getElementById('gilingWeekStart').value = initialToday;
                 document.getElementById('gilingWeekEnd').value = addDaysToDateString(initialToday, 4);
                 document.getElementById('gilingMonthStart').value = `${initialMonth}-01`;
@@ -5068,6 +5079,52 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             };
         }
 
+        function monthlyGroupPerformanceRows(records, month, selectedBrak) {
+            const grouped = new Map();
+            for (const item of records) {
+                if (String(item.date || '').slice(0,7) !== month) continue;
+                const brak = recordBrak(item, 'giling');
+                if (selectedBrak !== 'ALL' && brak !== selectedBrak) continue;
+                const group = String(item.kelompok || '').trim();
+                if (!group) continue;
+                const key = JSON.stringify([brak, group]);
+                if (!grouped.has(key)) grouped.set(key, {brak, group, items: []});
+                grouped.get(key).items.push(item);
+            }
+            return [...grouped.values()].sort((a,b) => a.brak.localeCompare(b.brak) || a.group.localeCompare(b.group,'id',{numeric:true})).map(({brak,group,items}) => {
+                const a = calculateAggregates(items);
+                const round = n => Number(n.toFixed(2));
+                return {
+                    'Bulan': month, 'Brak': brak === 'JAMBEAN' ? 'Jambean' : 'Magelang', 'Kelompok': group,
+                    'Jumlah Hari Terdata': new Set(items.map(item => item.date)).size,
+                    'Jumlah Sampling': items.length, 'Jumlah Batang Sampel': a.totalSample,
+                    'Visual In-Spec (%)': a.visualDenom ? round(a.visualInSpecPct) : null,
+                    'Visual Out-Spec (%)': a.visualDenom ? round(a.visualOutSpecPct) : null,
+                    'Physical In-Spec (%)': a.physicalDenom ? round(a.physicalInSpecPct) : null,
+                    'Physical Out-Spec (%)': a.physicalDenom ? round(a.physicalOutSpecPct) : null,
+                    'Visual In-Spec (jumlah)': a.totalVisualInSpec, 'Visual Kapasitas (jumlah)': a.visualDenom,
+                    'Physical In-Spec (jumlah)': a.totalPhysicalInSpec, 'Physical Kapasitas (jumlah)': a.physicalDenom
+                };
+            });
+        }
+        function exportMonthlyGroupPerformance() {
+            if (!ensureNotGuest('mengunduh data performa')) return;
+            const input = document.getElementById('monthlyGroupExportMonth');
+            const month = input.value;
+            if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) { showToast('Pilih bulan yang ingin diunduh.', 'error'); input.focus(); return; }
+            if (typeof XLSX === 'undefined') { showToast('Fitur Excel belum tersedia. Periksa internet lalu muat ulang halaman.', 'error'); return; }
+            const rows = monthlyGroupPerformanceRows(inspections, month, currentBrakFilter);
+            if (!rows.length) { showToast('Tidak ada data Giling Gunting pada bulan dan Brak yang dipilih.', 'info'); return; }
+            const sheet = XLSX.utils.json_to_sheet(rows);
+            sheet['!cols'] = Object.keys(rows[0]).map(key => ({wch: Math.max(14, Math.min(28, key.length + 2))}));
+            sheet['!autofilter'] = {ref: sheet['!ref']};
+            const book = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(book, sheet, 'Performa per Kelompok');
+            const fileBrak = currentBrakFilter === 'ALL' ? 'Semua_Brak' : currentBrakFilter;
+            XLSX.writeFile(book, `Performa_Visual_Physical_${fileBrak}_${month}.xlsx`);
+            showToast(`Data performa ${rows.length} kelompok berhasil diunduh.`, 'success');
+        }
+
         function renderDashboard() {
             if (currentRole === 'DASHBOARD_VIEWER') { guestPaint('giling'); return; }
             const data = getFilteredData();
@@ -6820,7 +6877,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v29</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 7 Oktober 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v30</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 27 Oktober 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
