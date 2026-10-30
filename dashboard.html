@@ -1658,12 +1658,12 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             </div>
         </section>
 
-        <!-- APP_VERSION: v30 | LAST_UPDATE: 27 Oktober 2026 -->
+        <!-- APP_VERSION: v31 | LAST_UPDATE: 30 Oktober 2026 -->
         
     </main>
 
     <footer id="dashboardFooter" aria-label="Informasi dashboard">
-        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v30</strong> · 27 Oktober 2026</span></div>
+        <div class="footer-inner"><span>PT Aroma Tobacco Internasional · Quality Monitoring SKT</span><span><strong>Developed @MT2026</strong> · Version: <strong>v31</strong> · 30 Oktober 2026</span></div>
     </footer>
 
     <!-- ==================== MODAL EDIT BERAT SAMPLING ==================== -->
@@ -1869,6 +1869,11 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Tanggal</label>
                         <input type="date" id="mcInputDate" required class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div>
+                        <label for="mcInputProductionDate" class="block text-purple-300 font-medium mb-1">Tanggal Produksi Tembakau</label>
+                        <input type="date" id="mcInputProductionDate" class="w-full bg-purple-950 border border-purple-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-400">
+                        <p class="mt-1 text-[10px] text-purple-300">Opsional jika tanggal produksi belum diketahui.</p>
                     </div>
                     <div>
                         <label class="block text-purple-300 font-medium mb-1">Nama Inspector</label>
@@ -3193,12 +3198,25 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             return ['PENERIMAAN', ...Array.from({ length: 3 }, (_, index) => Number.isFinite(weights[index]) ? weights[index].toFixed(2) : ''), ...extras].join('|');
         }
 
+        function validTobaccoProductionDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const date = new Date(`${value}T00:00:00Z`);
+            return Number.isFinite(date.getTime()) && date.toISOString().slice(0,10) === value;
+        }
+        function readTobaccoProductionDate(lotBatch) {
+            const value = (String(lotBatch || '').split('|').find(part => /^PROD=/i.test(part)) || '').slice(5);
+            return validTobaccoProductionDate(value) ? value : '';
+        }
+        function withTobaccoProductionDate(lotBatch, productionDate) {
+            const clean = String(lotBatch || '').split('|').filter(part => !/^PROD=/i.test(part)).join('|');
+            return productionDate ? `${clean}|PROD=${productionDate}` : clean;
+        }
         function getTobaccoMeta(item) {
             const stored = String(item.lotBatch || '');
             const parts = stored.split('|');
             const prefix = String(parts[0] || '').toUpperCase();
             if (prefix === 'PEMAKAIAN') {
-                return { type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [], receivedBoxCount: null, brak: (parts.find(part => /^BRAK=/i.test(part)) || '').slice(5).toUpperCase() };
+                return { productionDate: readTobaccoProductionDate(stored), type: 'usage', stockType: parts[1] || item.seriesNumber || 'STOCK PAGI', weights: [], receivedBoxCount: null, brak: (parts.find(part => /^BRAK=/i.test(part)) || '').slice(5).toUpperCase() };
             }
             if (prefix === 'PENERIMAAN') {
                 const weights = parts.slice(1, 4).map(value => {
@@ -3209,9 +3227,9 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 while (weights.length < 3) weights.push(null);
                 const boxPart = parts.slice(4).find(part => /^BOX=/i.test(part.trim()));
                 const receivedBoxCount = boxPart ? parseReceivedBoxCount(boxPart.trim().slice(4)) : null;
-                return { type: 'receiving', stockType: '', weights, receivedBoxCount, legacyLot: '', brak: (parts.slice(4).find(part => /^BRAK=/i.test(part)) || '').slice(5).toUpperCase() };
+                return { productionDate: readTobaccoProductionDate(stored), type: 'receiving', stockType: '', weights, receivedBoxCount, legacyLot: '', brak: (parts.slice(4).find(part => /^BRAK=/i.test(part)) || '').slice(5).toUpperCase() };
             }
-            return { type: 'receiving', stockType: '', weights: [null, null, null], receivedBoxCount: null, legacyLot: stored, brak: '' };
+            return { productionDate: readTobaccoProductionDate(stored), type: 'receiving', stockType: '', weights: [null, null, null], receivedBoxCount: null, legacyLot: stored, brak: '' };
         }
 
         function formatTobaccoWeight(value) {
@@ -3318,7 +3336,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 document.getElementById('mcKpiThirdValue').innerText = averageWeight === null ? '—' : `${averageWeight.toFixed(2)} kg`;
                 document.getElementById('mcKpiThirdNote').innerText = 'Gabungan sampel berat 1–3';
                 thead.innerHTML = `<tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
-                    <th class="p-3 font-semibold">Tanggal</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Nomor Series</th>
+                    <th class="p-3 font-semibold">Tanggal Pemeriksaan</th><th class="p-3 font-semibold">Tanggal Produksi</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Nomor Series</th>
                     <th class="p-3 font-semibold">Brand</th><th class="p-3 font-semibold text-center">Jumlah Box Diterima</th><th class="p-3 font-semibold text-center">MC (%)</th>
                     <th class="p-3 font-semibold text-center">Sampel 1</th><th class="p-3 font-semibold text-center">Sampel 2</th>
                     <th class="p-3 font-semibold text-center">Sampel 3</th><th class="p-3 font-semibold text-center">Rata-rata</th>
@@ -3330,13 +3348,13 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 document.getElementById('mcKpiThirdValue').innerText = `${morningCount} / ${continuationCount}`;
                 document.getElementById('mcKpiThirdNote').innerText = 'Stock Pagi / Stock Lanjutan';
                 thead.innerHTML = `<tr class="bg-purple-950 text-purple-200 border-b border-purple-800">
-                    <th class="p-3 font-semibold">Tanggal</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Brand</th>
+                    <th class="p-3 font-semibold">Tanggal Pemeriksaan</th><th class="p-3 font-semibold">Tanggal Produksi</th><th class="p-3 font-semibold">Inspector</th><th class="p-3 font-semibold">Brand</th>
                     <th class="p-3 font-semibold text-center">MC (%)</th><th class="p-3 font-semibold">Jenis Stock</th>
                     <th class="p-3 font-semibold text-center">Aksi</th></tr>`;
             }
 
             if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="${receiving ? 11 : 6}" class="p-8 text-center text-slate-400">Belum ada data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau yang sesuai filter.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${receiving ? 12 : 7}" class="p-8 text-center text-slate-400">Belum ada data ${receiving ? 'Penerimaan' : 'Pemakaian'} Tembakau yang sesuai filter.</td></tr>`;
                 return;
             }
 
@@ -3354,7 +3372,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                     const availableWeights = meta.weights.filter(Number.isFinite);
                     const weightAverage = availableWeights.length ? availableWeights.reduce((total, value) => total + value, 0) / availableWeights.length : null;
                     return `<tr class="hover:bg-purple-950/60 border-b border-purple-800/30">
-                        <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
+                        <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(meta.productionDate || '—')}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
                         <td class="p-3 font-bold text-purple-200">${escapeHtml(item.seriesNumber)}</td><td class="p-3">${brandCell}</td>
                         <td class="p-3 text-center font-bold text-purple-200">${meta.receivedBoxCount === null ? '—' : meta.receivedBoxCount.toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center">${mcCell}</td><td class="p-3 text-center text-slate-300">${formatTobaccoWeight(meta.weights[0])}</td>
@@ -3362,7 +3380,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                         <td class="p-3 text-center font-bold text-white">${formatTobaccoWeight(weightAverage)}</td><td class="p-3 text-center">${actions}</td></tr>`;
                 }
                 return `<tr class="hover:bg-purple-950/60 border-b border-purple-800/30">
-                    <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
+                    <td class="p-3 font-medium text-slate-300">${escapeHtml(item.date)}</td><td class="p-3 text-slate-300">${escapeHtml(meta.productionDate || '—')}</td><td class="p-3 text-slate-300">${escapeHtml(item.inspector)}</td>
                     <td class="p-3">${brandCell}</td><td class="p-3 text-center">${mcCell}</td>
                     <td class="p-3"><span class="rounded-lg border border-purple-600/60 bg-purple-950/60 px-2 py-1 font-bold text-purple-200">${escapeHtml(meta.stockType)}</span></td>
                     <td class="p-3 text-center">${actions}</td></tr>`;
@@ -3404,6 +3422,7 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
             document.body.classList.add('overflow-hidden');
             document.getElementById('mcEditRecordId').value = editItem ? editItem.id : '';
             document.getElementById('mcInputDate').value = editItem ? editItem.date : getMoistureFilterRange().start;
+            document.getElementById('mcInputProductionDate').value = meta.productionDate || '';
             document.getElementById('mcInputInspector').value = editItem ? editItem.inspector : (currentUser ? currentUser.displayName : '');
             document.getElementById('mcInputBrand').value = editItem ? editItem.brand : (masterData.brands[0] || '');
             document.getElementById('mcInputBrak').value = editItem ? recordBrak(editItem, 'moisture') : preferredInputBrak();
@@ -3486,6 +3505,11 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 weightInputs[invalidWeightIndex].focus();
                 return;
             }
+            const productionDate = document.getElementById('mcInputProductionDate').value;
+            if (productionDate && !validTobaccoProductionDate(productionDate)) {
+                showToast('Tanggal produksi tidak valid.', 'error');
+                document.getElementById('mcInputProductionDate').focus(); return;
+            }
             const payload = {
                 date,
                 lotBatch: receiving ? buildReceivingLotBatch(weights, receivedBoxCount, moistureRecords.find(item => item.id === editId)?.lotBatch).replace(/\|BRAK=[^|]*/gi, '') + `|BRAK=${brak}` : `PEMAKAIAN|${stockType}|BRAK=${brak}`,
@@ -3493,6 +3517,8 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                 brand,
                 moistureContent
             };
+
+            payload.lotBatch = withTobaccoProductionDate(payload.lotBatch, productionDate);
 
             const duplicate = moistureRecords.find(item => {
                 if (item.id === editId || item.date !== payload.date || item.brand !== payload.brand) return false;
@@ -3545,13 +3571,13 @@ body.dashboard-viewer .quality-magelang { display: none !important; }
                     const availableWeights = meta.weights.filter(Number.isFinite);
                     const averageWeight = availableWeights.length ? availableWeights.reduce((total, value) => total + value, 0) / availableWeights.length : null;
                     return {
-                        'Tanggal': item.date, 'Inspector': item.inspector, 'Nomor Series Tembakau': item.seriesNumber,
+                        'Tanggal Pemeriksaan': item.date, 'Tanggal Produksi Tembakau': meta.productionDate || '', 'Inspector': item.inspector, 'Nomor Series Tembakau': item.seriesNumber,
                         'Brand': item.brand, 'Jumlah Box Diterima (box)': meta.receivedBoxCount, 'MC (%)': Number(item.moistureContent), 'Sampel Berat 1 (kg)': meta.weights[0],
                         'Sampel Berat 2 (kg)': meta.weights[1], 'Sampel Berat 3 (kg)': meta.weights[2], 'Rata-rata Berat (kg)': averageWeight
                     };
                 }
                 return {
-                    'Tanggal': item.date, 'Inspector': item.inspector, 'Brand': item.brand,
+                    'Tanggal Pemeriksaan': item.date, 'Tanggal Produksi Tembakau': meta.productionDate || '', 'Inspector': item.inspector, 'Brand': item.brand,
                     'MC (%)': Number(item.moistureContent), 'Jenis Stock': meta.stockType
                 };
             });
@@ -6877,7 +6903,7 @@ window.QCSktOriginalPreview = (() => {
     sidebar.setAttribute('aria-label','Menu produksi SKT');
     sidebar.innerHTML = '<div class="skt-sidebar-heading"><h2>Menu Produksi SKT</h2><button id="skt-sidebar-close" type="button" aria-label="Sembunyikan menu produksi" title="Sembunyikan menu produksi"><span aria-hidden="true">‹</span></button></div>';
     document.body.appendChild(sidebar);
-    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v30</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 27 Oktober 2026\n                </p>\n            </div>\n        </footer>');
+    sidebar.insertAdjacentHTML('beforeend', '<footer id="sidebarVersion" class="pt-2 pb-1 text-center">\n            <div class="border-t border-purple-800/50 pt-4">\n                <p class="text-[11px] font-semibold tracking-wide text-purple-400/80">\n                    Developed @MT2026\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Last Version: <span class="font-black text-purple-300">v31</span>\n                    <span class="mx-1.5 text-purple-700">•</span>\n                    Updated 30 Oktober 2026\n                </p>\n            </div>\n        </footer>');
     const close = sidebar.querySelector('#skt-sidebar-close');
     document.body.classList.add('skt-sidebar-ready');
 
